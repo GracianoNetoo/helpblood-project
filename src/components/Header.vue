@@ -1,31 +1,34 @@
 <template>
-    <header class="fixed top-0 left-0 w-full bg-white shadow-md z-10">
-        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-            <h1 class="text-lg sm:text-xl font-bold text-red-600">Logo + Nome</h1>
-            <nav>
-                <ul class="flex flex-col sm:flex-row gap-2 sm:gap-2">
-                    <li>
-                        <a href="#"
-                            class="btn btn-sm sm:btn-md bg-transparent text-black hover:text-neutral-400 w-full sm:w-auto">Saber
-                            Mais</a>
-                    </li>
-                    <li>
-                        <a href="#"
-                            class="btn btn-sm sm:btn-md bg-success border-none text-gray-900 font-bold w-full sm:w-auto hover:text-neutral-600">Salvar
-                            Vidas</a>
-                    </li>
-                    <li>
-                        <a href="#"
-                            class="btn btn-sm sm:btn-md bg-red-600 border-none text-white font-bold w-full sm:w-auto hover:bg-red-400 hover:text-neutral-100">Pedir
-                            Ajuda</a>
-                    </li>
-                </ul>
-            </nav>
+    <header class="fixed top-0 left-0 w-full shadow-md z-10">
+        <div class="navbar bg-neutral-100">
+            <div class="ps-4">
+                <a class="text-[31px] text-red-600 font-bold">UniVida</a>
+            </div>
+            <div class="flex grow justify-end">
+                <div class="flex items-stretch">
+                    <a class="btn btn-link text-decoration-none me-[-39] text-black">Campanhas</a>
+                    <a class="btn btn-link text-black text-decoration-none rounded-field">Sobre</a>
+                    <a class="btn btn-outline-primary text-decoration-none mr-1 rounded-field">Login</a>
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn bg-white text-neutral-800 btn-transparent rounded-field">Cadastra-se</div>
+                        <ul 
+                        tabindex="0"
+                        class="menu dropdown-content  bg-base-200 rounded-box z-1 mt-4 w-52 p-2 shadow-sm" >
+                        <li><a href="#">Doador</a></li>
+                        <li><a href="#">Receptor</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
-    </header>
+    </div>
+</header>
 </template>
 
 <script>
 </script>
 
-<style scoped></style>
+<style scoped>
+a{
+    text-decoration: none;
+}
+</style>
