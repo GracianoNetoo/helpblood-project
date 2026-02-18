@@ -1,6 +1,8 @@
 <script setup>
+import AboutSection from './components/AboutSection.vue';
 import Header from './components/Header.vue';
 import HeaderCard from './components/HeaderCard.vue';
+
 </script>
 
 <template>
@@ -11,6 +13,9 @@ import HeaderCard from './components/HeaderCard.vue';
     <main>
       <HeaderCard />
     </main>
+    <section>
+      <AboutSection />
+    </section>
   </div>
 </template>
 
