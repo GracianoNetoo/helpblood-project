@@ -3,6 +3,7 @@ import AboutSection from './components/AboutSection.vue';
 import Header from './components/Header.vue';
 import HeaderCard from './components/HeaderCard.vue';
 import StepsSection from './components/StepsSection.vue';
+import CampaignSection from './components/CampaignSection.vue';
 </script>
 
 <template>
@@ -19,6 +20,9 @@ import StepsSection from './components/StepsSection.vue';
     <section>
       <StepsSection />
     </section>
+    <section>
+      <CampaignSection /> 
+    </section> 
   </div>
 </template>
 
