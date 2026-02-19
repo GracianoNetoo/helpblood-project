@@ -13,6 +13,10 @@
                     <div class="dropdown dropdown-end">
                         <div tabindex="0" role="button"
                             class="btn bg-white text-neutral-800 btn-transparent rounded-field">Cadastra-se</div>
+                            <ul tabindex="-1" class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 mt-3 p-2 shadow-sm font-bold" >
+                                <li><a>Doador</a></li>
+                                <li><a>Recepetor</a></li>
+                            </ul>
                     </div>
                 </div>
             </div>
