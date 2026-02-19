@@ -4,6 +4,7 @@ import Header from './components/Header.vue';
 import HeaderCard from './components/HeaderCard.vue';
 import StepsSection from './components/StepsSection.vue';
 import CampaignSection from './components/CampaignSection.vue';
+import Footer from './components/Footer.vue';
 </script>
 
 <template>
@@ -24,6 +25,9 @@ import CampaignSection from './components/CampaignSection.vue';
       <CampaignSection /> 
     </section> 
   </div>
+  <footer>
+  <Footer />
+  </footer>
 </template>
 
 <style scoped>
