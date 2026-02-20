@@ -81,21 +81,6 @@ const handleSubmit = () => {
                     <option>AB-</option>
                 </select>
             </div>
-            <div class="form-control w-full">
-                <label class="label font-bold text-slate-400">Tipo Sanguíneo: </label>
-                <select v-model="form.tipo_sanguineo"
-                    class="select select-bordered focus:border-red-500 bg-gray-50 text-gray-800 w-full">
-                    <option value="" disabled>Selecione</option>
-                    <option>O+</option>
-                    <option>O-</option>
-                    <option>A+</option>
-                    <option>A-</option>
-                    <option>B+</option>
-                    <option>B-</option>
-                    <option>AB+</option>
-                    <option>AB-</option>
-                </select>
-            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
