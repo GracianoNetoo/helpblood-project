@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, defineEmits } from 'vue';
+import { Eye, EyeOff } from 'lucide-vue-next';
 
 const emit = defineEmits(['sucesso']);
+
+const mostrarSenha = ref(false);
+const mostrarSenhaConfirmacao = ref(false);
 
 const localizacaoAngola = {
     "Luanda": ["Belas", "Cacuaco", "Cazenga", "Kilamba Kiaxi", "Talatona", "Viana"],
@@ -14,10 +18,11 @@ const form = ref({
     tipo_sanguineo: '',
     rh: '',
     provincia: '',
-    municipio: '',
     telefone: '',
     email: '',
-    doacao_sangue: ''
+    doacao_sangue: '',
+    senha: '',
+    confirmar_senha: ''
 });
 
 const provinciaSelecionada = ref("");
@@ -44,6 +49,14 @@ const handleSubmit = () => {
     }
     if (telefoneInvalido.value) {
         alert("Número de telemóvel inválido.");
+        return;
+    }
+    if (form.value.senha.length < 8) {
+        alert("A palavra-passe deve ter pelo menos 8 caracteres.");
+        return;
+    }
+    if (form.value.senha !== form.value.confirmar_senha) {
+        alert("As palavras-passe não coincidem.");
         return;
     }
 
@@ -136,6 +149,27 @@ const handleSubmit = () => {
                 <label class="label font-bold text-[13px] text-gray-700 ml-1">E-mail (Opcional)</label>
                 <input v-model="form.email" type="email" placeholder="nome@exemplo.com"
                     class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-[16px] px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium placeholder:text-gray-400" />
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+             <div class="form-control w-full space-y-1.5 relative">
+                <label class="label font-bold text-[13px] text-gray-700 ml-1">Palavra-passe</label>
+                <input v-model="form.senha" :type="mostrarSenha ? 'text' : 'password'" placeholder="Mínimo 8 caracteres"
+                    class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-[16px] pl-4 pr-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium placeholder:text-gray-400" />
+                <button type="button" @click="mostrarSenha = !mostrarSenha" class="absolute right-4 top-[35px] text-gray-400 hover:text-gray-600 transition-colors">
+                    <component :is="mostrarSenha ? EyeOff : Eye" class="w-5 h-5" />
+                </button>
+            </div>
+            
+            <div class="form-control w-full space-y-1.5 relative">
+                <label class="label font-bold text-[13px] text-gray-700 ml-1">Confirmar Palavra-passe</label>
+                <input v-model="form.confirmar_senha" :type="mostrarSenhaConfirmacao ? 'text' : 'password'" placeholder="Repita a palavra-passe"
+                    class="w-full bg-gray-50 border text-gray-900 text-[14px] rounded-[16px] pl-4 pr-12 py-3.5 focus:outline-none transition-all font-medium placeholder:text-gray-400" 
+                    :class="[form.confirmar_senha && form.senha !== form.confirmar_senha ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20 bg-red-50/50' : 'border-gray-200 bg-gray-50 focus:border-rose-500 focus:ring-rose-500/20 focus:ring-2']"/>
+                <button type="button" @click="mostrarSenhaConfirmacao = !mostrarSenhaConfirmacao" class="absolute right-4 top-[35px] text-gray-400 hover:text-gray-600 transition-colors">
+                    <component :is="mostrarSenhaConfirmacao ? EyeOff : Eye" class="w-5 h-5" />
+                </button>
             </div>
         </div>
 
