@@ -1,130 +1,138 @@
-<template>
-    <section class="py-20 bg-gray-50">
-        <div class="container mx-auto px-6">
+<script setup>
+import { MapPin, CalendarDays, ArrowRight, Activity, Plus, FileText, ArrowUpRight } from 'lucide-vue-next';
+</script>
 
-            <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-                <div class="max-w-xl">
-                    <h2 class="text-sm font-bold text-red-600 uppercase tracking-widest mb-3">Mobilização</h2>
-                    <p class="text-3xl md:text-4xl font-black text-slate-900 leading-tight">
-                        Campanhas de Arrecadação Ativas
-                    </p>
-                </div>
-                <button class="text-red-600 border border-red-600 rounded-full p-2 font-bold flex items-center gap-2 hover:bg-red-600 hover:text-white transition-colors">
-                    Ver todas as campanhas
-                    <span>→</span>
-                </button>
+<template>
+  <section class="py-24 bg-[#FAFAFA] relative overflow-hidden border-t border-gray-100">
+    <div class="container mx-auto px-6 max-w-7xl relative z-10">
+
+      <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6 w-full">
+        <div class="max-w-[700px]">
+          <div class="inline-flex items-center justify-center gap-2 mb-4">
+            <span class="text-[12px] font-bold text-rose-600 uppercase tracking-widest bg-rose-50 px-3 py-1.5 rounded-full">Mobilização</span>
+          </div>
+          <p class="text-[32px] md:text-[48px] font-extrabold text-gray-900 tracking-tight leading-[1.05]">
+            Campanhas de Unidade
+          </p>
+          <p class="text-[17px] text-gray-500 font-medium mt-4 leading-relaxed">
+            Descubra eventos locais, unidades móveis e campanhas de urgência organizadas por hemocentros e instituições parceiras para fortalecer o nosso estoque nacional.
+          </p>
+        </div>
+        <button class="shrink-0 text-[13px] font-bold text-rose-600 bg-rose-50 border border-rose-100 rounded-full px-5 py-2.5 flex items-center gap-2 hover:bg-rose-600 hover:text-white transition-all duration-300">
+          Explorar o Mapa Completo
+          <ArrowRight class="w-4 h-4" />
+        </button>
+      </div>
+
+      <!-- Bento Grid for Campaigns -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Critical Campaign Card -->
+        <div class="bg-white rounded-[32px] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(225,29,72,0.06)] hover:border-rose-100 border border-gray-100 group transition-all duration-500 flex flex-col relative z-20">
+          <!-- Image Section -->
+          <div class="h-[220px] overflow-hidden relative">
+            <div class="absolute inset-0 bg-linear-to-t from-gray-900/60 to-transparent z-10 transition-opacity group-hover:opacity-80"></div>
+            <!-- Urgency Badge -->
+            <div class="absolute top-4 left-4 inline-flex items-center gap-1.5 bg-rose-600 text-white text-[11px] font-black px-3 py-1.5 rounded-full z-20 uppercase tracking-widest shadow-lg shadow-rose-600/30">
+              <span class="flex h-2 w-2 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+              </span>
+              Crítico
+            </div>
+            
+            <!-- Type Needs -->
+            <div class="absolute top-4 right-4 flex gap-1 z-20">
+              <span class="bg-white/20 backdrop-blur-md text-white md:px-2 md:py-1 rounded-md text-[10px] font-black tracking-wider border border-white/20">O-</span>
+              <span class="bg-white/20 backdrop-blur-md text-white md:px-2 md:py-1 rounded-md text-[10px] font-black tracking-wider border border-white/20">A+</span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <img src="https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?auto=format&fit=crop&q=80&w=800"
+                 alt="Hospital Mutamba"
+                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+          </div>
+          
+          <!-- Content Section -->
+          <div class="p-8 flex flex-col flex-1 transform translate-y-0 relative z-30 bg-white group-hover:-translate-y-2 transition-transform duration-500 rounded-b-[32px] border-t border-gray-50 -mt-2">
+            <div class="flex items-center gap-4 text-[13px] font-semibold text-gray-400 mb-4 bg-gray-50 w-fit px-3 py-1.5 rounded-full">
+              <span class="flex items-center gap-1.5 text-gray-700">
+                <MapPin class="w-[14px] h-[14px] text-rose-500" stroke-width="2.5" /> Luanda
+              </span>
+              <span class="w-[3px] h-[3px] rounded-full bg-gray-300"></span>
+              <span class="flex items-center gap-1.5">
+                <CalendarDays class="w-[14px] h-[14px]" stroke-width="2" /> Hoje, 10h - 15h
+              </span>
+            </div>
+            <h3 class="text-[20px] font-extrabold text-gray-900 mb-3 tracking-tight leading-[1.2]">Mutirão Nacional: Universidade Agostinho Neto</h3>
+            <p class="text-gray-500 text-[15px] font-medium leading-relaxed mb-8 flex-1">
+              Unidade Móvel estabelecida em frente à Reitoria. Nosso foco é a estabilização urgente do banco de sangue central.
+            </p>
+            <button class="w-full py-4 text-[14px] bg-white border-2 border-gray-100 text-gray-900 font-bold rounded-[16px] group-hover:bg-gray-900 group-hover:border-gray-900 group-hover:text-white transition-all flex items-center justify-center gap-2">
+              Ver Rota
+              <ArrowUpRight class="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all" />
+            </button>
+          </div>
+        </div>
 
-                <div
-                    class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 group">
-                    <div class="h-48 overflow-hidden relative">
-                        <div
-                            class="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full z-10">
-                            Urgente
-                        </div>
-                        <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800"
-                            alt="Campanha Luanda"
-                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-center gap-2 text-gray-500 text-sm mb-3">
-                            <span
-                                class="flex items-center gap-1.5 bg-gray-100 px-2 py-1 rounded-md font-medium text-slate-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                                    stroke-linejoin="round" class="text-red-600">
-                                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                                    <circle cx="12" cy="10" r="3" />
-                                </svg>
-                                Benguela
-                            </span>
+        <!-- Drive Campaign Card -->
+        <div class="bg-white rounded-[32px] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:border-gray-200 border border-gray-100 group transition-all duration-500 flex flex-col relative z-20">
+          <!-- Image Section -->
+          <div class="h-[220px] overflow-hidden relative">
+            <div class="absolute inset-0 bg-linear-to-t from-gray-900/40 to-transparent z-10 transition-opacity group-hover:opacity-60"></div>
+            <!-- Type Needs -->
+            <div class="absolute top-4 right-4 flex gap-1 z-20">
+              <span class="bg-white/20 backdrop-blur-md text-white md:px-2 md:py-1 rounded-md text-[10px] font-black tracking-wider border border-white/20">Todos</span>
+            </div>
 
-                            <span class="text-gray-300">•</span>
+            <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=800"
+                 alt="Campanha Benguela"
+                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+          </div>
+          
+          <!-- Content Section -->
+          <div class="p-8 flex flex-col flex-1 transform translate-y-0 relative z-30 bg-white group-hover:-translate-y-2 transition-transform duration-500 rounded-b-[32px] border-t border-gray-50 -mt-2">
+            <div class="flex items-center gap-4 text-[13px] font-semibold text-gray-400 mb-4 bg-gray-50 w-fit px-3 py-1.5 rounded-full">
+              <span class="flex items-center gap-1.5 text-gray-700">
+                <MapPin class="w-[14px] h-[14px] text-gray-400" stroke-width="2.5" /> Benguela
+              </span>
+              <span class="w-[3px] h-[3px] rounded-full bg-gray-300"></span>
+              <span class="flex items-center gap-1.5">
+                <CalendarDays class="w-[14px] h-[14px]" stroke-width="2" /> Próx Sáb, 08h
+              </span>
+            </div>
+            <h3 class="text-[20px] font-extrabold text-gray-900 mb-3 tracking-tight leading-[1.2]">Ação Comunitária Praia Morena</h3>
+            <p class="text-gray-500 text-[15px] font-medium leading-relaxed mb-8 flex-1">
+              Junte-se a dezenas de voluntários num fim de semana especial. Teremos postos avançados de triagem disponíveis.
+            </p>
+            <button class="w-full py-4 text-[14px] bg-white border-2 border-gray-100 text-gray-900 font-bold rounded-[16px] hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
+              Agendar Horário
+              <ArrowRight class="w-4 h-4 text-gray-400" />
+            </button>
+          </div>
+        </div>
 
-                            <span class="flex items-center gap-1.5 text-gray-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                                    <line x1="16" x2="16" y1="2" y2="6" />
-                                    <line x1="8" x2="8" y1="2" y2="6" />
-                                    <line x1="3" x2="21" y1="10" y2="10" />
-                                </svg>
-                                Próximo Sábado
-                            </span>
-                        </div>
-                        <h3 class="text-xl font-bold text-slate-900 mb-2">Doe Sangue na Universidade Agostinho Neto</h3>
-                        <p class="text-gray-600 text-sm mb-6">
-                            Estamos em frente à Faculdade de Engenharia. Venha ajudar a repor o estoque crítico de tipo
-                            A e O.
-                        </p>
-                        <button
-                            class="w-full py-3 border-2 border-red-600 text-red-600 font-bold rounded-xl hover:bg-red-600 hover:text-white text-decoration-none transition-colors">
-                            Participar da Campanha
-                        </button>
-                    </div>
-                </div>
-
-                <div
-                    class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 group">
-                    <div class="h-48 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800"
-                            alt="Campanha Benguela"
-                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-center gap-2 text-gray-500 text-sm mb-3">
-                            <span
-                                class="flex items-center gap-1.5 bg-gray-100 px-2 py-1 rounded-md font-medium text-slate-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                                    stroke-linejoin="round" class="text-red-600">
-                                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                                    <circle cx="12" cy="10" r="3" />
-                                </svg>
-                                Benguela
-                            </span>
-
-                            <span class="text-gray-300">•</span>
-
-                            <span class="flex items-center gap-1.5 text-gray-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                                    <line x1="16" x2="16" y1="2" y2="6" />
-                                    <line x1="8" x2="8" y1="2" y2="6" />
-                                    <line x1="3" x2="21" y1="10" y2="10" />
-                                </svg>
-                                Próximo Sábado
-                            </span>
-                        </div>
-                        <h3 class="text-xl font-bold text-slate-900 mb-2">Unidade Móvel: Praia Morena</h3>
-                        <p class="text-gray-600 text-sm mb-6">
-                            A unidade móvel de coleta estará estacionada para atender todos os doadores da região de
-                            Benguela.
-                        </p>
-                        <button
-                            class="w-full py-3 border-2 border-red-600 text-red-600 font-bold rounded-xl hover:bg-red-600 hover:text-white transition-colors">
-                            Participar da Campanha
-                        </button>
-                    </div>
-                </div>
-
-                <div
-                    class="bg-neutral-800 rounded-3xl p-8 flex flex-col justify-center text-white relative overflow-hidden">
-                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white opacity-10 rounded-full"></div>
-                    <h3 class="text-2xl font-bold mb-4">Quer criar uma campanha?</h3>
-                    <p class="mb-8 text-slate-300">
-                        É uma empresa ou instituição de ensino e quer organizar uma coleta coletiva?
-                    </p>
-                    <button class="bg-white text-red-600 px-6 py-3 rounded-xl font-black text-sm uppercase hover:bg-black hover:text-white transition-colors">
-                        Saber Mais
-                    </button>
-                </div>
+        <!-- Call to Action Banner (Bento Integration) -->
+        <div class="bg-gradient-to-br from-[#0F172A] to-[#1E293B] rounded-[32px] p-8 md:p-10 flex flex-col justify-between text-white relative overflow-hidden group shadow-2xl h-full">
+            <!-- Glow Effects -->
+            <div class="absolute -right-[150px] -bottom-[150px] w-[350px] h-[350px] bg-rose-500/30 rounded-full blur-[100px] group-hover:bg-orange-500/30 transition-all duration-1000 pointer-events-none"></div>
+            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-[size:16px_16px] opacity-10 mix-blend-overlay pointer-events-none"></div>
+            
+            <div class="relative z-10 h-full flex flex-col justify-start">
+              <div class="w-16 h-16 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-[20px] flex items-center justify-center mb-10 shadow-lg">
+                <Plus class="w-8 h-8" stroke-width="2.5" />
+              </div>
+              <h3 class="text-[28px] font-extrabold tracking-tight mb-4 leading-tight">Quer hospedar uma campanha?</h3>
+              <p class="text-gray-400 text-[16px] leading-relaxed font-medium mb-12 flex-1">
+                Universidades, Igrejas ou Empresas - Leve o nosso ecossistema de doação até ao seu espaço com uma Unidade Móvel dedicada.
+              </p>
+              <button class="w-full bg-white text-gray-900 px-6 py-4 rounded-[16px] font-extrabold text-[14px] uppercase tracking-wider hover:bg-gray-100 hover:scale-[1.02] shadow-[0_4px_14px_rgba(255,255,255,0.2)] transition-all flex justify-center items-center gap-2">
+                Solicitar Parceria
+                <FileText class="w-4 h-4 opacity-50" stroke-width="2.5" />
+              </button>
             </div>
         </div>
-    </section>
+
+      </div>
+    </div>
+  </section>
 </template>

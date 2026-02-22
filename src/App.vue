@@ -56,14 +56,11 @@ const sairDoSistema = () => {
     <div v-if="mostrarModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
       <div @click="fecharCadastro" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
       
-      <div class="relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden">
-        <button @click="fecharCadastro" class="absolute top-4 right-4 z-10 text-gray-400 hover:text-red-600">
+      <div class="relative w-full max-w-5xl rounded-3xl shadow-2xl flex items-center justify-center p-4">
+        <button @click="fecharCadastro" class="absolute top-8 right-8 z-50 text-gray-400 hover:text-rose-600 bg-white/10 hover:bg-white p-2 rounded-full backdrop-blur-md transition-all">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
         </button>
-
-       <div v-if="mostrarModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
         <AuthContainer @sucesso="entrarNoSistema" />
-      </div>
       </div>
     </div>
   </div>
