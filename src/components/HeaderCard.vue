@@ -1,9 +1,6 @@
 <template>
-  <main class="pt-10"> <section class="relative w-full h-125 flex items-center justify-center overflow-hidden">
-      <img 
-        src="../assests/fundovermelho.jpg" 
-        alt="Background" 
-        class="absolute inset-0 w-full h-full object-cover opacity-70">
+  <main class="pt-0"> 
+    <section class="relative inset-0 bg-gradient-to-b from-red-600 to-transparent opacity-90 w-full h-125 flex items-center justify-center overflow-hidden">
       <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">        
         <h1 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
           Um simples gesto seu pode <span class="text-neutral-100">salvar até 4 vidas.</span>
