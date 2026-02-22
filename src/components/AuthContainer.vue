@@ -12,7 +12,7 @@ const realizarLoginManual = () => {
 </script>
 
 <template>
-    <div class="flex flex-col w-full md:flex-row min-h-[600px] max-w-10xl bg-white overflow-hidden shadow-2xl rounded-3xl">
+    <div class="flex flex-col w-full md:flex-row min-h-150 max-w-10xl bg-white overflow-hidden shadow-2xl rounded-3xl">
         <div class="w-full md:w-1/3 bg-slate-900 p-8 flex flex-col justify-center gap-6">
             <h2 class="text-white text-xl font-bold mb-4 opacity-50 uppercase tracking-widest text-center">Opções</h2>
             <button @click="abaAtiva = 'cadastro'"
