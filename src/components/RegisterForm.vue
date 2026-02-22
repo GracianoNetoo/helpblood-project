@@ -1,13 +1,13 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, defineEmits } from 'vue';
 
+const emit = defineEmits(['sucesso']);
 
 const localizacaoAngola = {
     "Luanda": ["Belas", "Cacuaco", "Cazenga", "Kilamba Kiaxi", "Talatona", "Viana"],
     "Benguela": ["Baía Farta", "Benguela", "Catumbela", "Lobito"],
     "Huambo": ["Caála", "Huambo", "Mungo"]
-}
-
+};
 
 const form = ref({
     nome: '',
@@ -15,43 +15,40 @@ const form = ref({
     rh: '',
     provincia: '',
     municipio: '',
-    telefone: ''
-})
+    telefone: '',
+    email: '',
+    doacao_sangue: ''
+});
 
-const provinciaSelecionada = ref("")
-const municipioSelecionado = ref("")
+const provinciaSelecionada = ref("");
+const municipioSelecionado = ref("");
 
 const municipiosDisponiveis = computed(() => {
     return provinciaSelecionada.value ? localizacaoAngola[provinciaSelecionada.value] : []
-})
+});
 
 const aoMudarProvincia = () => {
     municipioSelecionado.value = ""
-}
-
+};
 
 const telefoneInvalido = computed(() => {
     const tel = form.value.telefone.replace(/\s/g, '')
     if (tel.length === 0) return false
-    const regexAngola = /^9[1-59]\d{8}$/
-    return !regexAngola.test(tel)
-})
+    return !(/^9[1-59]\d{7}$/.test(tel)) // Regex corrigida para 9 dígitos
+});
 
 const handleSubmit = () => {
-    if (!form.value.nome || !form.value.tipo_sanguineo || !form.value.rh || !provinciaSelecionada.value || !municipioSelecionado.value || !form.value.telefone) {
-        alert("Por favor, preencha todos os campos obrigatórios.")
-        return
+    if (!form.value.nome || !form.value.tipo_sanguineo || !provinciaSelecionada.value || !form.value.telefone) {
+        alert("Por favor, preencha os campos obrigatórios.");
+        return;
     }
     if (telefoneInvalido.value) {
-        alert("Por favor, insira um número de telemóvel válido de Angola.")
-        return
+        alert("Número de telemóvel inválido.");
+        return;
     }
-    console.log("Dados prontos para o banco:", {
-        ...form.value,
-        provincia: provinciaSelecionada.value,
-        municipio: municipioSelecionado.value
-    })
-    alert("Cadastro realizado com sucesso!")
+
+    alert("Cadastro realizado com sucesso!");
+    emit('sucesso'); 
 }
 </script>
 
@@ -137,6 +134,13 @@ const handleSubmit = () => {
             <div class="relative text-black">
                 <input v-model="form.email" type="email" placeholder="seunome@gmail.com"
                     class="input input-bordered w-full pl-16 bg-gray-50 focus:border-red-500" />
+            </div>
+        </div>
+        <div class="form-control w-full">
+            <label class="label font-bold text-slate-400">Palavra-Passe: </label>
+            <div class="relative text-black">
+                <input v-model="form.senha" type="password" placeholder="Digite sua senha"
+                    class="input input-bordered w-full just- pl-16 bg-gray-50 focus:border-red-500" />
             </div>
         </div>
         <button type="submit" class="btn text-2xl border-none mt-4 bg-red-500 w-full text-white font-black">Finalizar
