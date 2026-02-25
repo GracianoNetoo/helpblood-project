@@ -6,7 +6,7 @@ import { MapPin, CalendarDays, ArrowRight, ShieldCheck, Heart, Info, Target, Shi
   <section class="py-24 bg-[#FAFAFA] relative overflow-hidden">
     
     <!-- Abstract Mesh Background for About Section -->
-    <div class="absolute inset-0 bg-[radial-gradient(#E2E8F0_1px,transparent_1px)] bg-[size:24px_24px] opacity-40 mix-blend-multiply"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(#E2E8F0_1px,transparent_1px)] bg-size-[24px_24px] opacity-40 mix-blend-multiply"></div>
     <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-sky-100 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3"></div>
     <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-rose-50 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/4"></div>
 
@@ -21,7 +21,7 @@ import { MapPin, CalendarDays, ArrowRight, ShieldCheck, Heart, Info, Target, Shi
             
             <div class="absolute inset-0 border-[3px] border-white/40 rounded-[32px] md:rounded-[40px] pointer-events-none z-10"></div>
             
-            <div class="overflow-hidden rounded-[24px] md:rounded-[32px] relative bg-gray-100 aspect-[4/3]">
+            <div class="overflow-hidden rounded-[24px] md:rounded-[32px] relative bg-gray-100 aspect-4/3">
               <img src="https://images.unsplash.com/photo-1615461066159-fea0960485d5?q=80&w=1400&auto=format&fit=crop" 
                    alt="Equipe médica trabalhando" 
                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">

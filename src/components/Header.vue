@@ -46,7 +46,9 @@ onUnmounted(() => {
 
                 <!-- Desktop CTA Actions -->
                 <div class="hidden md:flex items-center gap-3">
-                    <button class="text-[14px] font-bold text-gray-500 hover:text-gray-900 px-3 py-2 transition-colors">
+                    <button 
+                        @click="$emit('click-login')"
+                        class="text-[14px] font-bold text-gray-500 hover:text-gray-900 px-3 py-2 transition-colors">
                         Iniciar Sessão
                     </button>
                     <!-- Trigger Event expected by App.vue -->
@@ -81,7 +83,9 @@ onUnmounted(() => {
             <a href="#" class="text-[16px] font-bold text-gray-500 hover:text-gray-900 py-2 border-b border-gray-100 transition-colors">Missão</a>
             
             <div class="flex flex-col gap-3 mt-4">
-                <button class="w-full text-center text-[15px] font-bold text-gray-700 bg-gray-50 hover:bg-gray-100 py-3.5 rounded-[16px] transition-colors border border-gray-200">
+                <button 
+                    @click="$emit('click-login'); isMobileMenuOpen = false"
+                    class="w-full text-center text-[15px] font-bold text-gray-700 bg-gray-50 hover:bg-gray-100 py-3.5 rounded-[16px] transition-colors border border-gray-200">
                     Iniciar Sessão
                 </button>
                 <button 

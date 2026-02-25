@@ -112,10 +112,10 @@ import { MapPin, CalendarDays, ArrowRight, Activity, Plus, FileText, ArrowUpRigh
         </div>
 
         <!-- Call to Action Banner (Bento Integration) -->
-        <div class="bg-gradient-to-br from-[#0F172A] to-[#1E293B] rounded-[32px] p-8 md:p-10 flex flex-col justify-between text-white relative overflow-hidden group shadow-2xl h-full">
+        <div class="bg-linear-to-br from-[#0F172A] to-[#1E293B] rounded-[32px] p-8 md:p-10 flex flex-col justify-between text-white relative overflow-hidden group shadow-2xl h-full">
             <!-- Glow Effects -->
             <div class="absolute -right-[150px] -bottom-[150px] w-[350px] h-[350px] bg-rose-500/30 rounded-full blur-[100px] group-hover:bg-orange-500/30 transition-all duration-1000 pointer-events-none"></div>
-            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-[size:16px_16px] opacity-10 mix-blend-overlay pointer-events-none"></div>
+            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-size-[16px_16px] opacity-10 mix-blend-overlay pointer-events-none"></div>
             
             <div class="relative z-10 h-full flex flex-col justify-start">
               <div class="w-16 h-16 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-[20px] flex items-center justify-center mb-10 shadow-lg">

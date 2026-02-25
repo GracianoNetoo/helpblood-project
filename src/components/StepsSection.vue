@@ -73,7 +73,6 @@ import { MapPin, CalendarDays, ArrowRight, ShieldCheck, Heart, Users } from 'luc
           Agende sua primeira doação
         </button>
       </div>
-
     </div>
   </section>
 </template>
