@@ -39,9 +39,9 @@ onUnmounted(() => {
 
                 <!-- Desktop Navigation Items -->
                 <div class="hidden md:flex items-center gap-1 bg-gray-100/50 p-1 rounded-full border border-gray-200/50">
-                    <a href="#" class="px-5 py-2 rounded-full text-[14px] font-semibold text-gray-900 bg-white shadow-sm border border-gray-200/30 transition-all">Home</a>
-                    <a href="#" class="px-5 py-2 rounded-full text-[14px] font-semibold text-gray-500 hover:text-gray-900 hover:bg-white/50 transition-all">Campanhas</a>
-                    <a href="#" class="px-5 py-2 rounded-full text-[14px] font-semibold text-gray-500 hover:text-gray-900 hover:bg-white/50 transition-all">Missão</a>
+                    <a href="#home" class="px-5 py-2 rounded-full text-[14px] font-semibold text-gray-900 bg-white shadow-sm border border-gray-200/30 transition-all">Home</a>
+                    <a href="#campanhas" class="px-5 py-2 rounded-full text-[14px] font-semibold text-gray-500 hover:text-gray-900 hover:bg-white/50 transition-all">Campanhas</a>
+                    <a href="#missao" class="px-5 py-2 rounded-full text-[14px] font-semibold text-gray-500 hover:text-gray-900 hover:bg-white/50 transition-all">Missão</a>
                 </div>
 
                 <!-- Desktop CTA Actions -->
@@ -78,9 +78,9 @@ onUnmounted(() => {
             v-if="isMobileMenuOpen" 
             class="absolute top-[80px] left-0 right-0 bg-white/95 backdrop-blur-3xl shadow-xl border-t border-gray-100 p-6 flex flex-col gap-4 pointer-events-auto md:hidden"
         >
-            <a href="#" class="text-[16px] font-bold text-gray-900 py-2 border-b border-gray-100">Home</a>
-            <a href="#" class="text-[16px] font-bold text-gray-500 hover:text-gray-900 py-2 border-b border-gray-100 transition-colors">Campanhas</a>
-            <a href="#" class="text-[16px] font-bold text-gray-500 hover:text-gray-900 py-2 border-b border-gray-100 transition-colors">Missão</a>
+            <a href="#home" @click="isMobileMenuOpen = false" class="text-[16px] font-bold text-gray-900 py-2 border-b border-gray-100">Home</a>
+            <a href="#campanhas" @click="isMobileMenuOpen = false" class="text-[16px] font-bold text-gray-500 hover:text-gray-900 py-2 border-b border-gray-100 transition-colors">Campanhas</a>
+            <a href="#missao" @click="isMobileMenuOpen = false" class="text-[16px] font-bold text-gray-500 hover:text-gray-900 py-2 border-b border-gray-100 transition-colors">Missão</a>
             
             <div class="flex flex-col gap-3 mt-4">
                 <button 

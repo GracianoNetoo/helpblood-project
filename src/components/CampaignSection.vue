@@ -3,7 +3,7 @@ import { MapPin, CalendarDays, ArrowRight, Activity, Plus, FileText, ArrowUpRigh
 </script>
 
 <template>
-  <section class="py-24 bg-[#FAFAFA] relative overflow-hidden border-t border-gray-100">
+  <section id="campanhas" class="py-24 bg-[#FAFAFA] relative overflow-hidden border-t border-gray-100">
     <div class="container mx-auto px-6 max-w-7xl relative z-10">
 
       <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6 w-full">

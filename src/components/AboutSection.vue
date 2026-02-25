@@ -3,7 +3,7 @@ import { MapPin, CalendarDays, ArrowRight, ShieldCheck, Heart, Info, Target, Shi
 </script>
 
 <template>
-  <section class="py-24 bg-[#FAFAFA] relative overflow-hidden">
+  <section id="missao" class="py-24 bg-[#FAFAFA] relative overflow-hidden">
     
     <!-- Abstract Mesh Background for About Section -->
     <div class="absolute inset-0 bg-[radial-gradient(#E2E8F0_1px,transparent_1px)] bg-size-[24px_24px] opacity-40 mix-blend-multiply"></div>

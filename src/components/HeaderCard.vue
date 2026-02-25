@@ -3,7 +3,7 @@ import { Heart, Activity, ArrowRight, ShieldCheck, Users } from 'lucide-vue-next
 </script>
 
 <template>
-  <main class="pt-0 bg-[#FAFAFA] relative overflow-hidden font-sans border-b border-gray-200/50">
+  <main id="home" class="pt-0 bg-[#FAFAFA] relative overflow-hidden font-sans border-b border-gray-200/50">
     
     <!-- Hero Section (21st.dev / Vercel style) -->
     <section class="relative w-full min-h-[600px] md:min-h-[700px] flex items-center justify-center overflow-hidden px-4 md:px-0">
