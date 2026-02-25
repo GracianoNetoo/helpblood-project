@@ -13,7 +13,7 @@ const realizarLoginManual = () => {
 </script>
 
 <template>
-    <div class="flex flex-col md:flex-row w-full max-w-[1100px] min-h-[600px] bg-white overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-gray-100/50 rounded-[32px] md:rounded-[40px] relative z-20 m-auto">
+    <div class="flex flex-col md:flex-row w-full max-w-[1100px] min-h-auto md:min-h-[600px] bg-white overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-gray-100/50 rounded-[32px] md:rounded-[40px] relative z-20 m-auto">
         
         <!-- Sidebar Navigation (Auth Modes) -->
         <div class="w-full md:w-[320px] bg-linear-to-br from-[#0F172A] to-[#1E293B] p-8 md:p-10 flex flex-col justify-between gap-6 relative overflow-hidden shrink-0 group">
@@ -62,7 +62,7 @@ const realizarLoginManual = () => {
         </div>
 
         <!-- Main Content Area -->
-        <div class="w-full md:flex-1 p-6 md:p-12 bg-white flex flex-col justify-center relative min-h-[500px]">
+        <div class="w-full md:flex-1 p-6 md:p-12 bg-white flex flex-col justify-center relative min-h-auto md:min-h-[500px]">
             <!-- Abstract background pattern -->
             <div class="absolute inset-0 bg-[radial-gradient(#E2E8F0_1px,transparent_1px)] bg-size-[24px_24px] opacity-30 mix-blend-multiply pointer-events-none"></div>
 

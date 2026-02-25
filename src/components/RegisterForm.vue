@@ -67,7 +67,7 @@ const handleSubmit = () => {
 
 <template>
     <form @submit.prevent="handleSubmit"
-        class="w-full space-y-6 bg-white p-0 relative z-20">
+        class="w-full space-y-6 bg-white p-0 relative z-20 max-h-[380px] md:max-h-[65vh] overflow-y-auto px-2 pb-6 custom-scrollbar">
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div class="form-control w-full space-y-1.5">
@@ -191,5 +191,20 @@ const handleSubmit = () => {
     background-repeat: no-repeat;
     background-position: right 1rem center;
     background-size: 1em;
+}
+
+/* Custom Scrollbar for better UX */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #e5e7eb;
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #d1d5db;
 }
 </style>
