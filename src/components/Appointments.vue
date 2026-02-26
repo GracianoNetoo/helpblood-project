@@ -175,7 +175,7 @@ const formatDate = (dateStr) => {
 
           <!-- Notes Textarea -->
           <div>
-            <label class="block text-[13px] font-bold text-gray-700 uppercase tracking-wider mb-2 flex items-center gap-2">Notas Adicionais <span class="text-gray-400 font-normal lowercase tracking-normal">(Opcional)</span></label>
+            <label class="block text-[13px] font-bold text-gray-700 uppercase tracking-wider mb-2 items-center gap-2">Notas Adicionais <span class="text-gray-400 font-normal lowercase tracking-normal">(Opcional)</span></label>
             <textarea v-model="formData.notes" rows="3" placeholder="Ex: Sou dador frequente, tenho preferência por atendimento matinal." class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 rounded-2xl outline-none transition-all font-medium text-gray-900 resize-none"></textarea>
           </div>
 
