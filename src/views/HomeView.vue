@@ -14,6 +14,7 @@ import { useAppointmentsStore } from '../stores/appointmentsStore';
 const router = useRouter();
 const appointmentsStore = useAppointmentsStore();
 const authTab = ref('cadastro');
+const postAuthAction = ref('dashboard'); // 'dashboard' | 'booking'
 
 // 2. Estado do Modal de Autenticação
 const mostrarModal = ref(false);
@@ -21,12 +22,21 @@ const mostrarPedidoModal = ref(false);
 
 const abrirCadastro = () => {
   authTab.value = 'cadastro';
+  postAuthAction.value = 'dashboard';
   mostrarModal.value = true;
   document.body.style.overflow = 'hidden'; 
 };
 
 const abrirLogin = () => {
   authTab.value = 'login';
+  postAuthAction.value = 'dashboard';
+  mostrarModal.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+const abrirCadastroParaAgendar = () => {
+  authTab.value = 'cadastro';
+  postAuthAction.value = 'booking';
   mostrarModal.value = true;
   document.body.style.overflow = 'hidden';
 };
@@ -39,8 +49,13 @@ const fecharCadastro = () => {
 // 3. Função para simular o Login/Sucesso no Cadastro
 const entrarNoSistema = () => {
   fecharCadastro();
-  appointmentsStore.requestOpenBooking();
-  router.push({ path: '/dashboard', query: { tab: 'appointments' } });
+  if (postAuthAction.value === 'booking') {
+    appointmentsStore.requestOpenBooking();
+    router.push({ path: '/dashboard', query: { tab: 'appointments' } });
+  } else {
+    router.push('/dashboard');
+  }
+  postAuthAction.value = 'dashboard';
   window.scrollTo(0, 0); // Volta ao topo da página
 };
 
@@ -65,10 +80,10 @@ onUnmounted(() => {
     <Header @click-cadastro="abrirCadastro" @click-login="abrirLogin" />
     
     <main>
-      <HeaderCard @click-pedir-doacao="abrirPedidoAjuda" @click-quero-doar="abrirCadastro" />
+      <HeaderCard @click-pedir-doacao="abrirPedidoAjuda" @click-quero-doar="abrirCadastroParaAgendar" />
       <AboutSection />
-      <StepsSection @click-agendar-doacao="abrirCadastro" />
-      <CampaignSection @click-agendar-horario="abrirCadastro" />
+      <StepsSection @click-agendar-doacao="abrirCadastroParaAgendar" />
+      <CampaignSection @click-agendar-horario="abrirCadastroParaAgendar" />
       
       <section class="py-20 bg-gray-100">
          <div class="container mx-auto px-6">
