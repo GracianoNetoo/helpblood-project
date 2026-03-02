@@ -1,5 +1,18 @@
 <script setup>
 import { AlertCircle, MapPin, Droplet } from 'lucide-vue-next';
+import { useAppointmentsStore } from '../stores/appointmentsStore';
+
+const appointmentsStore = useAppointmentsStore();
+
+const acceptEmergency = () => {
+  appointmentsStore.addAppointment({
+    hospital: 'Maternidade Lucrécia Paim',
+    date: new Date().toISOString().split('T')[0], // Hoje
+    time: 'Imediato',
+    notes: 'Aceite Pedido de Ajuda de Urgência (Choque Hemorrágico).'
+  });
+  alert('Obrigado! Chamada de Emergência aceite. Verifique a aba Agendamentos.');
+};
 </script>
 
 <template>
@@ -39,7 +52,7 @@ import { AlertCircle, MapPin, Droplet } from 'lucide-vue-next';
               </div>
             </div>
             
-            <button class="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-2xl font-bold shadow-md transition-all text-sm shrink-0">
+            <button @click="acceptEmergency" class="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-2xl font-bold shadow-md transition-all text-sm shrink-0">
               Aceitar Chamada
             </button>
           </div>

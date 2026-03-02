@@ -1,21 +1,14 @@
 <script setup>
 import { ref } from 'vue';
 import { Plus, MapPin, Calendar, Clock, AlertCircle } from 'lucide-vue-next';
+import { storeToRefs } from 'pinia';
+import { useAppointmentsStore } from '../stores/appointmentsStore';
+
+// Instanciar a Store
+const appointmentsStore = useAppointmentsStore();
+const { appointments } = storeToRefs(appointmentsStore);
 
 // Controlo do modal de nova marcação
-const isBookingModalOpen = ref(false);
-
-// Lista inicial de Agendamentos Fictícios
-const appointments = ref([
-  {
-    id: 1,
-    hospital: 'Instituto Nacional de Sangue',
-    date: '2024-03-15',
-    time: '09:00',
-    status: 'confirmado',
-    notes: 'Doação matinal agendada.'
-  }
-]);
 
 // Modelo de Dados para o Formulário do Modal
 const formData = ref({
@@ -47,13 +40,11 @@ const closeBookingModal = () => {
 };
 
 const handleBookingSubmit = () => {
-  // Simular adição à lista local reativa
-  appointments.value.unshift({
-    id: Date.now(),
+  // Simular adição à lista global da Store (Pinia)
+  appointmentsStore.addAppointment({
     hospital: formData.value.hospital,
     date: formData.value.date,
     time: formData.value.time,
-    status: 'confirmado',
     notes: formData.value.notes
   });
   
@@ -100,7 +91,7 @@ const formatDate = (dateStr) => {
             <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-[11px] font-bold uppercase tracking-widest border border-emerald-100">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ apt.status }}
             </span>
-            <button class="text-gray-400 hover:text-rose-600 text-sm font-bold transition-colors">Cancelar</button>
+            <button @click="appointmentsStore.cancelAppointment(apt.id)" class="text-gray-400 hover:text-rose-600 text-sm font-bold transition-colors">Cancelar</button>
           </div>
 
           <h3 class="font-bold text-gray-900 text-lg leading-tight mb-4 group-hover:text-rose-700 transition-colors">{{ apt.hospital }}</h3>
