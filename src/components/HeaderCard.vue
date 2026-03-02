@@ -1,5 +1,7 @@
 <script setup>
 import { Heart, Activity, ArrowRight, ShieldCheck, Users } from 'lucide-vue-next';
+
+const emit = defineEmits(['click-pedir-doacao']);
 </script>
 
 <template>
@@ -43,6 +45,7 @@ import { Heart, Activity, ArrowRight, ShieldCheck, Users } from 'lucide-vue-next
           </button>
           
           <button
+            @click="emit('click-pedir-doacao')"
             class="group w-full sm:w-auto px-8 py-4 bg-white border border-gray-200 text-gray-700 hover:text-gray-900 hover:border-gray-300 hover:bg-gray-50 rounded-full font-bold text-[15px] shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2">
             Pedir Doação
           </button>

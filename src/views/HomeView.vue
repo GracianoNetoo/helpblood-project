@@ -8,12 +8,14 @@ import StepsSection from '../components/StepsSection.vue';
 import CampaignSection from '../components/CampaignSection.vue';
 import Footer from '../components/Footer.vue';
 import AuthContainer from '../components/AuthContainer.vue';
+import HelpRequestForm from '../components/HelpRequestForm.vue';
 
 const router = useRouter();
 const authTab = ref('cadastro');
 
 // 2. Estado do Modal de Autenticação
 const mostrarModal = ref(false);
+const mostrarPedidoModal = ref(false);
 
 const abrirCadastro = () => {
   authTab.value = 'cadastro';
@@ -39,6 +41,16 @@ const entrarNoSistema = () => {
   window.scrollTo(0, 0); // Volta ao topo da página
 };
 
+const abrirPedidoAjuda = () => {
+  mostrarPedidoModal.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+const fecharPedidoAjuda = () => {
+  mostrarPedidoModal.value = false;
+  document.body.style.overflow = '';
+};
+
 onUnmounted(() => {
   document.body.style.overflow = '';
 });
@@ -50,7 +62,7 @@ onUnmounted(() => {
     <Header @click-cadastro="abrirCadastro" @click-login="abrirLogin" />
     
     <main>
-      <HeaderCard />
+      <HeaderCard @click-pedir-doacao="abrirPedidoAjuda" />
       <AboutSection />
       <StepsSection />
       <CampaignSection />
@@ -72,6 +84,14 @@ onUnmounted(() => {
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
         </button>
         <AuthContainer :initialTab="authTab" @sucesso="entrarNoSistema" />
+      </div>
+    </div>
+
+    <div v-if="mostrarPedidoModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
+      <div @click="fecharPedidoAjuda" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+      
+      <div class="relative w-full max-w-4xl max-h-[95vh] overflow-y-auto rounded-3xl shadow-2xl flex items-center justify-center p-4 custom-scrollbar">
+        <HelpRequestForm @submitted="fecharPedidoAjuda" @cancel="fecharPedidoAjuda" />
       </div>
     </div>
   </div>
