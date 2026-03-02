@@ -14,6 +14,16 @@ export const useAppointmentsStore = defineStore('appointments', () => {
     }
   ]);
 
+  const autoOpenBooking = ref(false);
+
+  const requestOpenBooking = () => {
+    autoOpenBooking.value = true;
+  };
+
+  const consumeOpenBooking = () => {
+    autoOpenBooking.value = false;
+  };
+
   // Ação para adicionar uma nova visita/marcação
   const addAppointment = (newApt) => {
     appointments.value.unshift({
@@ -28,5 +38,5 @@ export const useAppointmentsStore = defineStore('appointments', () => {
     appointments.value = appointments.value.filter(apt => apt.id !== id);
   };
 
-  return { appointments, addAppointment, cancelAppointment };
+  return { appointments, addAppointment, cancelAppointment, autoOpenBooking, requestOpenBooking, consumeOpenBooking };
 });

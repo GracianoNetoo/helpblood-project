@@ -1,6 +1,7 @@
 <script setup>
-import { ref, defineEmits, markRaw } from 'vue';
+import { ref, defineEmits, markRaw, onMounted, watch } from 'vue';
 import { LayoutDashboard, Droplet, CalendarDays, LogOut, Bell, FileText, AlertCircle } from 'lucide-vue-next';
+import { useRoute } from 'vue-router';
 
 import DashboardOverview from './DashboardOverview.vue';
 import MyDonations from './MyDonations.vue';
@@ -8,6 +9,7 @@ import Appointments from './Appointments.vue';
 import EmergencyRequests from './EmergencyRequests.vue';
 
 const emit = defineEmits(['logout']);
+const route = useRoute();
 
 const navItems = [
   { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard, component: markRaw(DashboardOverview) },
@@ -17,6 +19,23 @@ const navItems = [
 ];
 
 const activeTab = ref('dashboard');
+
+const syncTabFromRoute = (tab) => {
+  if (!tab) return;
+  const exists = navItems.some((item) => item.id === tab);
+  if (exists) activeTab.value = tab;
+};
+
+onMounted(() => {
+  syncTabFromRoute(route.query.tab);
+});
+
+watch(
+  () => route.query.tab,
+  (tab) => {
+    syncTabFromRoute(tab);
+  }
+);
 </script>
 
 <template>

@@ -1,12 +1,12 @@
 ﻿<script setup>
-import { ref, computed, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Plus, MapPin, Calendar, Clock, AlertCircle } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
 
 // Instanciar a Store
 const appointmentsStore = useAppointmentsStore();
-const { appointments } = storeToRefs(appointmentsStore);
+const { appointments, autoOpenBooking } = storeToRefs(appointmentsStore);
 const isBookingModalOpen = ref(false);
 
 // Controlo do modal de nova marcação
@@ -100,6 +100,13 @@ const shouldAppendHourSuffix = (timeValue) => {
 
 onUnmounted(() => {
   document.body.style.overflow = '';
+});
+
+onMounted(() => {
+  if (autoOpenBooking.value) {
+    openBookingModal();
+    appointmentsStore.consumeOpenBooking();
+  }
 });
 </script>
 

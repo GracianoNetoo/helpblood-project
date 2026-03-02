@@ -9,8 +9,10 @@ import CampaignSection from '../components/CampaignSection.vue';
 import Footer from '../components/Footer.vue';
 import AuthContainer from '../components/AuthContainer.vue';
 import HelpRequestForm from '../components/HelpRequestForm.vue';
+import { useAppointmentsStore } from '../stores/appointmentsStore';
 
 const router = useRouter();
+const appointmentsStore = useAppointmentsStore();
 const authTab = ref('cadastro');
 
 // 2. Estado do Modal de Autenticação
@@ -37,7 +39,8 @@ const fecharCadastro = () => {
 // 3. Função para simular o Login/Sucesso no Cadastro
 const entrarNoSistema = () => {
   fecharCadastro();
-  router.push('/dashboard');
+  appointmentsStore.requestOpenBooking();
+  router.push({ path: '/dashboard', query: { tab: 'appointments' } });
   window.scrollTo(0, 0); // Volta ao topo da página
 };
 
