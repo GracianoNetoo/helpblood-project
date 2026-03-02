@@ -17,6 +17,25 @@ const form = ref({
 });
 
 const submitted = ref(false);
+const showSuccess = ref(false);
+
+const telefoneInvalido = computed(() => {
+  const value = form.value.contacto.trim();
+  if (!value) return false;
+  const digits = value.replace(/\D/g, '');
+  if (digits.length < 8 || digits.length > 15) return true;
+  return !/^[+\d][\d\s()-]+$/.test(value);
+});
+
+const excedeuLimite = computed(() => {
+  return (
+    form.value.nome.length > 80 ||
+    form.value.localizacao.length > 80 ||
+    form.value.volume.length > 20 ||
+    form.value.motivo.length > 200 ||
+    form.value.contacto.length > 20
+  );
+});
 
 const isInvalid = computed(() => {
   if (!form.value.nome) return true;
@@ -25,6 +44,8 @@ const isInvalid = computed(() => {
   if (!form.value.urgencia) return true;
   if (!form.value.motivo) return true;
   if (!form.value.contacto) return true;
+  if (telefoneInvalido.value) return true;
+  if (excedeuLimite.value) return true;
   return false;
 });
 
@@ -53,6 +74,10 @@ const handleSubmit = () => {
     contacto: ''
   };
   submitted.value = false;
+  showSuccess.value = true;
+  setTimeout(() => {
+    showSuccess.value = false;
+  }, 2500);
 };
 </script>
 
@@ -76,10 +101,13 @@ const handleSubmit = () => {
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <User class="h-4 w-4 text-gray-400" />
             </div>
-            <input v-model="form.nome" type="text" placeholder="Nome completo"
+            <input v-model="form.nome" type="text" maxlength="80" placeholder="Nome completo"
               class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-[16px] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
           </div>
-          <p v-if="submitted && !form.nome" class="text-[11px] text-rose-600 font-bold">Nome é obrigatório.</p>
+          <div class="flex items-center justify-between">
+            <p v-if="submitted && !form.nome" class="text-[11px] text-rose-600 font-bold">Nome é obrigatório.</p>
+            <p class="text-[11px] text-gray-400 font-semibold ml-auto">{{ form.nome.length }}/80</p>
+          </div>
         </div>
 
         <div class="space-y-1.5">
@@ -112,10 +140,13 @@ const handleSubmit = () => {
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <MapPin class="h-4 w-4 text-gray-400" />
             </div>
-            <input v-model="form.localizacao" type="text" placeholder="Ex: Luanda - Talatona"
+            <input v-model="form.localizacao" type="text" maxlength="80" placeholder="Ex: Luanda - Talatona"
               class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-[16px] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
           </div>
-          <p v-if="submitted && !form.localizacao" class="text-[11px] text-rose-600 font-bold">Localização é obrigatória.</p>
+          <div class="flex items-center justify-between">
+            <p v-if="submitted && !form.localizacao" class="text-[11px] text-rose-600 font-bold">Localização é obrigatória.</p>
+            <p class="text-[11px] text-gray-400 font-semibold ml-auto">{{ form.localizacao.length }}/80</p>
+          </div>
         </div>
 
         <div class="space-y-1.5">
@@ -139,8 +170,9 @@ const handleSubmit = () => {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div class="space-y-1.5">
           <label class="label font-bold text-[13px] text-gray-700 ml-1">Volume (Opcional)</label>
-          <input v-model="form.volume" type="text" placeholder="Ex: 450 ml"
+          <input v-model="form.volume" type="text" maxlength="20" placeholder="Ex: 450 ml"
             class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-[16px] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
+          <p class="text-[11px] text-gray-400 font-semibold text-right">{{ form.volume.length }}/20</p>
         </div>
 
         <div class="space-y-1.5">
@@ -149,10 +181,14 @@ const handleSubmit = () => {
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Phone class="h-4 w-4 text-gray-400" />
             </div>
-            <input v-model="form.contacto" type="text" placeholder="Telefone ou WhatsApp"
+            <input v-model="form.contacto" type="text" maxlength="20" placeholder="Telefone ou WhatsApp"
               class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-[16px] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
           </div>
-          <p v-if="submitted && !form.contacto" class="text-[11px] text-rose-600 font-bold">Contacto é obrigatório.</p>
+          <div class="flex items-center justify-between">
+            <p v-if="submitted && !form.contacto" class="text-[11px] text-rose-600 font-bold">Contacto é obrigatório.</p>
+            <p v-else-if="telefoneInvalido" class="text-[11px] text-rose-600 font-bold">Contacto inválido.</p>
+            <p class="text-[11px] text-gray-400 font-semibold ml-auto">{{ form.contacto.length }}/20</p>
+          </div>
         </div>
       </div>
 
@@ -162,10 +198,17 @@ const handleSubmit = () => {
           <div class="absolute top-4 left-4 pointer-events-none">
             <FileText class="h-4 w-4 text-gray-400" />
           </div>
-          <textarea v-model="form.motivo" rows="3" placeholder="Ex: Necessidade urgente para cirurgia"
+          <textarea v-model="form.motivo" rows="3" maxlength="200" placeholder="Ex: Necessidade urgente para cirurgia"
             class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-[16px] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium resize-none"></textarea>
         </div>
-        <p v-if="submitted && !form.motivo" class="text-[11px] text-rose-600 font-bold">Motivo é obrigatório.</p>
+        <div class="flex items-center justify-between">
+          <p v-if="submitted && !form.motivo" class="text-[11px] text-rose-600 font-bold">Motivo é obrigatório.</p>
+          <p class="text-[11px] text-gray-400 font-semibold ml-auto">{{ form.motivo.length }}/200</p>
+        </div>
+      </div>
+
+      <div v-if="showSuccess" class="bg-emerald-50 border border-emerald-100 text-emerald-700 px-4 py-3 rounded-2xl text-[13px] font-semibold">
+        Pedido enviado com sucesso. Obrigado pela confiança.
       </div>
 
       <div class="pt-4 border-t border-gray-100 flex flex-col sm:flex-row gap-3">
