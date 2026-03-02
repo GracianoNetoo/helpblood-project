@@ -1,7 +1,7 @@
 <script setup>
 import { Heart, Activity, ArrowRight, ShieldCheck, Users } from 'lucide-vue-next';
 
-const emit = defineEmits(['click-pedir-doacao']);
+const emit = defineEmits(['click-pedir-doacao', 'click-quero-doar']);
 </script>
 
 <template>
@@ -39,6 +39,7 @@ const emit = defineEmits(['click-pedir-doacao']);
 
         <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <button
+            @click="emit('click-quero-doar')"
             class="group w-full sm:w-auto px-8 py-4 bg-gray-900 hover:bg-black text-white rounded-full font-bold text-[15px] shadow-[0_4px_14px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2">
             Quero Doar Agora
             <ArrowRight class="w-4 h-4 text-gray-400 group-hover:text-white transition-colors group-hover:translate-x-1" stroke-width="2.5" />

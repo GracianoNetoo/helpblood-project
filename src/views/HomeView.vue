@@ -62,9 +62,9 @@ onUnmounted(() => {
     <Header @click-cadastro="abrirCadastro" @click-login="abrirLogin" />
     
     <main>
-      <HeaderCard @click-pedir-doacao="abrirPedidoAjuda" />
+      <HeaderCard @click-pedir-doacao="abrirPedidoAjuda" @click-quero-doar="abrirCadastro" />
       <AboutSection />
-      <StepsSection />
+      <StepsSection @click-agendar-doacao="abrirCadastro" />
       <CampaignSection />
       
       <section class="py-20 bg-gray-100">

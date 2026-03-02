@@ -1,5 +1,7 @@
 <script setup>
 import { MapPin, CalendarDays, ArrowRight, ShieldCheck, Heart, Users } from 'lucide-vue-next';
+
+const emit = defineEmits(['click-agendar-doacao']);
 </script>
 
 <template>
@@ -68,7 +70,7 @@ import { MapPin, CalendarDays, ArrowRight, ShieldCheck, Heart, Users } from 'luc
 
       <!-- Call to Action -->
       <div class="mt-16 text-center">
-        <button class="group inline-flex items-center gap-2 px-8 py-4 bg-gray-900 hover:bg-black text-white rounded-full font-bold text-[15px] shadow-[0_4px_14px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-0.5">
+        <button @click="emit('click-agendar-doacao')" class="group inline-flex items-center gap-2 px-8 py-4 bg-gray-900 hover:bg-black text-white rounded-full font-bold text-[15px] shadow-[0_4px_14px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-0.5">
           <CalendarDays class="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" stroke-width="2.5" />
           Agende sua primeira doação
         </button>
