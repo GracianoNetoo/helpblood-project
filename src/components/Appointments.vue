@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { ref, onUnmounted } from 'vue';
+import { ref, computed, onUnmounted } from 'vue';
 import { Plus, MapPin, Calendar, Clock, AlertCircle } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
@@ -18,6 +18,7 @@ const formData = ref({
   time: '',
   notes: ''
 });
+const currentTimeString = ref('');
 
 // Hospitais Disponíveis (Mock)
 const hospitais = [
@@ -31,6 +32,7 @@ const hospitais = [
 const todayDateString = new Date().toISOString().split('T')[0];
 
 const openBookingModal = () => {
+  currentTimeString.value = new Date().toTimeString().slice(0, 5);
   isBookingModalOpen.value = true;
   document.body.style.overflow = 'hidden'; // Bloquear fundo
 };
@@ -42,23 +44,37 @@ const closeBookingModal = () => {
   formData.value = { hospital: '', date: '', time: '', notes: '' };
 };
 
+const isDateInPast = computed(() => {
+  if (!formData.value.date) return false;
+  return formData.value.date < todayDateString;
+});
+
+const isTimeInPast = computed(() => {
+  if (!formData.value.date || !formData.value.time) return false;
+  if (formData.value.date !== todayDateString) return false;
+  return formData.value.time < currentTimeString.value;
+});
+
+const isFormInvalid = computed(() => {
+  if (!formData.value.hospital || !formData.value.date || !formData.value.time) return true;
+  if (isDateInPast.value || isTimeInPast.value) return true;
+  return false;
+});
+
 const handleBookingSubmit = () => {
   if (!formData.value.hospital || !formData.value.date || !formData.value.time) {
     alert('Por favor, preencha hospital, data e hora.');
     return;
   }
 
-  if (formData.value.date < todayDateString) {
+  if (isDateInPast.value) {
     alert('A data selecionada não pode ser no passado.');
     return;
   }
 
-  if (formData.value.date === todayDateString) {
-    const currentTime = new Date().toTimeString().slice(0, 5);
-    if (formData.value.time < currentTime) {
-      alert('A hora selecionada deve ser futura.');
-      return;
-    }
+  if (isTimeInPast.value) {
+    alert('A hora selecionada deve ser futura.');
+    return;
   }
   // Simular adição à lista global da Store (Pinia)
   appointmentsStore.addAppointment({
@@ -185,11 +201,13 @@ onUnmounted(() => {
             <div>
               <label class="block text-[13px] font-bold text-gray-700 uppercase tracking-wider mb-2">Data</label>
               <input type="date" required v-model="formData.date" :min="todayDateString" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 rounded-2xl outline-none transition-all font-medium text-gray-900" />
+              <p v-if="isDateInPast" class="mt-2 text-[12px] font-semibold text-rose-600">Escolha uma data futura.</p>
             </div>
             <!-- Selector Hora -->
             <div>
               <label class="block text-[13px] font-bold text-gray-700 uppercase tracking-wider mb-2">Hora</label>
-              <input type="time" required v-model="formData.time" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 rounded-2xl outline-none transition-all font-medium text-gray-900" />
+              <input type="time" required v-model="formData.time" :min="formData.date === todayDateString ? currentTimeString : ''" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 rounded-2xl outline-none transition-all font-medium text-gray-900" />
+              <p v-if="isTimeInPast" class="mt-2 text-[12px] font-semibold text-rose-600">Escolha uma hora futura.</p>
             </div>
           </div>
 
@@ -209,7 +227,7 @@ onUnmounted(() => {
             <button type="button" @click="closeBookingModal" class="flex-1 px-6 py-4 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-2xl font-bold transition-colors">
               Cancelar
             </button>
-            <button type="submit" class="flex-1 px-6 py-4 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold shadow-lg shadow-rose-600/20 transition-all hover:scale-[1.02]">
+            <button type="submit" :disabled="isFormInvalid" class="flex-1 px-6 py-4 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold shadow-lg shadow-rose-600/20 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
               Confirmar Reserva
             </button>
           </div>
