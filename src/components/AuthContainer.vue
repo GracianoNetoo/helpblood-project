@@ -1,15 +1,30 @@
 <script setup>
-import { ref, defineEmits } from 'vue'
+import { ref, defineEmits, defineProps, watch } from 'vue'
 import RegisterForm from './RegisterForm.vue'
 import { LogIn, UserPlus, Droplet, ArrowRight, ShieldCheck } from 'lucide-vue-next';
 
+const props = defineProps({
+    initialTab: {
+        type: String,
+        default: 'cadastro'
+    }
+});
+
 const emit = defineEmits(['sucesso'])
-const abaAtiva = ref('cadastro') 
+const abaAtiva = ref(props.initialTab) 
 
 const realizarLoginManual = () => {
     // Simula validação de login
     emit('sucesso')
 }
+watch(
+    () => props.initialTab,
+    (nextTab) => {
+        if (['cadastro', 'login', 'recuperar'].includes(nextTab)) {
+            abaAtiva.value = nextTab;
+        }
+    }
+);
 </script>
 
 <template>

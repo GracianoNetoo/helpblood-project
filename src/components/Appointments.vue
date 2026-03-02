@@ -1,5 +1,5 @@
-<script setup>
-import { ref } from 'vue';
+﻿<script setup>
+import { ref, onUnmounted } from 'vue';
 import { Plus, MapPin, Calendar, Clock, AlertCircle } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
@@ -7,6 +7,7 @@ import { useAppointmentsStore } from '../stores/appointmentsStore';
 // Instanciar a Store
 const appointmentsStore = useAppointmentsStore();
 const { appointments } = storeToRefs(appointmentsStore);
+const isBookingModalOpen = ref(false);
 
 // Controlo do modal de nova marcação
 
@@ -27,6 +28,8 @@ const hospitais = [
   'Clínica Girassol'
 ];
 
+const todayDateString = new Date().toISOString().split('T')[0];
+
 const openBookingModal = () => {
   isBookingModalOpen.value = true;
   document.body.style.overflow = 'hidden'; // Bloquear fundo
@@ -40,6 +43,23 @@ const closeBookingModal = () => {
 };
 
 const handleBookingSubmit = () => {
+  if (!formData.value.hospital || !formData.value.date || !formData.value.time) {
+    alert('Por favor, preencha hospital, data e hora.');
+    return;
+  }
+
+  if (formData.value.date < todayDateString) {
+    alert('A data selecionada não pode ser no passado.');
+    return;
+  }
+
+  if (formData.value.date === todayDateString) {
+    const currentTime = new Date().toTimeString().slice(0, 5);
+    if (formData.value.time < currentTime) {
+      alert('A hora selecionada deve ser futura.');
+      return;
+    }
+  }
   // Simular adição à lista global da Store (Pinia)
   appointmentsStore.addAppointment({
     hospital: formData.value.hospital,
@@ -56,6 +76,15 @@ const formatDate = (dateStr) => {
   const date = new Date(dateStr);
   return date.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' });
 };
+
+const shouldAppendHourSuffix = (timeValue) => {
+  if (!timeValue) return false;
+  return /^\d/.test(timeValue);
+};
+
+onUnmounted(() => {
+  document.body.style.overflow = '';
+});
 </script>
 
 <template>
@@ -73,7 +102,7 @@ const formatDate = (dateStr) => {
         </button>
       </div>
 
-      <!-- Grid de Agendamentos Activos -->
+      <!-- Grid de Agendamentos Ativos -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
         <!-- Estado Vazio se Array estiver vazio -->
@@ -107,7 +136,7 @@ const formatDate = (dateStr) => {
               <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 border border-gray-100">
                 <Clock class="w-4 h-4" />
               </div>
-              {{ apt.time }}h
+              {{ apt.time }}<span v-if="shouldAppendHourSuffix(apt.time)">h</span>
             </div>
           </div>
         </div>
@@ -155,7 +184,7 @@ const formatDate = (dateStr) => {
             <!-- Selector Data -->
             <div>
               <label class="block text-[13px] font-bold text-gray-700 uppercase tracking-wider mb-2">Data</label>
-              <input type="date" required v-model="formData.date" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 rounded-2xl outline-none transition-all font-medium text-gray-900" />
+              <input type="date" required v-model="formData.date" :min="todayDateString" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 rounded-2xl outline-none transition-all font-medium text-gray-900" />
             </div>
             <!-- Selector Hora -->
             <div>
@@ -191,3 +220,4 @@ const formatDate = (dateStr) => {
     </div>
   </div>
 </template>
+

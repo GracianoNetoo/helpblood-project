@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import AboutSection from '../components/AboutSection.vue';
 import Header from '../components/Header.vue';
@@ -10,13 +10,21 @@ import Footer from '../components/Footer.vue';
 import AuthContainer from '../components/AuthContainer.vue';
 
 const router = useRouter();
+const authTab = ref('cadastro');
 
 // 2. Estado do Modal de Autenticação
 const mostrarModal = ref(false);
 
 const abrirCadastro = () => {
+  authTab.value = 'cadastro';
   mostrarModal.value = true;
   document.body.style.overflow = 'hidden'; 
+};
+
+const abrirLogin = () => {
+  authTab.value = 'login';
+  mostrarModal.value = true;
+  document.body.style.overflow = 'hidden';
 };
 
 const fecharCadastro = () => {
@@ -31,11 +39,15 @@ const entrarNoSistema = () => {
   window.scrollTo(0, 0); // Volta ao topo da página
 };
 
+onUnmounted(() => {
+  document.body.style.overflow = '';
+});
+
 </script>
 
 <template>
   <div>
-    <Header @click-cadastro="abrirCadastro" />
+    <Header @click-cadastro="abrirCadastro" @click-login="abrirLogin" />
     
     <main>
       <HeaderCard />
@@ -59,7 +71,7 @@ const entrarNoSistema = () => {
         <button @click="fecharCadastro" class="absolute top-4 right-4 md:top-8 md:right-8 z-50 text-gray-400 hover:text-rose-600 bg-white/10 hover:bg-white p-2 rounded-full backdrop-blur-md transition-all shadow-md">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
         </button>
-        <AuthContainer @sucesso="entrarNoSistema" />
+        <AuthContainer :initialTab="authTab" @sucesso="entrarNoSistema" />
       </div>
     </div>
   </div>
