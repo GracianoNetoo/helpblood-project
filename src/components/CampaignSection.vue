@@ -1,5 +1,7 @@
 <script setup>
 import { MapPin, CalendarDays, ArrowRight, Activity, Plus, FileText, ArrowUpRight } from 'lucide-vue-next';
+
+const emit = defineEmits(['click-agendar-horario']);
 </script>
 
 <template>
@@ -104,7 +106,7 @@ import { MapPin, CalendarDays, ArrowRight, Activity, Plus, FileText, ArrowUpRigh
             <p class="text-gray-500 text-[15px] font-medium leading-relaxed mb-8 flex-1">
               Junte-se a dezenas de voluntários num fim de semana especial. Teremos postos avançados de triagem disponíveis.
             </p>
-            <button class="w-full py-4 text-[14px] bg-white border-2 border-gray-100 text-gray-900 font-bold rounded-[16px] hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
+            <button @click="emit('click-agendar-horario')" class="w-full py-4 text-[14px] bg-white border-2 border-gray-100 text-gray-900 font-bold rounded-[16px] hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
               Agendar Horário
               <ArrowRight class="w-4 h-4 text-gray-400" />
             </button>
