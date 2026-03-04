@@ -82,8 +82,8 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <div class="bg-white rounded-[32px] shadow-2xl border border-white/20 overflow-hidden max-w-3xl w-full">
-    <div class="p-6 md:p-8 border-b border-gray-100 bg-gray-50/60 flex justify-between items-center">
+  <div class="bg-white rounded-[32px]  pt-15 shadow-2xl border border-white/20 overflow-hidden max-w-3xl w-full">
+    <div class="p-6 md:p-8 border-b pt-5 border-gray-100 bg-gray-50/60 flex justify-between items-center">
       <div>
         <h2 class="text-xl md:text-2xl font-extrabold text-gray-900 tracking-tight">Pedido de Ajuda</h2>
         <p class="text-sm text-gray-500 mt-1">Os pedidos são anónimos e enviados para a comunidade.</p>
@@ -211,7 +211,7 @@ const handleSubmit = () => {
         Pedido enviado com sucesso. Obrigado pela confiança.
       </div>
 
-      <div class="pt-4 border-t border-gray-100 flex flex-col sm:flex-row gap-3">
+      <div class="border-t border-gray-100 flex flex-col sm:flex-row gap-3">
         <button type="button" @click="$emit('cancel')" class="flex-1 px-6 py-4 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-2xl font-bold transition-colors">
           Cancelar
         </button>
