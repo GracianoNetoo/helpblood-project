@@ -15,6 +15,12 @@ const channelLinks = {
   email: 'https://www.google.com'
 };
 
+const channelLabels = {
+  facebook: 'Facebook',
+  whatsapp: 'WhatsApp',
+  email: 'Email'
+};
+
 const handleContact = () => {
   if (!selected.value) return;
   const link = channelLinks[selected.value];
@@ -48,9 +54,9 @@ const handleContact = () => {
            <!-- Links para tentar usabilidade -->
           <button
             type="button"
-            @click="selectChannel('Facebook')"
+            @click="selectChannel('facebook')"
             class="w-16 h-16 rounded-full border-2 transition-all flex items-center justify-center shadow-sm"
-            :class="selected === 'Facebook' ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-gray-200 bg-white text-black hover:border-gray-300'"
+            :class="selected === 'facebook' ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-gray-200 bg-white text-black hover:border-gray-300'"
           >
             <svg viewBox="0 0 24 24" aria-hidden="true" class="w-7 h-7 fill-current">
               <path d="M13 9h3V6h-3c-2.2 0-4 1.8-4 4v2H7v3h2v6h3v-6h3l1-3h-4v-2c0-.6.4-1 1-1z"/>
@@ -60,19 +66,18 @@ const handleContact = () => {
            <!-- Links para tentar usabilidade -->
           <button
             type="button"
-            @click="selectChannel('WhatsApp')"
+            @click="selectChannel('whatsapp')"
             class="w-16 h-16 rounded-full border-2 transition-all flex items-center justify-center shadow-sm"
-            :class="selected === 'WhatsApp' ? 'border-emerald-600 bg-emerald-50 text-emerald-600' : 'border-gray-200 bg-white text-black hover:border-gray-300'"
+            :class="selected === 'whatsapp' ? 'border-emerald-600 bg-emerald-50 text-emerald-600' : 'border-gray-200 bg-white text-black hover:border-gray-300'"
           >
             <MessageCircle class="w-7 h-7" />
           </button>
           <!-- Link para tentar usabilidade -->
           <button
-            link="google.com" 
             type="button"
-            @click="selectChannel('Email')"
+            @click="selectChannel('email')"
             class="w-16 h-16 rounded-full border-2 transition-all flex items-center justify-center shadow-sm"
-            :class="selected === 'Email' ? 'border-rose-600 bg-rose-50 text-rose-600' : 'border-gray-200 bg-white text-black hover:border-gray-300'"
+            :class="selected === 'email' ? 'border-rose-600 bg-rose-50 text-rose-600' : 'border-gray-200 bg-white text-black hover:border-gray-300'"
           >
             <Mail class="w-7 h-7" />
           </button>
@@ -80,7 +85,7 @@ const handleContact = () => {
 
         <div class="mt-2 flex items-center justify-center gap-2 text-[12px] text-gray-500 font-semibold">
           <span class="w-2 h-2 rounded-full" :class="selected ? 'bg-emerald-500' : 'bg-gray-300'"></span>
-          <span class="text-neutral-400">{{ selected ? `Canal selecionado: ${selected}` : 'Nenhum canal selecionado' }}</span>
+          <span class="text-neutral-400">{{ selected ? `Canal selecionado: ${channelLabels[selected]}` : 'Nenhum canal selecionado' }}</span>
         </div>
       </div>
     </div>
