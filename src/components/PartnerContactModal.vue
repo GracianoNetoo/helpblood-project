@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { Mail, ArrowRight } from 'lucide-vue-next';
+import { Mail, ArrowRight, MessageCircle } from 'lucide-vue-next';
 
 const emit = defineEmits(['close']);
 const selected = ref('');
@@ -52,9 +52,7 @@ const handleContact = () => {
             class="w-16 h-16 rounded-full border-2 transition-all flex items-center justify-center shadow-sm"
             :class="selected === 'whatsapp' ? 'border-emerald-600 bg-emerald-50 text-emerald-600' : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'"
           >
-            <svg viewBox="0 0 24 24" aria-hidden="true" class="w-7 h-7 fill-current block">
-              <path d="M20.5 3.5A11 11 0 0 0 3 16.7L2 22l5.4-1.8A11 11 0 1 0 20.5 3.5zm-9 17.2a9.2 9.2 0 0 1-4.7-1.3l-.3-.2-2.8.9.9-2.7-.2-.3a9.2 9.2 0 1 1 7.1 3.6zm5.4-6.2c-.3-.1-1.7-.8-2-1s-.5-.1-.7.1-.8 1-.9 1.2-.3.2-.6.1a7.5 7.5 0 0 1-2.2-1.4 8.2 8.2 0 0 1-1.5-1.9c-.2-.3 0-.5.1-.6l.4-.5c.2-.2.3-.3.4-.5s.1-.3 0-.5c-.1-.1-.7-1.6-.9-2.1-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.3s-1 1-1 2.4 1 2.8 1.1 3c.1.2 2 3.1 4.9 4.3.7.3 1.3.5 1.7.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.2.1-1.4s-.2-.2-.5-.3z"/>
-            </svg>
+            <MessageCircle class="w-7 h-7" />
           </button>
 
           <button
