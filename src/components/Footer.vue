@@ -1,4 +1,7 @@
-﻿<script setup>`r`nimport { Droplet, Heart, Mail, Phone, MapPin } from 'lucide-vue-next';`r`n`r`nconst emit = defineEmits(['open-terms']);`r`n</script>
+﻿<script setup>
+import { Droplet, Heart, Mail, Phone, MapPin } from 'lucide-vue-next';
+const emit = defineEmits(['open-terms', 'open-privacy']);
+</script>
 
 <template>
   <footer class="bg-[#0F172A] text-gray-400 pt-20 pb-10 border-t border-gray-800 relative overflow-hidden">
@@ -58,7 +61,7 @@
             <ul class="space-y-4 text-[14px] font-medium">
               <li><a href="#" class="hover:text-rose-400 transition-colors">Sobre Nós</a></li>
               <li><a href="#" class="hover:text-rose-400 transition-colors">Central de Ajuda</a></li>
-              <li><a href="#" class="hover:text-rose-400 transition-colors">Termos de Privacidade</a></li>
+              <li><button type="button" @click="emit('open-privacy')" class="hover:text-rose-400 transition-colors">Termos de Privacidade</button></li>
               <li><button type="button" @click="emit('open-terms')" class="hover:text-rose-400 transition-colors">Termos de Uso</button></li>
             </ul>
           </div>

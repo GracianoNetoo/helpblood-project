@@ -11,6 +11,7 @@ import AuthContainer from '../components/AuthContainer.vue';
 import HelpRequestForm from '../components/HelpRequestForm.vue';
 import PartnerContactModal from '../components/PartnerContactModal.vue';
 import TermsModal from '../components/TermsModal.vue';
+import PrivacyModal from '../components/PrivacyModal.vue';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
 
 const router = useRouter();
@@ -23,6 +24,7 @@ const mostrarModal = ref(false);
 const mostrarPedidoModal = ref(false);
 const mostrarParceriaModal = ref(false);
 const mostrarTermosModal = ref(false);
+const mostrarPrivacidadeModal = ref(false);
 
 const abrirCadastro = () => {
   authTab.value = 'cadastro';
@@ -93,6 +95,16 @@ const fecharTermos = () => {
   document.body.style.overflow = '';
 };
 
+const abrirPrivacidade = () => {
+  mostrarPrivacidadeModal.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+const fecharPrivacidade = () => {
+  mostrarPrivacidadeModal.value = false;
+  document.body.style.overflow = '';
+};
+
 onUnmounted(() => {
   document.body.style.overflow = '';
 });
@@ -116,7 +128,7 @@ onUnmounted(() => {
       </section>
     </main>
 
-    <Footer @open-terms="abrirTermos" />
+    <Footer @open-terms="abrirTermos" @open-privacy="abrirPrivacidade" />
 
     <div v-if="mostrarModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
       <div @click="fecharCadastro" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
@@ -150,6 +162,14 @@ onUnmounted(() => {
       
       <div class="relative w-full max-w-3xl max-h-[95vh] overflow-y-auto rounded-3xl shadow-2xl flex items-center justify-center p-4 custom-scrollbar">
         <TermsModal @close="fecharTermos" />
+      </div>
+    </div>
+
+    <div v-if="mostrarPrivacidadeModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
+      <div @click="fecharPrivacidade" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+      
+      <div class="relative w-full max-w-3xl max-h-[95vh] overflow-y-auto rounded-3xl shadow-2xl flex items-center justify-center p-4 custom-scrollbar">
+        <PrivacyModal @close="fecharPrivacidade" />
       </div>
     </div>
   </div>
