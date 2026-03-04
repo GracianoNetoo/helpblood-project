@@ -10,6 +10,7 @@ import Footer from '../components/Footer.vue';
 import AuthContainer from '../components/AuthContainer.vue';
 import HelpRequestForm from '../components/HelpRequestForm.vue';
 import PartnerContactModal from '../components/PartnerContactModal.vue';
+import TermsModal from '../components/TermsModal.vue';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
 
 const router = useRouter();
@@ -21,6 +22,7 @@ const postAuthAction = ref('dashboard'); // 'dashboard' | 'booking'
 const mostrarModal = ref(false);
 const mostrarPedidoModal = ref(false);
 const mostrarParceriaModal = ref(false);
+const mostrarTermosModal = ref(false);
 
 const abrirCadastro = () => {
   authTab.value = 'cadastro';
@@ -81,6 +83,16 @@ const fecharParceria = () => {
   document.body.style.overflow = '';
 };
 
+const abrirTermos = () => {
+  mostrarTermosModal.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+const fecharTermos = () => {
+  mostrarTermosModal.value = false;
+  document.body.style.overflow = '';
+};
+
 onUnmounted(() => {
   document.body.style.overflow = '';
 });
@@ -104,7 +116,7 @@ onUnmounted(() => {
       </section>
     </main>
 
-    <Footer />
+    <Footer @open-terms="abrirTermos" />
 
     <div v-if="mostrarModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
       <div @click="fecharCadastro" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
@@ -130,6 +142,14 @@ onUnmounted(() => {
       
       <div class="relative w-full max-w-3xl max-h-[95vh] overflow-y-auto rounded-3xl shadow-2xl flex items-center justify-center p-4 custom-scrollbar">
         <PartnerContactModal @close="fecharParceria" />
+      </div>
+    </div>
+
+    <div v-if="mostrarTermosModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
+      <div @click="fecharTermos" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+      
+      <div class="relative w-full max-w-3xl max-h-[95vh] overflow-y-auto rounded-3xl shadow-2xl flex items-center justify-center p-4 custom-scrollbar">
+        <TermsModal @close="fecharTermos" />
       </div>
     </div>
   </div>
