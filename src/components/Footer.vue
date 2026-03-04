@@ -1,5 +1,5 @@
-<script setup>
-import { Droplet, ArrowRight, ShieldCheck, Heart, Users } from 'lucide-vue-next';
+﻿<script setup>
+import { Droplet, Heart, Mail, Phone, MapPin, Facebook, Instagram } from 'lucide-vue-next';
 </script>
 
 <template>
@@ -24,24 +24,38 @@ import { Droplet, ArrowRight, ShieldCheck, Heart, Users } from 'lucide-vue-next'
             A infraestrutura digital de conexão entre a vontade de ajudar e a necessidade crítica de salvar vidas em Angola.
           </p>
           <div class="flex gap-3">
-             <a href="#" class="w-10 h-10 rounded-[12px] bg-white/5 border border-white/10 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all text-gray-400 shadow-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            <a href="#" class="w-10 h-10 rounded-[12px] bg-white/5 border border-white/10 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all text-gray-400 shadow-sm">
+              <Facebook class="w-5 h-5" />
             </a>
             <a href="#" class="w-10 h-10 rounded-[12px] bg-white/5 border border-white/10 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all text-gray-400 shadow-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+              <Instagram class="w-5 h-5" />
             </a>
           </div>
-        </div>
 
-        <!-- Links Columns -->
+          <div class="mt-8 space-y-3 text-[14px] font-medium text-gray-400">
+            <div class="flex items-center gap-2">
+              <Phone class="w-4 h-4 text-rose-400" />
+              <span>+244 900 000 000</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <Mail class="w-4 h-4 text-rose-400" />
+              <span>parcerias@univida.ao</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <MapPin class="w-4 h-4 text-rose-400" />
+              <span>Luanda, Angola</span>
+            </div>
+          </div>
+        </div>
+<!-- Links Columns -->
         <div class="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-8">
           <div>
             <h4 class="text-white font-bold mb-6 text-[15px]">Plataforma</h4>
             <ul class="space-y-4 text-[14px] font-medium">
-              <li><a href="#" class="hover:text-rose-400 transition-colors">Como Doar</a></li>
-              <li><a href="#" class="hover:text-rose-400 transition-colors flex items-center gap-2">Campanhas <span class="bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-wider">Novo</span></a></li>
-              <li><a href="#" class="hover:text-rose-400 transition-colors">Hemocentros</a></li>
-              <li><a href="#" class="hover:text-rose-400 transition-colors">Requisitos</a></li>
+              <li><a href="#home" class="hover:text-rose-400 transition-colors">Como Doar</a></li>
+              <li><a href="#campanhas" class="hover:text-rose-400 transition-colors flex items-center gap-2">Campanhas <span class="bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-wider">Novo</span></a></li>
+              <li><a href="#missao" class="hover:text-rose-400 transition-colors">Hemocentros</a></li>
+              <li><a href="#missao" class="hover:text-rose-400 transition-colors">Requisitos</a></li>
             </ul>
           </div>
 
@@ -79,3 +93,6 @@ import { Droplet, ArrowRight, ShieldCheck, Heart, Users } from 'lucide-vue-next'
     </div>
   </footer>
 </template>
+
+
+
