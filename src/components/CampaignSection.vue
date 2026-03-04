@@ -1,7 +1,7 @@
 <script setup>
 import { MapPin, CalendarDays, ArrowRight, Activity, Plus, FileText, ArrowUpRight } from 'lucide-vue-next';
 
-const emit = defineEmits(['click-agendar-horario']);
+const emit = defineEmits(['click-agendar-horario', 'click-solicitar-parceria']);
 </script>
 
 <template>
@@ -127,7 +127,7 @@ const emit = defineEmits(['click-agendar-horario']);
               <p class="text-gray-400 text-[16px] leading-relaxed font-medium mb-12 flex-1">
                 Universidades, Igrejas ou Empresas - Leve o nosso ecossistema de doação até ao seu espaço com uma Unidade Móvel dedicada.
               </p>
-              <button class="w-full bg-white text-gray-900 px-6 py-4 rounded-[16px] font-extrabold text-[14px] uppercase tracking-wider hover:bg-gray-100 hover:scale-[1.02] shadow-[0_4px_14px_rgba(255,255,255,0.2)] transition-all flex justify-center items-center gap-2">
+              <button @click="emit('click-solicitar-parceria')" class="w-full bg-white text-gray-900 px-6 py-4 rounded-[16px] font-extrabold text-[14px] uppercase tracking-wider hover:bg-gray-100 hover:scale-[1.02] shadow-[0_4px_14px_rgba(255,255,255,0.2)] transition-all flex justify-center items-center gap-2">
                 Solicitar Parceria
                 <FileText class="w-4 h-4 opacity-50" stroke-width="2.5" />
               </button>

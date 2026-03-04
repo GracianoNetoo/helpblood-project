@@ -9,6 +9,7 @@ import CampaignSection from '../components/CampaignSection.vue';
 import Footer from '../components/Footer.vue';
 import AuthContainer from '../components/AuthContainer.vue';
 import HelpRequestForm from '../components/HelpRequestForm.vue';
+import PartnerContactModal from '../components/PartnerContactModal.vue';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
 
 const router = useRouter();
@@ -19,6 +20,7 @@ const postAuthAction = ref('dashboard'); // 'dashboard' | 'booking'
 // 2. Estado do Modal de Autenticação
 const mostrarModal = ref(false);
 const mostrarPedidoModal = ref(false);
+const mostrarParceriaModal = ref(false);
 
 const abrirCadastro = () => {
   authTab.value = 'cadastro';
@@ -69,6 +71,16 @@ const fecharPedidoAjuda = () => {
   document.body.style.overflow = '';
 };
 
+const abrirParceria = () => {
+  mostrarParceriaModal.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+const fecharParceria = () => {
+  mostrarParceriaModal.value = false;
+  document.body.style.overflow = '';
+};
+
 onUnmounted(() => {
   document.body.style.overflow = '';
 });
@@ -83,7 +95,7 @@ onUnmounted(() => {
       <HeaderCard @click-pedir-doacao="abrirPedidoAjuda" @click-quero-doar="abrirCadastroParaAgendar" />
       <AboutSection />
       <StepsSection @click-agendar-doacao="abrirCadastroParaAgendar" />
-      <CampaignSection @click-agendar-horario="abrirCadastroParaAgendar" />
+      <CampaignSection @click-agendar-horario="abrirCadastroParaAgendar" @click-solicitar-parceria="abrirParceria" />
       
       <section class="py-20 bg-gray-100">
          <div class="container mx-auto px-6">
@@ -110,6 +122,14 @@ onUnmounted(() => {
       
       <div class="relative w-full max-w-4xl max-h-[95vh] overflow-y-auto rounded-3xl shadow-2xl flex items-center justify-center p-4 custom-scrollbar">
         <HelpRequestForm @submitted="fecharPedidoAjuda" @cancel="fecharPedidoAjuda" />
+      </div>
+    </div>
+
+    <div v-if="mostrarParceriaModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
+      <div @click="fecharParceria" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+      
+      <div class="relative w-full max-w-3xl max-h-[95vh] overflow-y-auto rounded-3xl shadow-2xl flex items-center justify-center p-4 custom-scrollbar">
+        <PartnerContactModal @close="fecharParceria" />
       </div>
     </div>
   </div>
