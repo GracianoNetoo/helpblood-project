@@ -23,7 +23,7 @@ const telefoneInvalido = computed(() => {
   const value = form.value.contacto.trim();
   if (!value) return false;
   const digits = value.replace(/\D/g, '');
-  if (digits.length < 8 || digits.length > 15) return true;
+  if (digits.length < 9 || digits.length > 9) return true;
   return !/^[+\d][\d\s()-]+$/.test(value);
 });
 
@@ -181,13 +181,13 @@ const handleSubmit = () => {
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Phone class="h-4 w-4 text-gray-400" />
             </div>
-            <input v-model="form.contacto" type="text" maxlength="20" placeholder="Telefone ou WhatsApp"
+            <input v-model="form.contacto" type="text" maxlength="9" placeholder="Telefone ou WhatsApp"
               class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-[16px] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
           </div>
           <div class="flex items-center justify-between">
             <p v-if="submitted && !form.contacto" class="text-[11px] text-rose-600 font-bold">Contacto é obrigatório.</p>
             <p v-else-if="telefoneInvalido" class="text-[11px] text-rose-600 font-bold">Contacto inválido.</p>
-            <p class="text-[11px] text-gray-400 font-semibold ml-auto">{{ form.contacto.length }}/20</p>
+            <p class="text-[11px] text-gray-400 font-semibold ml-auto">{{ form.contacto.length }}/9</p>
           </div>
         </div>
       </div>
