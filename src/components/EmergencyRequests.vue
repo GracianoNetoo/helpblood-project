@@ -58,10 +58,10 @@ const acceptEmergency = (request) => {
                 <p class="text-sm text-gray-500 mt-1 flex items-center gap-1 font-medium">
                   <MapPin class="w-4 h-4 text-gray-400" /> {{ request.localizacao }}
                 </p>
-                <p class="text-sm text-gray-600 mt-3 max-w-xl">{{ request.motivo }}</p>
+                <p class="text-sm text-gray-600 mt-3 max-w-xl">{{ request.motivo || 'Motivo não informado.' }}</p>
                 <div class="mt-4 flex items-center gap-3 text-[13px] font-semibold text-gray-500">
                   <span class="text-rose-600 bg-rose-100 px-2 py-1 rounded-md">Pedido anónimo</span>
-                  <span class="inline-flex items-center gap-1"><PhoneCall class="w-3.5 h-3.5" /> {{ request.contacto }}</span>
+                  <span class="inline-flex items-center gap-1"><PhoneCall class="w-3.5 h-3.5" /> {{ request.contacto || 'Contacto indisponível' }}</span>
                 </div>
               </div>
             </div>
