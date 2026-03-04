@@ -1,6 +1,6 @@
-<script setup>
+﻿<script setup>
 import { ref, defineEmits, markRaw, onMounted, watch } from 'vue';
-import { LayoutDashboard, Droplet, CalendarDays, LogOut, Bell, FileText, AlertCircle } from 'lucide-vue-next';
+import { LayoutDashboard, Droplet, CalendarDays, LogOut, Bell, AlertCircle, Menu } from 'lucide-vue-next';
 import { useRoute } from 'vue-router';
 
 import DashboardOverview from './DashboardOverview.vue';
@@ -19,6 +19,7 @@ const navItems = [
 ];
 
 const activeTab = ref('dashboard');
+const isMobileNavOpen = ref(false);
 
 const syncTabFromRoute = (tab) => {
   if (!tab) return;
@@ -36,6 +37,11 @@ watch(
     syncTabFromRoute(tab);
   }
 );
+
+const handleSelectTab = (tabId) => {
+  activeTab.value = tabId;
+  isMobileNavOpen.value = false;
+};
 </script>
 
 <template>
@@ -77,13 +83,16 @@ watch(
     <main class="flex-1 flex flex-col h-full bg-[#FAFAFA] relative overflow-hidden ring-1 ring-gray-200/50">
       
       <!-- Topbar -->
-      <header class="h-24 px-6 md:px-10 flex justify-between items-center bg-white/40 backdrop-blur-2xl border-b border-gray-200/50 sticky top-0 z-10 w-full">
+      <header class="h-20 md:h-24 px-4 md:px-10 flex justify-between items-center bg-white/40 backdrop-blur-2xl border-b border-gray-200/50 sticky top-0 z-20 w-full">
         <div>
           <h1 class="text-xl md:text-2xl font-semibold text-gray-900 tracking-tight">Visão Geral</h1>
-          <p class="text-[13px] md:text-sm text-gray-500 mt-0.5">Acompanhe seu impacto diário na comunidade.</p>
+          <p class="text-[13px] md:text-sm text-gray-500 mt-0.5 hidden sm:block">Acompanhe seu impacto diário na comunidade.</p>
         </div>
         
         <div class="flex items-center gap-4 md:gap-6">
+          <button @click="isMobileNavOpen = true" class="md:hidden p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
+            <Menu class="w-5 h-5" />
+          </button>
           <button class="relative p-2.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors hidden md:flex">
             <Bell class="w-[22px] h-[22px]" stroke-width="2" />
             <span class="absolute top-2 right-2.5 w-2 h-2 bg-rose-500 ring-2 ring-white rounded-full"></span>
@@ -109,6 +118,42 @@ watch(
         <component :is="navItems.find(item => item.id === activeTab).component" />
       </div>
     </main>
+
+    <!-- Mobile Navigation Drawer -->
+    <div v-if="isMobileNavOpen" class="fixed inset-0 z-30 md:hidden">
+      <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="isMobileNavOpen = false"></div>
+      <div class="absolute right-0 top-0 h-full w-72 bg-white shadow-xl border-l border-gray-100 flex flex-col">
+        <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-[12px] bg-linear-to-br from-rose-500 to-rose-600 flex items-center justify-center text-white shadow-sm">
+              <Droplet class="w-4 h-4" stroke-width="2.5" />
+            </div>
+            <span class="font-bold text-gray-900">UniVida</span>
+          </div>
+          <button @click="isMobileNavOpen = false" class="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full">
+            <LogOut class="w-4 h-4 rotate-180" />
+          </button>
+        </div>
+        <div class="flex-1 p-4 space-y-2 overflow-y-auto">
+          <button
+            v-for="item in navItems"
+            :key="item.id"
+            @click="handleSelectTab(item.id)"
+            class="w-full flex items-center gap-3 p-3 rounded-[14px] transition-all text-left"
+            :class="activeTab === item.id ? 'bg-rose-50 text-rose-700 font-semibold' : 'text-gray-600 hover:bg-gray-50'"
+          >
+            <component :is="item.icon" class="w-5 h-5" />
+            <span>{{ item.name }}</span>
+          </button>
+        </div>
+        <div class="p-4 border-t border-gray-100">
+          <button @click="emit('logout')" class="w-full flex items-center gap-3 p-3 text-gray-500 hover:text-rose-600 hover:bg-rose-50 rounded-[14px] transition-all">
+            <LogOut class="w-5 h-5" />
+            <span>Terminar Sessão</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -128,3 +173,5 @@ watch(
   background-color: rgba(156, 163, 175, 0.5);
 }
 </style>
+
+
