@@ -1,6 +1,6 @@
 ﻿<script setup>
 import { Droplet, Heart, Mail, Phone, MapPin } from 'lucide-vue-next';
-const emit = defineEmits(['open-terms', 'open-privacy']);
+const emit = defineEmits(['open-terms', 'open-privacy', 'open-help']);
 </script>
 
 <template>
@@ -60,7 +60,7 @@ const emit = defineEmits(['open-terms', 'open-privacy']);
             <h4 class="text-white font-bold mb-6 text-[15px]">Suporte</h4>
             <ul class="space-y-4 text-[14px] font-medium">
               <li><a href="#" class="hover:text-rose-400 transition-colors">Sobre Nós</a></li>
-              <li><a href="#" class="hover:text-rose-400 transition-colors">Central de Ajuda</a></li>
+              <li><button type="button" @click="emit('open-help')" class="hover:text-rose-400 transition-colors">Central de Ajuda</button></li>
               <li><button type="button" @click="emit('open-privacy')" class="hover:text-rose-400 transition-colors">Termos de Privacidade</button></li>
               <li><button type="button" @click="emit('open-terms')" class="hover:text-rose-400 transition-colors">Termos de Uso</button></li>
             </ul>

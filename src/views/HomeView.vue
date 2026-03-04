@@ -12,6 +12,7 @@ import HelpRequestForm from '../components/HelpRequestForm.vue';
 import PartnerContactModal from '../components/PartnerContactModal.vue';
 import TermsModal from '../components/TermsModal.vue';
 import PrivacyModal from '../components/PrivacyModal.vue';
+import HelpCenterModal from '../components/HelpCenterModal.vue';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
 
 const router = useRouter();
@@ -25,6 +26,7 @@ const mostrarPedidoModal = ref(false);
 const mostrarParceriaModal = ref(false);
 const mostrarTermosModal = ref(false);
 const mostrarPrivacidadeModal = ref(false);
+const mostrarAjudaModal = ref(false);
 
 const abrirCadastro = () => {
   authTab.value = 'cadastro';
@@ -105,6 +107,16 @@ const fecharPrivacidade = () => {
   document.body.style.overflow = '';
 };
 
+const abrirAjuda = () => {
+  mostrarAjudaModal.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+const fecharAjuda = () => {
+  mostrarAjudaModal.value = false;
+  document.body.style.overflow = '';
+};
+
 onUnmounted(() => {
   document.body.style.overflow = '';
 });
@@ -128,7 +140,7 @@ onUnmounted(() => {
       </section>
     </main>
 
-    <Footer @open-terms="abrirTermos" @open-privacy="abrirPrivacidade" />
+    <Footer @open-terms="abrirTermos" @open-privacy="abrirPrivacidade" @open-help="abrirAjuda" />
 
     <div v-if="mostrarModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
       <div @click="fecharCadastro" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
@@ -170,6 +182,14 @@ onUnmounted(() => {
       
       <div class="relative w-full max-w-3xl max-h-[95vh] overflow-y-auto rounded-3xl shadow-2xl flex items-center justify-center p-4 custom-scrollbar">
         <PrivacyModal @close="fecharPrivacidade" />
+      </div>
+    </div>
+
+    <div v-if="mostrarAjudaModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
+      <div @click="fecharAjuda" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+      
+      <div class="relative w-full max-w-3xl max-h-[95vh] overflow-y-auto rounded-3xl shadow-2xl flex items-center justify-center p-4 custom-scrollbar">
+        <HelpCenterModal @close="fecharAjuda" />
       </div>
     </div>
   </div>
