@@ -1,13 +1,12 @@
 ﻿<script setup>
-import { Droplet, Heart, Mail, Phone, MapPin, Facebook, Instagram } from 'lucide-vue-next';
 </script>
 
 <template>
   <footer class="bg-[#0F172A] text-gray-400 pt-20 pb-10 border-t border-gray-800 relative overflow-hidden">
     
     <!-- Abstract Background Elements -->
-    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-500/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
-    <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
+    <div class="absolute top-0 right-0 w-125 h-125 bg-rose-500/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+    <div class="absolute bottom-0 left-0 w-125 h-125 bg-indigo-500/10 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
 
     <div class="container mx-auto px-6 relative z-10">
       
@@ -24,15 +23,10 @@ import { Droplet, Heart, Mail, Phone, MapPin, Facebook, Instagram } from 'lucide
             A infraestrutura digital de conexão entre a vontade de ajudar e a necessidade crítica de salvar vidas em Angola.
           </p>
           <div class="flex gap-3">
-            <a href="#" class="w-10 h-10 rounded-[12px] bg-white/5 border border-white/10 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all text-gray-400 shadow-sm">
-              <Facebook class="w-5 h-5" />
-            </a>
-            <a href="#" class="w-10 h-10 rounded-[12px] bg-white/5 border border-white/10 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all text-gray-400 shadow-sm">
-              <Instagram class="w-5 h-5" />
-            </a>
+            <div class="bg-rose-500 w-75 h-1"></div>
           </div>
 
-          <div class="mt-8 space-y-3 text-[14px] font-medium text-gray-400">
+          <div class="mt-5 space-y-3 text-[14px] font-medium text-gray-400">
             <div class="flex items-center gap-2">
               <Phone class="w-4 h-4 text-rose-400" />
               <span>+244 900 000 000</span>
@@ -47,38 +41,38 @@ import { Droplet, Heart, Mail, Phone, MapPin, Facebook, Instagram } from 'lucide
             </div>
           </div>
         </div>
-<!-- Links Columns -->
+        <!-- Links Columns -->
         <div class="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-8">
           <div>
             <h4 class="text-white font-bold mb-6 text-[15px]">Plataforma</h4>
             <ul class="space-y-4 text-[14px] font-medium">
-              <li><a href="#home" class="hover:text-rose-400 transition-colors">Como Doar</a></li>
-              <li><a href="#campanhas" class="hover:text-rose-400 transition-colors flex items-center gap-2">Campanhas <span class="bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-wider">Novo</span></a></li>
-              <li><a href="#missao" class="hover:text-rose-400 transition-colors">Hemocentros</a></li>
-              <li><a href="#missao" class="hover:text-rose-400 transition-colors">Requisitos</a></li>
+              <li><a href="#home" class="hover:text-rose-400 transition-colors">Página Inicial</a></li>
+
+              <li><a href="#campanhas" class="hover:text-rose-400 transition-colors flex items-center gap-2">Como Funciona</a></li>
+              <li><a href="#comofunciona" class="hover:text-rose-400 transition-colors flex items-center gap-2">Campanhas<span class="bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-wider">Novo</span></a></li>
+              <li><a href="#missao" class="hover:text-rose-400 transition-colors">Missão</a></li>
             </ul>
           </div>
 
           <div>
             <h4 class="text-white font-bold mb-6 text-[15px]">Suporte</h4>
             <ul class="space-y-4 text-[14px] font-medium">
+              <li><a href="#" class="hover:text-rose-400 transition-colors">Sobre Nós</a></li>
               <li><a href="#" class="hover:text-rose-400 transition-colors">Central de Ajuda</a></li>
-              <li><a href="#" class="hover:text-rose-400 transition-colors">Privacidade</a></li>
+              <li><a href="#" class="hover:text-rose-400 transition-colors">Termos de Privacidade</a></li>
               <li><a href="#" class="hover:text-rose-400 transition-colors">Termos de Uso</a></li>
-              <li><a href="#" class="hover:text-rose-400 transition-colors">Contato</a></li>
             </ul>
           </div>
           
           <div class="col-span-2 sm:col-span-1">
              <h4 class="text-white font-bold mb-6 text-[15px]">Fique Alerta</h4>
-             <p class="text-[13px] font-medium leading-relaxed mb-4">Receba notificações de urgências na sua província.</p>
+             <p class="text-[13px] font-medium leading-relaxed mb-4">Receba notificações de campanhas proximas de si.</p>
              <div class="flex flex-col gap-2">
-               <input type="email" placeholder="O seu e-mail" class="bg-white/5 border border-white/10 rounded-[12px] px-4 py-2.5 text-[14px] text-white focus:outline-none focus:border-rose-500 transition-colors placeholder:text-gray-600">
-               <button class="bg-white text-gray-900 font-bold rounded-[12px] px-4 py-2.5 text-[14px] hover:bg-rose-50 transition-colors">Subscrever</button>
+               <input type="email" placeholder="O seu e-mail" class="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[14px] text-white focus:outline-none focus:border-rose-500 transition-colors placeholder:text-gray-600">
+               <button class="bg-white text-gray-900 font-bold rounded-xl px-4 py-2.5 text-[14px] hover:bg-rose-50 transition-colors">Subscrever</button>
              </div>
           </div>
         </div>
-
       </div>
 
       <!-- Bottom Section -->
