@@ -1,90 +1,16 @@
 ﻿<script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { Plus, MapPin, Calendar, Clock, AlertCircle } from 'lucide-vue-next';
+import { onMounted, onUnmounted } from 'vue';
+import { Plus, Calendar, Clock } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
+
+const emit = defineEmits(['open-campaigns']);
 
 // Instanciar a Store
 const appointmentsStore = useAppointmentsStore();
 const { appointments, autoOpenBooking } = storeToRefs(appointmentsStore);
-const isBookingModalOpen = ref(false);
-
-// Controlo do modal de nova marcação
-
-// Modelo de Dados para o Formulário do Modal
-const formData = ref({
-  hospital: '',
-  date: '',
-  time: '',
-  notes: ''
-});
-const currentTimeString = ref('');
-
-// Hospitais Disponíveis (Mock)
-const hospitais = [
-  'Instituto Nacional de Sangue',
-  'Hospital Geral de Luanda',
-  'Clínica Sagrada Esperança',
-  'Hospital Maria Pia',
-  'Clínica Girassol'
-];
-
-const todayDateString = new Date().toISOString().split('T')[0];
-
-const openBookingModal = () => {
-  currentTimeString.value = new Date().toTimeString().slice(0, 5);
-  isBookingModalOpen.value = true;
-  document.body.style.overflow = 'hidden'; // Bloquear fundo
-};
-
-const closeBookingModal = () => {
-  isBookingModalOpen.value = false;
-  document.body.style.overflow = '';
-  // Limpar form
-  formData.value = { hospital: '', date: '', time: '', notes: '' };
-};
-
-const isDateInPast = computed(() => {
-  if (!formData.value.date) return false;
-  return formData.value.date < todayDateString;
-});
-
-const isTimeInPast = computed(() => {
-  if (!formData.value.date || !formData.value.time) return false;
-  if (formData.value.date !== todayDateString) return false;
-  return formData.value.time < currentTimeString.value;
-});
-
-const isFormInvalid = computed(() => {
-  if (!formData.value.hospital || !formData.value.date || !formData.value.time) return true;
-  if (isDateInPast.value || isTimeInPast.value) return true;
-  return false;
-});
-
-const handleBookingSubmit = () => {
-  if (!formData.value.hospital || !formData.value.date || !formData.value.time) {
-    alert('Por favor, preencha hospital, data e hora.');
-    return;
-  }
-
-  if (isDateInPast.value) {
-    alert('A data selecionada não pode ser no passado.');
-    return;
-  }
-
-  if (isTimeInPast.value) {
-    alert('A hora selecionada deve ser futura.');
-    return;
-  }
-  // Simular adição à lista global da Store (Pinia)
-  appointmentsStore.addAppointment({
-    hospital: formData.value.hospital,
-    date: formData.value.date,
-    time: formData.value.time,
-    notes: formData.value.notes
-  });
-  
-  closeBookingModal();
+const openCampaigns = () => {
+  emit('open-campaigns');
 };
 
 const formatDate = (dateStr) => {
@@ -104,7 +30,7 @@ onUnmounted(() => {
 
 onMounted(() => {
   if (autoOpenBooking.value) {
-    openBookingModal();
+    openCampaigns();
     appointmentsStore.consumeOpenBooking();
   }
 });
@@ -119,9 +45,9 @@ onMounted(() => {
           <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Meus Agendamentos</h2>
           <p class="text-sm text-gray-500 mt-1">Faça a gestão das suas idas aos postos de Saúde.</p>
         </div>
-        <button @click="openBookingModal" class="bg-rose-600 hover:bg-rose-700 text-white px-5 py-3 md:py-2.5 rounded-2xl font-bold shadow-md shadow-rose-600/20 transition-all flex items-center justify-center gap-2 text-sm w-full md:w-auto">
+        <button @click="openCampaigns" class="bg-rose-600 hover:bg-rose-700 text-white px-5 py-3 md:py-2.5 rounded-2xl font-bold shadow-md shadow-rose-600/20 transition-all flex items-center justify-center gap-2 text-sm w-full md:w-auto">
           <Plus class="w-4 h-4" stroke-width="2.5" />
-          Nova Marcação
+          Ver Campanhas
         </button>
       </div>
 
@@ -132,7 +58,7 @@ onMounted(() => {
         <div v-if="appointments.length === 0" class="col-span-full py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl">
           <Calendar class="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h3 class="text-lg font-bold text-gray-900">Nenhuma visita agendada</h3>
-          <p class="text-sm text-gray-500 mt-2">Use o botão Nova Marcação para planear a sua próxima doação.</p>
+          <p class="text-sm text-gray-500 mt-2">Use o botão Ver Campanhas para escolher onde doar.</p>
         </div>
 
         <!-- Cartões Fictícios / Dinâmicos de Agendamentos -->
@@ -168,81 +94,5 @@ onMounted(() => {
     </div>
   </div>
 
-  <!-- Modal Nova Marcação -->
-  <div v-if="isBookingModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-    <!-- Fundo Esbatido (Backdrop) -->
-    <div @click="closeBookingModal" class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity"></div>
-    
-    <!-- Caixa do Formulário -->
-    <div class="relative w-full max-w-lg bg-white rounded-4xl shadow-2xl border border-white/20 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
-      
-      <div class="p-6 md:p-8 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center shrink-0">
-        <div>
-          <h2 class="text-xl font-extrabold text-gray-900 tracking-tight">Agendar Doação</h2>
-          <p class="text-sm text-gray-500 mt-1">Preencha os dados da sua visita.</p>
-        </div>
-        <button @click="closeBookingModal" class="w-10 h-10 bg-white border border-gray-200 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-full flex items-center justify-center transition-colors shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
-      </div>
-
-      <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar">
-        <form @submit.prevent="handleBookingSubmit" class="space-y-6">
-          
-          <!-- Hospital Select -->
-          <div>
-            <label class="block text-[13px] font-bold text-gray-700 uppercase tracking-wider mb-2">Hospital ou Clínica</label>
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <MapPin class="h-5 w-5 text-gray-400" />
-              </div>
-              <select required v-model="formData.hospital" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 rounded-2xl outline-none transition-all font-medium text-gray-900 appearance-none">
-                <option value="" disabled selected>Selecione um local</option>
-                <option v-for="hosp in hospitais" :key="hosp" :value="hosp">{{ hosp }}</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <!-- Selector Data -->
-            <div>
-              <label class="block text-[13px] font-bold text-gray-700 uppercase tracking-wider mb-2">Data</label>
-              <input type="date" required v-model="formData.date" :min="todayDateString" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 rounded-2xl outline-none transition-all font-medium text-gray-900" />
-              <p v-if="isDateInPast" class="mt-2 text-[12px] font-semibold text-rose-600">Escolha uma data futura.</p>
-            </div>
-            <!-- Selector Hora -->
-            <div>
-              <label class="block text-[13px] font-bold text-gray-700 uppercase tracking-wider mb-2">Hora</label>
-              <input type="time" required v-model="formData.time" :min="formData.date === todayDateString ? currentTimeString : ''" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 rounded-2xl outline-none transition-all font-medium text-gray-900" />
-              <p v-if="isTimeInPast" class="mt-2 text-[12px] font-semibold text-rose-600">Escolha uma hora futura.</p>
-            </div>
-          </div>
-
-          <!-- Notes Textarea -->
-          <div>
-            <label class="block text-[13px] font-bold text-gray-700 uppercase tracking-wider mb-2 items-center gap-2">Notas Adicionais <span class="text-gray-400 font-normal lowercase tracking-normal">(Opcional)</span></label>
-            <textarea v-model="formData.notes" rows="3" placeholder="Ex: Sou dador frequente, tenho preferência por atendimento matinal." class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 rounded-2xl outline-none transition-all font-medium text-gray-900 resize-none"></textarea>
-          </div>
-
-          <!-- Alert Contexto -->
-          <div class="bg-blue-50/50 border border-blue-100 p-4 rounded-2xl flex gap-3 items-start">
-            <AlertCircle class="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-            <p class="text-[13px] text-blue-800 font-medium leading-relaxed">Não coma alimentos pesados ou gordurosos 4 horas antes de doar. Lembre-se de levar o seu Cartão Digital a ser apresentado na receção do hospital.</p>
-          </div>
-
-          <div class="pt-4 border-t border-gray-100 flex gap-3">
-            <button type="button" @click="closeBookingModal" class="flex-1 px-6 py-4 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-2xl font-bold transition-colors">
-              Cancelar
-            </button>
-            <button type="submit" :disabled="isFormInvalid" class="flex-1 px-6 py-4 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold shadow-lg shadow-rose-600/20 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
-              Confirmar Reserva
-            </button>
-          </div>
-
-        </form>
-      </div>
-
-    </div>
-  </div>
 </template>
 

@@ -117,7 +117,10 @@ const handleSelectTab = (tabId) => {
       <!-- Dashboard Scrollable Area -->
       <div class="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 scroll-smooth custom-scrollbar">
         <!-- Render Active View Component -->
-        <component :is="navItems.find(item => item.id === activeTab).component" />
+        <component
+          :is="navItems.find(item => item.id === activeTab).component"
+          @open-campaigns="handleSelectTab('campaigns')"
+        />
       </div>
     </main>
 
