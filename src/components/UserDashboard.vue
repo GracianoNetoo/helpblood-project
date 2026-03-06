@@ -95,10 +95,6 @@ const handleSelectTab = (tabId) => {
           <button @click="isMobileNavOpen = true" class="md:hidden p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
             <Menu class="w-5 h-5" />
           </button>
-          <button class="relative p-2.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors hidden md:flex">
-            <Bell class="w-5.5 h-5.5" stroke-width="2" />
-            <span class="absolute top-2 right-2.5 w-2 h-2 bg-rose-500 ring-2 ring-white rounded-full"></span>
-          </button>
           
           <div class="h-8 w-px bg-gray-200 hidden md:block"></div>
           

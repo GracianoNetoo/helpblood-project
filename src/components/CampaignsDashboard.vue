@@ -81,8 +81,8 @@ const confirmSchedule = () => {
 </script>
 
 <template>
-  <div class="max-w-[1200px] mx-auto pb-10">
-    <div class="bg-white rounded-[32px] border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-6 md:p-10">
+  <div class="max-w-300 mx-auto pb-10">
+    <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-6 md:p-10">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Campanhas Ativas</h2>
@@ -94,7 +94,7 @@ const confirmSchedule = () => {
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="camp in campaigns" :key="camp.id" class="group border border-gray-200 rounded-[24px] p-6 bg-white hover:shadow-lg hover:border-rose-200 transition-all">
+        <div v-for="camp in campaigns" :key="camp.id" class="group border border-gray-200 rounded-3xl p-6 bg-white hover:shadow-lg hover:border-rose-200 transition-all">
           <div class="flex items-center justify-between mb-4">
             <span class="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full"
               :class="camp.highlight === 'Crítico' ? 'bg-rose-600 text-white' : 'bg-gray-100 text-gray-700'">
@@ -131,7 +131,7 @@ const confirmSchedule = () => {
           <button
             @click="openConfirm(camp)"
             :disabled="isScheduled(camp.id)"
-            class="mt-5 w-full border border-gray-200 font-bold rounded-[16px] py-3 transition-all flex items-center justify-center gap-2"
+            class="mt-5 w-full border border-gray-200 font-bold rounded-2xl py-3 transition-all flex items-center justify-center gap-2"
             :class="isScheduled(camp.id) ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-900 hover:bg-gray-900 hover:text-white'"
           >
             {{ isScheduled(camp.id) ? 'Agendado' : 'Agendar Horário' }}
@@ -144,7 +144,7 @@ const confirmSchedule = () => {
 
   <div v-if="isConfirmOpen" class="fixed inset-0 z-30 flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="closeConfirm"></div>
-    <div class="relative w-full max-w-md bg-white rounded-[24px] border border-gray-100 shadow-2xl p-6">
+    <div class="relative w-full max-w-md bg-white rounded-3xl border border-gray-100 shadow-2xl p-6">
       <div class="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100 mb-4">
         <ShieldCheck class="w-6 h-6" />
       </div>
