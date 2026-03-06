@@ -80,11 +80,6 @@ const emit = defineEmits(['open-terms', 'open-privacy', 'open-help', 'open-about
       <!-- Bottom Section -->
       <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[13px] font-medium">
         <p>&copy; 2026 UniVida Angola. Todos os direitos reservados.</p>
-        <div class="flex items-center gap-1.5 opacity-60">
-           <span>Feito com</span>
-           <Heart class="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-           <span>para salvar vidas.</span>
-        </div>
       </div>
     </div>
   </footer>
