@@ -1,5 +1,7 @@
-<script setup>
+﻿<script setup>
 import { Droplet, CalendarDays, MapPin, Navigation, Activity, FileText } from 'lucide-vue-next';
+
+const emit = defineEmits(['open-campaigns']);
 </script>
 
 <template>
@@ -26,7 +28,7 @@ import { Droplet, CalendarDays, MapPin, Navigation, Activity, FileText } from 'l
           </div>
           
           <div class="mt-10 flex gap-4 items-center">
-            <button class="bg-white text-gray-900 hover:bg-gray-50 px-6 py-3.5 rounded-2xl font-bold shadow-[0_4px_14px_rgba(255,255,255,0.2)] transition-all hover:scale-[1.02] flex items-center gap-2">
+            <button @click="emit('open-campaigns')" class="bg-white text-gray-900 hover:bg-gray-50 px-6 py-3.5 rounded-2xl font-bold shadow-[0_4px_14px_rgba(255,255,255,0.2)] transition-all hover:scale-[1.02] flex items-center gap-2">
               <CalendarDays class="w-5 h-5 text-gray-700" />
               Agendar Doação
             </button>
@@ -162,3 +164,4 @@ import { Droplet, CalendarDays, MapPin, Navigation, Activity, FileText } from 'l
 
   </div>
 </template>
+
