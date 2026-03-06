@@ -1,9 +1,11 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { MapPin, CalendarDays, ArrowRight, ShieldCheck } from 'lucide-vue-next';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
+import { storeToRefs } from 'pinia';
 
 const appointmentsStore = useAppointmentsStore();
+const { appointments } = storeToRefs(appointmentsStore);
 const selectedCampaign = ref(null);
 const isConfirmOpen = ref(false);
 const showToast = ref(false);
@@ -44,7 +46,14 @@ const campaigns = [
   }
 ];
 
+const scheduledCampaignIds = computed(() => new Set(appointments.value.map((apt) => apt.campaignId).filter(Boolean)));
+
+const isScheduled = (campaignId) => {
+  return scheduledCampaignIds.value.has(campaignId);
+};
+
 const openConfirm = (campaign) => {
+  if (isScheduled(campaign.id)) return;
   selectedCampaign.value = campaign;
   isConfirmOpen.value = true;
 };
@@ -60,7 +69,8 @@ const confirmSchedule = () => {
     hospital: selectedCampaign.value.title,
     date: selectedCampaign.value.dateISO,
     time: selectedCampaign.value.time,
-    notes: `Campanha em ${selectedCampaign.value.location}`
+    notes: `Campanha em ${selectedCampaign.value.location}`,
+    campaignId: selectedCampaign.value.id
   });
   showToast.value = true;
   setTimeout(() => {
@@ -118,9 +128,14 @@ const confirmSchedule = () => {
 
           <p class="mt-4 text-[13px] text-gray-500 leading-relaxed">{{ camp.description }}</p>
 
-          <button @click="openConfirm(camp)" class="mt-5 w-full bg-white border border-gray-200 text-gray-900 font-bold rounded-[16px] py-3 hover:bg-gray-900 hover:text-white transition-all flex items-center justify-center gap-2">
-            Agendar Horário
-            <ArrowRight class="w-4 h-4" />
+          <button
+            @click="openConfirm(camp)"
+            :disabled="isScheduled(camp.id)"
+            class="mt-5 w-full border border-gray-200 font-bold rounded-[16px] py-3 transition-all flex items-center justify-center gap-2"
+            :class="isScheduled(camp.id) ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-900 hover:bg-gray-900 hover:text-white'"
+          >
+            {{ isScheduled(camp.id) ? 'Agendado' : 'Agendar Horário' }}
+            <ArrowRight v-if="!isScheduled(camp.id)" class="w-4 h-4" />
           </button>
         </div>
       </div>
