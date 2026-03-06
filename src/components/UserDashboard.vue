@@ -1,6 +1,6 @@
 ﻿<script setup>
 import { ref, defineEmits, markRaw, onMounted, watch } from 'vue';
-import { LayoutDashboard, Droplet, CalendarDays, LogOut, Bell, AlertCircle, Menu } from 'lucide-vue-next';
+import { LayoutDashboard, Droplet, CalendarDays, LogOut, Bell, AlertCircle, Menu, Megaphone } from 'lucide-vue-next';
 import { useRoute } from 'vue-router';
 
 import DashboardOverview from './DashboardOverview.vue';
@@ -15,7 +15,7 @@ const route = useRoute();
 const navItems = [
   { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard, component: markRaw(DashboardOverview) },
   { id: 'donations', name: 'Minhas Doações', icon: Droplet, component: markRaw(MyDonations) },
-  { id: 'campaigns', name: 'Campanhas', icon: CalendarDays, component: markRaw(CampaignsDashboard) },
+  { id: 'campaigns', name: 'Campanhas', icon: Megaphone, component: markRaw(CampaignsDashboard) },
   { id: 'appointments', name: 'Agendamentos', icon: CalendarDays, component: markRaw(Appointments) },
   { id: 'emergencies', name: 'Pedidos de Ajuda', icon: AlertCircle, component: markRaw(EmergencyRequests) },
 ];
