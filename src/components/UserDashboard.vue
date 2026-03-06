@@ -7,6 +7,7 @@ import DashboardOverview from './DashboardOverview.vue';
 import MyDonations from './MyDonations.vue';
 import Appointments from './Appointments.vue';
 import EmergencyRequests from './EmergencyRequests.vue';
+import CampaignsDashboard from './CampaignsDashboard.vue';
 
 const emit = defineEmits(['logout']);
 const route = useRoute();
@@ -14,6 +15,7 @@ const route = useRoute();
 const navItems = [
   { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard, component: markRaw(DashboardOverview) },
   { id: 'donations', name: 'Minhas Doações', icon: Droplet, component: markRaw(MyDonations) },
+  { id: 'campaigns', name: 'Campanhas', icon: CalendarDays, component: markRaw(CampaignsDashboard) },
   { id: 'appointments', name: 'Agendamentos', icon: CalendarDays, component: markRaw(Appointments) },
   { id: 'emergencies', name: 'Pedidos de Ajuda', icon: AlertCircle, component: markRaw(EmergencyRequests) },
 ];
