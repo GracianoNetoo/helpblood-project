@@ -6,6 +6,7 @@ import { useAppointmentsStore } from '../stores/appointmentsStore';
 const appointmentsStore = useAppointmentsStore();
 const selectedCampaign = ref(null);
 const isConfirmOpen = ref(false);
+const showToast = ref(false);
 
 const campaigns = [
   {
@@ -61,6 +62,10 @@ const confirmSchedule = () => {
     time: selectedCampaign.value.time,
     notes: `Campanha em ${selectedCampaign.value.location}`
   });
+  showToast.value = true;
+  setTimeout(() => {
+    showToast.value = false;
+  }, 2200);
   closeConfirm();
 };
 </script>
@@ -141,6 +146,13 @@ const confirmSchedule = () => {
           Confirmar
         </button>
       </div>
+    </div>
+  </div>
+
+  <div v-if="showToast" class="fixed bottom-6 right-6 z-30">
+    <div class="bg-gray-900 text-white px-4 py-3 rounded-2xl shadow-lg text-sm font-semibold flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      Agendamento criado com sucesso.
     </div>
   </div>
 </template>
