@@ -82,7 +82,7 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <div class="bg-white rounded-[32px]  pt-15 shadow-2xl border border-white/20 overflow-hidden max-w-3xl w-full">
+  <div class="bg-white rounded-4xl  pt-15 shadow-2xl border border-white/20 overflow-hidden max-w-3xl w-full">
     <div class="p-6 md:p-8 border-b pt-5 border-gray-100 bg-gray-50/60 flex justify-between items-center">
       <div>
         <h2 class="text-xl md:text-2xl font-extrabold text-gray-900 tracking-tight">Pedido de Ajuda</h2>
@@ -102,7 +102,7 @@ const handleSubmit = () => {
               <User class="h-4 w-4 text-gray-400" />
             </div>
             <input v-model="form.nome" type="text" maxlength="80" placeholder="Nome completo"
-              class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-[16px] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
+              class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
           </div>
           <div class="flex items-center justify-between">
             <p v-if="submitted && !form.nome" class="text-[11px] text-rose-600 font-bold">Nome é obrigatório.</p>
@@ -117,7 +117,7 @@ const handleSubmit = () => {
               <Droplet class="h-4 w-4 text-gray-400" />
             </div>
             <select v-model="form.tipo_sanguineo"
-              class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-[16px] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium appearance-none">
+              class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium appearance-none">
               <option value="" disabled>Selecione</option>
               <option>O+</option>
               <option>O-</option>
@@ -141,7 +141,7 @@ const handleSubmit = () => {
               <MapPin class="h-4 w-4 text-gray-400" />
             </div>
             <input v-model="form.localizacao" type="text" maxlength="80" placeholder="Ex: Luanda - Talatona"
-              class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-[16px] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
+              class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
           </div>
           <div class="flex items-center justify-between">
             <p v-if="submitted && !form.localizacao" class="text-[11px] text-rose-600 font-bold">Localização é obrigatória.</p>
@@ -156,7 +156,7 @@ const handleSubmit = () => {
               <AlertTriangle class="h-4 w-4 text-gray-400" />
             </div>
             <select v-model="form.urgencia"
-              class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-[16px] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium appearance-none">
+              class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium appearance-none">
               <option value="" disabled>Selecione</option>
               <option>Alta (24h)</option>
               <option>Moderada (48h)</option>
@@ -171,7 +171,7 @@ const handleSubmit = () => {
         <div class="space-y-1.5">
           <label class="label font-bold text-[13px] text-gray-700 ml-1">Volume (Opcional)</label>
           <input v-model="form.volume" type="text" maxlength="20" placeholder="Ex: 450 ml"
-            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-[16px] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
+            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
           <p class="text-[11px] text-gray-400 font-semibold text-right">{{ form.volume.length }}/20</p>
         </div>
 
@@ -182,7 +182,7 @@ const handleSubmit = () => {
               <Phone class="h-4 w-4 text-gray-400" />
             </div>
             <input v-model="form.contacto" type="text" maxlength="9" placeholder="Telefone ou WhatsApp"
-              class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-[16px] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
+              class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
           </div>
           <div class="flex items-center justify-between">
             <p v-if="submitted && !form.contacto" class="text-[11px] text-rose-600 font-bold">Contacto é obrigatório.</p>
@@ -199,7 +199,7 @@ const handleSubmit = () => {
             <FileText class="h-4 w-4 text-gray-400" />
           </div>
           <textarea v-model="form.motivo" rows="3" maxlength="200" placeholder="Ex: Necessidade urgente para cirurgia"
-            class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-[16px] focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium resize-none"></textarea>
+            class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium resize-none"></textarea>
         </div>
         <div class="flex items-center justify-between">
           <p v-if="submitted && !form.motivo" class="text-[11px] text-rose-600 font-bold">Motivo é obrigatório.</p>

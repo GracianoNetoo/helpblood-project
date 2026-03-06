@@ -111,8 +111,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="max-w-[1200px] mx-auto pb-10">
-    <div class="bg-white rounded-[32px] border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-6 md:p-10 relative">
+  <div class="max-w-300 mx-auto pb-10">
+    <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-6 md:p-10 relative">
       
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-8 border-b border-gray-100">
         <div>
@@ -129,14 +129,14 @@ onMounted(() => {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
         <!-- Estado Vazio se Array estiver vazio -->
-        <div v-if="appointments.length === 0" class="col-span-full py-16 text-center border-2 border-dashed border-gray-100 rounded-[24px]">
+        <div v-if="appointments.length === 0" class="col-span-full py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl">
           <Calendar class="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h3 class="text-lg font-bold text-gray-900">Nenhuma visita agendada</h3>
           <p class="text-sm text-gray-500 mt-2">Use o botão Nova Marcação para planear a sua próxima doação.</p>
         </div>
 
         <!-- Cartões Fictícios / Dinâmicos de Agendamentos -->
-        <div v-for="apt in appointments" :key="apt.id" class="group relative overflow-hidden bg-white border border-gray-200 hover:border-rose-200 rounded-[24px] p-6 hover:shadow-xl hover:shadow-rose-100 transition-all">
+        <div v-for="apt in appointments" :key="apt.id" class="group relative overflow-hidden bg-white border border-gray-200 hover:border-rose-200 rounded-3xl p-6 hover:shadow-xl hover:shadow-rose-100 transition-all">
           <div class="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-rose-400 to-orange-300"></div>
           
           <div class="flex justify-between items-start mb-4">
@@ -174,7 +174,7 @@ onMounted(() => {
     <div @click="closeBookingModal" class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity"></div>
     
     <!-- Caixa do Formulário -->
-    <div class="relative w-full max-w-lg bg-white rounded-[32px] shadow-2xl border border-white/20 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+    <div class="relative w-full max-w-lg bg-white rounded-4xl shadow-2xl border border-white/20 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
       
       <div class="p-6 md:p-8 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center shrink-0">
         <div>

@@ -50,10 +50,10 @@ const handleSelectTab = (tabId) => {
     <!-- Sidebar -->
     <aside class="w-20 lg:w-64 bg-white/70 backdrop-blur-3xl border-r border-[#E5E7EB]/60 hidden md:flex flex-col shrink-0 transition-all duration-300 relative z-20">
       <div class="p-6 flex items-center justify-center lg:justify-start gap-4 h-24 border-b border-gray-100/50">
-        <div class="w-10 h-10 rounded-[14px] bg-linear-to-br from-rose-500 to-rose-600 flex items-center justify-center shadow-lg shadow-rose-600/20 border border-rose-400">
-          <Droplet class="w-5 h-5 text-white" stroke-width="2.5" />
+        <div class="flex items-center gap-2.5">
+          <Droplet class="w-5.5 h-5.5 text-rose-600 fill-rose-600/20" stroke-width="2.5" />
+          <span class="text-[20px] font-black text-gray-900 tracking-tight">UniVida</span>
         </div>
-        <span class="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-gray-900 to-gray-600 hidden lg:block tracking-tight">UniVida</span>
       </div>
       
       <div class="flex-1 px-4 py-8 space-y-1.5 overflow-y-auto">
@@ -62,18 +62,18 @@ const handleSelectTab = (tabId) => {
           v-for="item in navItems" 
           :key="item.id"
           @click="activeTab = item.id"
-          class="w-full flex items-center lg:justify-start justify-center gap-3.5 p-3 rounded-[16px] transition-all duration-200 group relative outline-none"
+          class="w-full flex items-center lg:justify-start justify-center gap-3.5 p-3 rounded-2xl transition-all duration-200 group relative outline-none"
           :class="activeTab === item.id ? 'bg-white shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-gray-100 text-rose-600 font-semibold' : 'text-gray-500 hover:bg-gray-50/80 hover:text-gray-900 font-medium'"
         >
           <div v-if="activeTab === item.id" class="absolute -left-4 w-1 h-6 rounded-r-full bg-rose-500 hidden lg:block"></div>
-          <component :is="item.icon" class="w-[22px] h-[22px] transition-transform group-hover:scale-110" :class="activeTab === item.id ? 'text-rose-600' : 'text-gray-400 group-hover:text-gray-500'" stroke-width="2" />
+          <component :is="item.icon" class="w-5.5 h-5.5 transition-transform group-hover:scale-110" :class="activeTab === item.id ? 'text-rose-600' : 'text-gray-400 group-hover:text-gray-500'" stroke-width="2" />
           <span class="hidden lg:block">{{ item.name }}</span>
         </button>
       </div>
       
       <div class="p-6 border-t border-gray-100/50">
         <button @click="emit('logout')" class="w-full flex items-center lg:justify-start justify-center gap-3.5 p-3 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-[14px] transition-all group font-medium">
-            <LogOut class="w-[22px] h-[22px] transition-transform group-hover:-translate-x-1" stroke-width="2" />
+            <LogOut class="w-5.5 h-5.5 transition-transform group-hover:-translate-x-1" stroke-width="2" />
             <span class="hidden lg:block">Terminar Sessão</span>
         </button>
       </div>
@@ -94,7 +94,7 @@ const handleSelectTab = (tabId) => {
             <Menu class="w-5 h-5" />
           </button>
           <button class="relative p-2.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors hidden md:flex">
-            <Bell class="w-[22px] h-[22px]" stroke-width="2" />
+            <Bell class="w-5.5 h-5.5" stroke-width="2" />
             <span class="absolute top-2 right-2.5 w-2 h-2 bg-rose-500 ring-2 ring-white rounded-full"></span>
           </button>
           
@@ -125,10 +125,8 @@ const handleSelectTab = (tabId) => {
       <div class="absolute right-0 top-0 h-full w-72 bg-white shadow-xl border-l border-gray-100 flex flex-col">
         <div class="p-5 border-b border-gray-100 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-[12px] bg-linear-to-br from-rose-500 to-rose-600 flex items-center justify-center text-white shadow-sm">
-              <Droplet class="w-4 h-4" stroke-width="2.5" />
-            </div>
-            <span class="font-bold text-gray-900">UniVida</span>
+            <Droplet class="w-5.5 h-5.5 text-rose-600 fill-rose-600/20" stroke-width="2.5" />
+          <span class="text-[20px] font-black text-gray-900 tracking-tight">UniVida</span>
           </div>
           <button @click="isMobileNavOpen = false" class="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full">
             <LogOut class="w-4 h-4 rotate-180" />

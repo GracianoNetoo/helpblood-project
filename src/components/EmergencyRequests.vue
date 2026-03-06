@@ -21,8 +21,8 @@ const acceptEmergency = (request) => {
 </script>
 
 <template>
-  <div class="max-w-[1200px] mx-auto pb-10">
-    <div class="bg-white rounded-[32px] border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-8 md:p-10">
+  <div class="max-w-300 mx-auto pb-10">
+    <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-8 md:p-10">
       
       <div class="mb-8">
         <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-3">
@@ -34,14 +34,14 @@ const acceptEmergency = (request) => {
         <p class="text-sm text-gray-500 mt-2">Chamadas de urgência alinhadas com o seu tipo sanguíneo.</p>
       </div>
 
-      <div v-if="requests.length === 0" class="py-16 text-center border-2 border-dashed border-gray-100 rounded-[24px]">
+      <div v-if="requests.length === 0" class="py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl">
         <Droplet class="w-12 h-12 text-gray-300 mx-auto mb-4" />
         <h3 class="text-lg font-bold text-gray-900">Sem pedidos ativos</h3>
         <p class="text-sm text-gray-500 mt-2">Quando alguém solicitar ajuda, ela aparecerá aqui.</p>
       </div>
 
       <div v-else class="space-y-4">
-        <div v-for="request in requests" :key="request.id" class="relative overflow-hidden border border-rose-200 bg-rose-50/30 rounded-[24px] p-6 hover:shadow-lg hover:shadow-rose-100 transition-all group">
+        <div v-for="request in requests" :key="request.id" class="relative overflow-hidden border border-rose-200 bg-rose-50/30 rounded-3xl p-6 hover:shadow-lg hover:shadow-rose-100 transition-all group">
           <div class="absolute right-0 top-0 w-32 h-32 bg-linear-to-br from-rose-200 to-transparent opacity-20 group-hover:opacity-40 rounded-bl-full transition-opacity"></div>
           
           <div class="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6 z-10 relative">

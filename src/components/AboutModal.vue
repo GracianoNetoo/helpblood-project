@@ -7,7 +7,7 @@ const emit = defineEmits(['close']);
     <div class="p-6 md:p-8 border-b border-gray-100 bg-gray-50/60 flex justify-between items-center">
       <div>
         <h2 class="text-xl md:text-2xl font-extrabold text-gray-900 tracking-tight">Sobre Nós</h2>
-        <p class="text-sm text-gray-500 mt-1">UniVida Angola</p>
+        <p class="text-sm text-gray-500 mt-1">UniVida</p>
       </div>
       <button @click="$emit('close')" class="w-10 h-10 bg-white border border-gray-200 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-full flex items-center justify-center transition-colors shadow-sm">
         <span class="text-xl leading-none">×</span>

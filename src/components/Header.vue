@@ -28,13 +28,13 @@ onUnmounted(() => {
             
             <!-- Navbar Pill Container -->
             <nav 
-                class="flex items-center justify-between px-6 py-3 w-full max-w-[1200px] rounded-full transition-all duration-300"
+                class="flex items-center justify-between px-6 py-3 w-full max-w-300 rounded-full transition-all duration-300"
                 :class="isScrolled ? 'bg-white/80 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-200/50' : 'bg-white/60 backdrop-blur-xl border border-white shadow-[0_2px_10px_rgb(0,0,0,0.02)]'"
             >
                 
                 <!-- Logo -->
                 <div class="flex items-center gap-2.5">
-                    <Droplet class="w-[22px] h-[22px] text-rose-600 fill-rose-600/20" stroke-width="2.5" />
+                    <Droplet class="w-5.5 h-5.5 text-rose-600 fill-rose-600/20" stroke-width="2.5" />
                     <span class="text-[20px] font-black text-gray-900 tracking-tight">UniVida</span>
                 </div>
 
@@ -77,7 +77,7 @@ onUnmounted(() => {
         <!-- Mobile Menu Dropdown -->
         <div 
             v-if="isMobileMenuOpen" 
-            class="absolute top-[80px] left-0 right-0 bg-white/95 backdrop-blur-3xl shadow-xl border-t border-gray-100 p-6 flex flex-col gap-4 pointer-events-auto md:hidden"
+            class="absolute top-20 left-0 right-0 bg-white/95 backdrop-blur-3xl shadow-xl border-t border-gray-100 p-6 flex flex-col gap-4 pointer-events-auto md:hidden"
         >
             <a href="#home" @click="isMobileMenuOpen = false; activeLink = 'home'" :class="activeLink === 'home' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900'" class="text-[16px] font-bold py-2 border-b border-gray-100 transition-colors">Home</a>
             <a href="#campanhas" @click="isMobileMenuOpen = false; activeLink = 'campanhas'" :class="activeLink === 'campanhas' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900'" class="text-[16px] font-bold py-2 border-b border-gray-100 transition-colors">Campanhas</a>
@@ -86,12 +86,12 @@ onUnmounted(() => {
             <div class="flex flex-col gap-3 mt-4">
                 <button 
                     @click="$emit('click-login'); isMobileMenuOpen = false"
-                    class="w-full text-center text-[15px] font-bold text-gray-700 bg-gray-50 hover:bg-gray-100 py-3.5 rounded-[16px] transition-colors border border-gray-200">
+                    class="w-full text-center text-[15px] font-bold text-gray-700 bg-gray-50 hover:bg-gray-100 py-3.5 rounded-2xl transition-colors border border-gray-200">
                     Iniciar Sessão
                 </button>
                 <button 
                     @click="$emit('click-cadastro'); isMobileMenuOpen = false"
-                    class="w-full text-center bg-gray-900 hover:bg-black text-white py-3.5 rounded-[16px] text-[15px] font-bold shadow-md transition-all flex items-center justify-center gap-2"
+                    class="w-full text-center bg-gray-900 hover:bg-black text-white py-3.5 rounded-2xl text-[15px] font-bold shadow-md transition-all flex items-center justify-center gap-2"
                 >
                     Criar Conta <ArrowRight class="w-4 h-4" />
                 </button>

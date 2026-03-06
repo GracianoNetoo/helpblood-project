@@ -28,12 +28,12 @@ watch(
 </script>
 
 <template>
-    <div class="flex flex-col md:flex-row w-full max-w-[1100px] min-h-auto md:min-h-[600px] bg-white overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-gray-100/50 rounded-[32px] md:rounded-[40px] relative z-20 m-auto">
+    <div class="flex flex-col md:flex-row w-full max-w-275 min-h-auto md:min-h-150 bg-white overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-gray-100/50 rounded-4xl md:rounded-[40px] relative z-20 m-auto">
         
         <!-- Sidebar Navigation (Auth Modes) -->
         <div class="w-full md:w-[320px] bg-linear-to-br from-[#0F172A] to-[#1E293B] p-8 md:p-10 flex flex-col justify-between gap-6 relative overflow-hidden shrink-0 group">
             <!-- Glow Effects -->
-            <div class="absolute top-0 right-0 w-[300px] h-[300px] bg-rose-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none transition-all duration-700 group-hover:bg-rose-500/20"></div>
+            <div class="absolute top-0 right-0 w-75 h-75 bg-rose-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none transition-all duration-700 group-hover:bg-rose-500/20"></div>
             
             <div class="relative z-10">
                 <div class="flex items-center gap-2.5 mb-12">
@@ -51,7 +51,7 @@ watch(
                             ? 'bg-rose-600 text-white shadow-lg shadow-rose-900/20 border-rose-500 ring-1 ring-white/20' 
                             : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border-transparent'"
                         class="flex-1 md:w-full p-4 rounded-[20px] font-bold text-[15px] transition-all duration-300 text-left flex items-center gap-3 border backdrop-blur-sm group/btn">
-                        <div :class="abaAtiva === 'cadastro' ? 'bg-white/20' : 'bg-gray-800'" class="w-10 h-10 rounded-[12px] flex items-center justify-center transition-colors">
+                        <div :class="abaAtiva === 'cadastro' ? 'bg-white/20' : 'bg-gray-800'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors">
                            <UserPlus class="w-5 h-5" :class="abaAtiva === 'cadastro' ? 'text-white' : 'text-gray-400 group-hover/btn:text-white'" stroke-width="2" />
                         </div>
                         <span class="hidden sm:block">Criar Conta</span>
@@ -62,7 +62,7 @@ watch(
                             ? 'bg-rose-600 text-white shadow-lg shadow-rose-900/20 border-rose-500 ring-1 ring-white/20' 
                             : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border-transparent'"
                         class="flex-1 md:w-full p-4 rounded-[20px] font-bold text-[15px] transition-all duration-300 text-left flex items-center gap-3 border backdrop-blur-sm group/btn">
-                        <div :class="abaAtiva === 'login' ? 'bg-white/20' : 'bg-gray-800'" class="w-10 h-10 rounded-[12px] flex items-center justify-center transition-colors">
+                        <div :class="abaAtiva === 'login' ? 'bg-white/20' : 'bg-gray-800'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors">
                            <LogIn class="w-5 h-5" :class="abaAtiva === 'login' ? 'text-white' : 'text-gray-400 group-hover/btn:text-white'" stroke-width="2" />
                         </div>
                         <span class="hidden sm:block">Fazer Login</span>
@@ -77,7 +77,7 @@ watch(
         </div>
 
         <!-- Main Content Area -->
-        <div class="w-full md:flex-1 p-6 md:p-12 bg-white flex flex-col justify-center relative min-h-auto md:min-h-[500px]">
+        <div class="w-full md:flex-1 p-6 md:p-12 bg-white flex flex-col justify-center relative min-h-auto md:min-h-125">
             <!-- Abstract background pattern -->
             <div class="absolute inset-0 bg-[radial-gradient(#E2E8F0_1px,transparent_1px)] bg-size-[24px_24px] opacity-30 mix-blend-multiply pointer-events-none"></div>
 
@@ -106,17 +106,17 @@ watch(
                         <div class="space-y-5">
                             <div>
                                 <label class="block text-[13px] font-bold text-gray-700 mb-1.5 ml-1">E-mail</label>
-                                <input type="email" placeholder="nome@exemplo.com" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[15px] rounded-[16px] px-5 py-4 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all placeholder:text-gray-400 font-medium" />
+                                <input type="email" placeholder="nome@exemplo.com" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[15px] rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all placeholder:text-gray-400 font-medium" />
                             </div>
                             <div>
                                 <div class="flex justify-between items-center mb-1.5 ml-1 mr-1">
                                     <label class="text-[13px] font-bold text-gray-700">Palavra-passe</label>
                                     <button @click="abaAtiva = 'recuperar'" class="text-[12px] font-bold text-rose-600 hover:text-rose-700 transition-colors">Esqueceu a senha?</button>
                                 </div>
-                                <input type="password" placeholder="••••••••" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[15px] rounded-[16px] px-5 py-4 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium placeholder:text-gray-400" />
+                                <input type="password" placeholder="••••••••" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[15px] rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium placeholder:text-gray-400" />
                             </div>
                             
-                            <button @click="realizarLoginManual" class="w-full bg-gray-900 hover:bg-black text-white px-6 py-4 rounded-[16px] font-bold text-[15px] shadow-[0_4px_14px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-0.5 mt-4 flex justify-center items-center gap-2 group">
+                            <button @click="realizarLoginManual" class="w-full bg-gray-900 hover:bg-black text-white px-6 py-4 rounded-2xl font-bold text-[15px] shadow-[0_4px_14px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-0.5 mt-4 flex justify-center items-center gap-2 group">
                                 Acessar Painel
                                 <ArrowRight class="w-4 h-4 text-gray-400 group-hover:text-white transition-colors group-hover:translate-x-1" stroke-width="2.5" />
                             </button>
@@ -140,10 +140,10 @@ watch(
                         <div class="space-y-5">
                             <div>
                                 <label class="block text-[13px] font-bold text-gray-700 mb-1.5 ml-1">E-mail Registado</label>
-                                <input type="email" placeholder="nome@exemplo.com" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[15px] rounded-[16px] px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400 font-medium" />
+                                <input type="email" placeholder="nome@exemplo.com" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[15px] rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400 font-medium" />
                             </div>
                             
-                            <button @click="abaAtiva = 'login'" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-[16px] font-bold text-[15px] shadow-[0_4px_14px_rgba(37,99,235,0.2)] transition-all hover:-translate-y-0.5 mt-4 flex justify-center items-center gap-2">
+                            <button @click="abaAtiva = 'login'" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-2xl font-bold text-[15px] shadow-[0_4px_14px_rgba(37,99,235,0.2)] transition-all hover:-translate-y-0.5 mt-4 flex justify-center items-center gap-2">
                                 Enviar Email de Recuperação
                             </button>
                         </div>
@@ -160,8 +160,8 @@ watch(
     
     <!-- Abstract Page Background (When visible in modal) -->
     <div class="fixed inset-0 pointer-events-none z-0 hidden lg:block">
-        <div class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-rose-200/20 rounded-full blur-[120px]"></div>
-        <div class="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-blue-200/20 rounded-full blur-[120px]"></div>
+        <div class="absolute top-1/4 left-1/4 w-125 h-125 bg-rose-200/20 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-150 h-150 bg-blue-200/20 rounded-full blur-[120px]"></div>
     </div>
 </template>
 

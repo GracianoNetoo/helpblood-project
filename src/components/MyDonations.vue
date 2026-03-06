@@ -39,8 +39,8 @@ const donations = [
 </script>
 
 <template>
-  <div class="max-w-[1200px] mx-auto pb-10">
-    <div class="bg-white rounded-[32px] border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-6 md:p-10 overflow-hidden">
+  <div class="max-w-300 mx-auto pb-10">
+    <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-6 md:p-10 overflow-hidden">
       
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
@@ -82,13 +82,13 @@ const donations = [
 
       <!-- Tabela Funcional -->
       <div class="overflow-x-auto pb-4 custom-scrollbar">
-        <table class="w-full text-left border-collapse min-w-[700px]">
+        <table class="w-full text-left border-collapse min-w-175">
           <thead>
             <tr class="bg-gray-50/80 border-y border-gray-100">
-              <th class="py-4 px-5 text-[12px] font-bold text-gray-400 uppercase tracking-widest rounded-tl-[16px]">ID Doação</th>
+              <th class="py-4 px-5 text-[12px] font-bold text-gray-400 uppercase tracking-widest rounded-tl-2xl">ID Doação</th>
               <th class="py-4 px-5 text-[12px] font-bold text-gray-400 uppercase tracking-widest">Data & Local</th>
               <th class="py-4 px-5 text-[12px] font-bold text-gray-400 uppercase tracking-widest">Detalhes</th>
-              <th class="py-4 px-5 text-[12px] font-bold text-gray-400 uppercase tracking-widest rounded-tr-[16px] text-right">Estado</th>
+              <th class="py-4 px-5 text-[12px] font-bold text-gray-400 uppercase tracking-widest rounded-tr-2xl text-right">Estado</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100/80">

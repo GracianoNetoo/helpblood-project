@@ -12,7 +12,7 @@ const emit = defineEmits(['click-agendar-doacao']);
     <div class="container mx-auto px-6 relative z-10">
       
       <!-- Section Header aligned with Hero typography -->
-      <div class="text-center max-w-[600px] mx-auto mb-20">
+      <div class="text-center max-w-150 mx-auto mb-20">
         <div class="inline-flex items-center justify-center gap-2 mb-4">
           <span class="text-[12px] font-bold text-rose-600 uppercase tracking-widest bg-rose-50 px-3 py-1.5 rounded-full">Como Funciona</span>
         </div>
@@ -28,11 +28,11 @@ const emit = defineEmits(['click-agendar-doacao']);
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative max-w-6xl mx-auto">
         
         <!-- Connecting Line (Desktop) -->
-        <div class="hidden md:block absolute top-[60px] left-[10%] right-[10%] h-0.5 bg-linear-to-r from-rose-100 via-rose-200 to-rose-100 z-0"></div>
+        <div class="hidden md:block absolute top-15 left-[10%] right-[10%] h-0.5 bg-linear-to-r from-rose-100 via-rose-200 to-rose-100 z-0"></div>
 
         <!-- Step 1 -->
-        <div class="group bg-white rounded-[32px] p-8 md:p-10 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(225,29,72,0.06)] hover:border-rose-100 transition-all duration-300 relative z-10 flex flex-col items-center text-center">
-          <div class="w-20 h-20 bg-white border border-rose-100 text-rose-600 rounded-[24px] flex items-center justify-center mb-8 shadow-sm group-hover:bg-rose-50 group-hover:scale-110 transition-transform duration-500">
+        <div class="group bg-white rounded-4xl p-8 md:p-10 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(225,29,72,0.06)] hover:border-rose-100 transition-all duration-300 relative z-10 flex flex-col items-center text-center">
+          <div class="w-20 h-20 bg-white border border-rose-100 text-rose-600 rounded-3xl flex items-center justify-center mb-8 shadow-sm group-hover:bg-rose-50 group-hover:scale-110 transition-transform duration-500">
             <MapPin class="w-8 h-8" stroke-width="2" />
           </div>
           <span class="absolute top-10 right-10 text-[60px] font-black text-gray-50/80 -z-10 group-hover:text-rose-50/50 transition-colors">1</span>
@@ -43,8 +43,8 @@ const emit = defineEmits(['click-agendar-doacao']);
         </div>
 
         <!-- Step 2 -->
-        <div class="group bg-white rounded-[32px] p-8 md:p-10 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(225,29,72,0.06)] hover:border-rose-100 transition-all duration-300 relative z-10 flex flex-col items-center text-center">
-          <div class="w-20 h-20 bg-white border border-rose-100 text-rose-600 rounded-[24px] flex items-center justify-center mb-8 shadow-sm group-hover:bg-rose-50 group-hover:scale-110 transition-transform duration-500">
+        <div class="group bg-white rounded-4xl p-8 md:p-10 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(225,29,72,0.06)] hover:border-rose-100 transition-all duration-300 relative z-10 flex flex-col items-center text-center">
+          <div class="w-20 h-20 bg-white border border-rose-100 text-rose-600 rounded-3xl flex items-center justify-center mb-8 shadow-sm group-hover:bg-rose-50 group-hover:scale-110 transition-transform duration-500">
             <ShieldCheck class="w-8 h-8" stroke-width="2" />
           </div>
           <span class="absolute top-10 right-10 text-[60px] font-black text-gray-50/80 -z-10 group-hover:text-rose-50/50 transition-colors">2</span>
@@ -55,8 +55,8 @@ const emit = defineEmits(['click-agendar-doacao']);
         </div>
 
         <!-- Step 3 -->
-        <div class="group bg-white rounded-[32px] p-8 md:p-10 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(225,29,72,0.06)] hover:border-rose-100 transition-all duration-300 relative z-10 flex flex-col items-center text-center">
-          <div class="w-20 h-20 bg-white border border-rose-100 text-rose-600 rounded-[24px] flex items-center justify-center mb-8 shadow-sm group-hover:bg-rose-50 group-hover:scale-110 transition-transform duration-500">
+        <div class="group bg-white rounded-4xl p-8 md:p-10 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(225,29,72,0.06)] hover:border-rose-100 transition-all duration-300 relative z-10 flex flex-col items-center text-center">
+          <div class="w-20 h-20 bg-white border border-rose-100 text-rose-600 rounded-3xl flex items-center justify-center mb-8 shadow-sm group-hover:bg-rose-50 group-hover:scale-110 transition-transform duration-500">
             <Heart class="w-8 h-8" stroke-width="2" />
           </div>
           <span class="absolute top-10 right-10 text-[60px] font-black text-gray-50/80 -z-10 group-hover:text-rose-50/50 transition-colors">3</span>
