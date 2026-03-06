@@ -1,12 +1,21 @@
 <script setup>
-import { MapPin, CalendarDays, ArrowRight } from 'lucide-vue-next';
+import { ref } from 'vue';
+import { MapPin, CalendarDays, ArrowRight, ShieldCheck } from 'lucide-vue-next';
+import { useAppointmentsStore } from '../stores/appointmentsStore';
+
+const appointmentsStore = useAppointmentsStore();
+const selectedCampaign = ref(null);
+const isConfirmOpen = ref(false);
 
 const campaigns = [
   {
     id: 'camp-1',
     title: 'Mutirão Nacional: Universidade Agostinho Neto',
     location: 'Luanda',
-    date: 'Hoje, 10h - 15h',
+    dateLabel: 'Hoje, 10h - 15h',
+    dateISO: new Date().toISOString().split('T')[0],
+    time: '10:00',
+    description: 'Unidade móvel em frente à reitoria, com foco na reposição urgente do banco de sangue central.',
     tags: ['O-', 'A+'],
     highlight: 'Crítico'
   },
@@ -14,7 +23,10 @@ const campaigns = [
     id: 'camp-2',
     title: 'Ação Comunitária Praia Morena',
     location: 'Benguela',
-    date: 'Próx Sáb, 08h',
+    dateLabel: 'Próx Sáb, 08h',
+    dateISO: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    time: '08:00',
+    description: 'Postos de triagem e coleta com apoio de voluntários locais e parceiros comunitários.',
     tags: ['Todos'],
     highlight: 'Aberto'
   },
@@ -22,11 +34,35 @@ const campaigns = [
     id: 'camp-3',
     title: 'Campanha Solidária Kilamba',
     location: 'Luanda',
-    date: 'Dom, 09h',
+    dateLabel: 'Dom, 09h',
+    dateISO: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    time: '09:00',
+    description: 'Coleta organizada para famílias da região, com prioridade para doadores regulares.',
     tags: ['O+', 'B+'],
     highlight: 'Disponível'
   }
 ];
+
+const openConfirm = (campaign) => {
+  selectedCampaign.value = campaign;
+  isConfirmOpen.value = true;
+};
+
+const closeConfirm = () => {
+  isConfirmOpen.value = false;
+  selectedCampaign.value = null;
+};
+
+const confirmSchedule = () => {
+  if (!selectedCampaign.value) return;
+  appointmentsStore.addAppointment({
+    hospital: selectedCampaign.value.title,
+    date: selectedCampaign.value.dateISO,
+    time: selectedCampaign.value.time,
+    notes: `Campanha em ${selectedCampaign.value.location}`
+  });
+  closeConfirm();
+};
 </script>
 
 <template>
@@ -71,15 +107,39 @@ const campaigns = [
               <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 border border-gray-100">
                 <CalendarDays class="w-4 h-4" />
               </div>
-              {{ camp.date }}
+              {{ camp.dateLabel }}
             </div>
           </div>
 
-          <button class="mt-6 w-full bg-white border border-gray-200 text-gray-900 font-bold rounded-[16px] py-3 hover:bg-gray-900 hover:text-white transition-all flex items-center justify-center gap-2">
+          <p class="mt-4 text-[13px] text-gray-500 leading-relaxed">{{ camp.description }}</p>
+
+          <button @click="openConfirm(camp)" class="mt-5 w-full bg-white border border-gray-200 text-gray-900 font-bold rounded-[16px] py-3 hover:bg-gray-900 hover:text-white transition-all flex items-center justify-center gap-2">
             Agendar Horário
             <ArrowRight class="w-4 h-4" />
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div v-if="isConfirmOpen" class="fixed inset-0 z-30 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="closeConfirm"></div>
+    <div class="relative w-full max-w-md bg-white rounded-[24px] border border-gray-100 shadow-2xl p-6">
+      <div class="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100 mb-4">
+        <ShieldCheck class="w-6 h-6" />
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 mb-2">Confirmar agendamento</h3>
+      <p class="text-sm text-gray-500 mb-6">
+        Deseja agendar a campanha
+        <span class="font-semibold text-gray-900">{{ selectedCampaign?.title }}</span>?
+      </p>
+      <div class="flex gap-3">
+        <button @click="closeConfirm" class="flex-1 px-4 py-3 rounded-2xl bg-gray-100 text-gray-900 font-bold hover:bg-gray-200 transition-colors">
+          Cancelar
+        </button>
+        <button @click="confirmSchedule" class="flex-1 px-4 py-3 rounded-2xl bg-gray-900 text-white font-bold hover:bg-black transition-colors">
+          Confirmar
+        </button>
       </div>
     </div>
   </div>
