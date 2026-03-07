@@ -105,7 +105,7 @@ watch(
                         
                         <div class="space-y-5">
                             <div>
-                                <label class="block text-[13px] font-bold text-gray-700 mb-1.5 ml-1">E-mail</label>
+                                <label class="block text-[13px] font-bold text-gray-700 mb-1.5 ml-1">E-mail ou Numero de telefone</label>
                                 <input type="email" placeholder="nome@exemplo.com" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[15px] rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all placeholder:text-gray-400 font-medium" />
                             </div>
                             <div>
@@ -139,12 +139,12 @@ watch(
                         
                         <div class="space-y-5">
                             <div>
-                                <label class="block text-[13px] font-bold text-gray-700 mb-1.5 ml-1">E-mail Registado</label>
+                                <label class="block text-[13px] font-bold text-gray-700 mb-1.5 ml-1">E-mail ou Numero de telefone Registado</label>
                                 <input type="email" placeholder="nome@exemplo.com" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[15px] rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400 font-medium" />
                             </div>
                             
                             <button @click="abaAtiva = 'login'" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-2xl font-bold text-[15px] shadow-[0_4px_14px_rgba(37,99,235,0.2)] transition-all hover:-translate-y-0.5 mt-4 flex justify-center items-center gap-2">
-                                Enviar Email de Recuperação
+                                Enviar Codigo de Recuperação
                             </button>
                         </div>
                         
