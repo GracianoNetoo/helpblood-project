@@ -10,7 +10,7 @@ const emit = defineEmits(['open-campaigns']);
 const appointmentsStore = useAppointmentsStore();
 const { appointments, autoOpenBooking } = storeToRefs(appointmentsStore);
 const openCampaigns = () => {
-  emit('open-campaigns');
+  emit('open-campaigns', { autoOpenCampaign: true });
 };
 
 const formatDate = (dateStr) => {
