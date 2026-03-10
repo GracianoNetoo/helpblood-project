@@ -22,6 +22,7 @@ const navItems = [
 
 const activeTab = ref('dashboard');
 const isMobileNavOpen = ref(false);
+const autoOpenCampaigns = ref(false);
 
 const syncTabFromRoute = (tab) => {
   if (!tab) return;
@@ -40,8 +41,11 @@ watch(
   }
 );
 
-const handleSelectTab = (tabId) => {
+const handleSelectTab = (tabId, options = {}) => {
   activeTab.value = tabId;
+  if (options.autoOpenCampaign) {
+    autoOpenCampaigns.value = true;
+  }
   isMobileNavOpen.value = false;
 };
 </script>
@@ -115,7 +119,9 @@ const handleSelectTab = (tabId) => {
         <!-- Render Active View Component -->
         <component
           :is="navItems.find(item => item.id === activeTab).component"
-          @open-campaigns="handleSelectTab('campaigns')"
+          :auto-open="activeTab === 'campaigns' ? autoOpenCampaigns : false"
+          @open-campaigns="handleSelectTab('campaigns', $event || {})"
+          @reset-auto-open="autoOpenCampaigns = false"
         />
       </div>
     </main>

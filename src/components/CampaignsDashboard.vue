@@ -1,8 +1,16 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { MapPin, CalendarDays, ArrowRight, ShieldCheck } from 'lucide-vue-next';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
 import { storeToRefs } from 'pinia';
+
+const props = defineProps({
+  autoOpen: {
+    type: Boolean,
+    default: false
+  }
+});
+const emit = defineEmits(['agendar', 'reset-auto-open']);
 
 const appointmentsStore = useAppointmentsStore();
 const { appointments } = storeToRefs(appointmentsStore);
@@ -78,6 +86,14 @@ const confirmSchedule = () => {
   }, 2200);
   closeConfirm();
 };
+
+onMounted(() => {
+  if (props.autoOpen) {
+    const firstAvailable = campaigns.find((c) => !isScheduled(c.id));
+    if (firstAvailable) openConfirm(firstAvailable);
+    emit('reset-auto-open');
+  }
+});
 </script>
 
 <template>
