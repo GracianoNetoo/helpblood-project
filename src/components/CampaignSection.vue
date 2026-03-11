@@ -1,7 +1,7 @@
 <script setup>
 import { MapPin, CalendarDays, ArrowRight, Activity, Plus, FileText, ArrowUpRight } from 'lucide-vue-next';
 
-const emit = defineEmits(['click-agendar-horario', 'click-solicitar-parceria']);
+const emit = defineEmits(['click-agendar-horario', 'click-solicitar-parceria', 'click-ver-rota']);
 </script>
 
 <template>
@@ -69,7 +69,7 @@ const emit = defineEmits(['click-agendar-horario', 'click-solicitar-parceria']);
             <p class="text-gray-500 text-[15px] font-medium leading-relaxed mb-8 flex-1">
               Unidade Móvel estabelecida em frente à Reitoria. Nosso foco é a estabilização urgente do banco de sangue central.
             </p>
-            <button class="w-full py-4 text-[14px] bg-white border-2 border-gray-100 text-gray-900 font-bold rounded-2xl group-hover:bg-gray-900 group-hover:border-gray-900 group-hover:text-white transition-all flex items-center justify-center gap-2">
+            <button @click="emit('click-ver-rota')" class="w-full py-4 text-[14px] bg-white border-2 border-gray-100 text-gray-900 font-bold rounded-2xl group-hover:bg-gray-900 group-hover:border-gray-900 group-hover:text-white transition-all flex items-center justify-center gap-2">
               Ver Rota
               <ArrowUpRight class="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all" />
             </button>

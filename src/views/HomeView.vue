@@ -14,6 +14,7 @@ import TermsModal from '../components/TermsModal.vue';
 import PrivacyModal from '../components/PrivacyModal.vue';
 import HelpCenterModal from '../components/HelpCenterModal.vue';
 import AboutModal from '../components/AboutModal.vue';
+import AccessNoticeModal from '../components/AccessNoticeModal.vue';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
 
 const router = useRouter();
@@ -29,6 +30,7 @@ const mostrarTermosModal = ref(false);
 const mostrarPrivacidadeModal = ref(false);
 const mostrarAjudaModal = ref(false);
 const mostrarSobreModal = ref(false);
+const mostrarAvisoRotasModal = ref(false);
 
 const abrirCadastro = () => {
   authTab.value = 'cadastro';
@@ -129,6 +131,16 @@ const fecharSobre = () => {
   document.body.style.overflow = '';
 };
 
+const abrirAvisoRotas = () => {
+  mostrarAvisoRotasModal.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+const fecharAvisoRotas = () => {
+  mostrarAvisoRotasModal.value = false;
+  document.body.style.overflow = '';
+};
+
 onUnmounted(() => {
   document.body.style.overflow = '';
 });
@@ -143,7 +155,7 @@ onUnmounted(() => {
       <HeaderCard @click-pedir-doacao="abrirPedidoAjuda" @click-quero-doar="abrirCadastroParaAgendar" />
       <AboutSection />
       <StepsSection @click-agendar-doacao="abrirCadastroParaAgendar" />
-      <CampaignSection @click-agendar-horario="abrirCadastroParaAgendar" @click-solicitar-parceria="abrirParceria" />
+      <CampaignSection @click-agendar-horario="abrirCadastroParaAgendar" @click-solicitar-parceria="abrirParceria" @click-ver-rota="abrirAvisoRotas" />
       
       <section class="py-20 bg-gray-100">
          <div class="container mx-auto px-6">
@@ -210,6 +222,14 @@ onUnmounted(() => {
       
       <div class="relative w-full max-w-3xl max-h-[95vh] overflow-y-auto rounded-3xl shadow-2xl flex items-center justify-center p-4 custom-scrollbar">
         <AboutModal @close="fecharSobre" />
+      </div>
+    </div>
+
+    <div v-if="mostrarAvisoRotasModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
+      <div @click="fecharAvisoRotas" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+      
+      <div class="relative w-full max-w-lg max-h-[95vh] overflow-y-auto rounded-3xl shadow-2xl flex items-center justify-center p-4 custom-scrollbar">
+        <AccessNoticeModal @close="fecharAvisoRotas" />
       </div>
     </div>
   </div>
