@@ -5,17 +5,59 @@ import { ref, onMounted, onUnmounted } from 'vue';
 const isScrolled = ref(false);
 const isMobileMenuOpen = ref(false);
 const activeLink = ref('home');
+const sectionIds = ['home', 'campanhas', 'missao'];
+let rafId = null;
+let sectionEls = [];
 
 const handleScroll = () => {
     isScrolled.value = window.scrollY > 20;
+    scheduleActiveLinkUpdate();
+};
+
+const scheduleActiveLinkUpdate = () => {
+    if (rafId !== null) return;
+    rafId = window.requestAnimationFrame(() => {
+        rafId = null;
+        updateActiveLinkFromScroll();
+    });
+};
+
+const updateActiveLinkFromScroll = () => {
+    if (!sectionEls.length) return;
+
+    // Choose the section closest to the top, accounting for the fixed header.
+    const offset = 140;
+    const positions = sectionEls.map((el) => ({
+        id: el.id,
+        top: el.getBoundingClientRect().top
+    }));
+
+    const above = positions
+        .filter((p) => p.top <= offset)
+        .sort((a, b) => b.top - a.top)[0];
+
+    const nearest = positions
+        .slice()
+        .sort((a, b) => Math.abs(a.top - offset) - Math.abs(b.top - offset))[0];
+
+    const next = (above?.id || nearest?.id || activeLink.value);
+    if (next && next !== activeLink.value) activeLink.value = next;
 };
 
 onMounted(() => {
-    window.addEventListener('scroll', handleScroll);
+    sectionEls = sectionIds
+        .map((id) => document.getElementById(id))
+        .filter(Boolean);
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
 });
 
 onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll);
+    if (rafId !== null) window.cancelAnimationFrame(rafId);
+    rafId = null;
+    sectionEls = [];
 });
 </script>
 
