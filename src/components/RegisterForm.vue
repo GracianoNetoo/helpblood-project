@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed, defineEmits } from 'vue';
 import { Eye, EyeOff } from 'lucide-vue-next';
+import { useDonorsStore } from '../stores/donorsStore';
 
 const emit = defineEmits(['sucesso']);
+const donorsStore = useDonorsStore();
 
 const mostrarSenha = ref(false);
 const mostrarSenhaConfirmacao = ref(false);
@@ -82,6 +84,17 @@ const shouldShowError = (field) => submitted.value || touched.value[field];
 const handleSubmit = () => {
     submitted.value = true;
     if (isFormInvalid.value) return;
+
+    donorsStore.addDonor({
+        nome: form.value.nome,
+        tipo_sanguineo: form.value.tipo_sanguineo,
+        rh: form.value.rh,
+        provincia: provinciaSelecionada.value,
+        municipio: municipioSelecionado.value,
+        telefone: form.value.telefone.replace(/\\s/g, ''),
+        email: form.value.email,
+        doacao_sangue: form.value.doacao_sangue
+    });
 
     alert("Cadastro realizado com sucesso!");
     emit('sucesso'); 

@@ -9,16 +9,19 @@ import {
   Shield,
   Users,
   Menu,
+  UserRound,
   ClipboardList
 } from 'lucide-vue-next';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
 import { useHelpRequestsStore } from '../stores/helpRequestsStore';
+import { useDonorsStore } from '../stores/donorsStore';
 
 const emit = defineEmits(['logout']);
 
 const navItems = [
   { id: 'overview', name: 'Visao Geral', icon: LayoutDashboard },
   { id: 'requests', name: 'Pedidos de Ajuda', icon: AlertTriangle },
+  { id: 'donors', name: 'Doadores', icon: UserRound },
   { id: 'appointments', name: 'Agendamentos', icon: CalendarDays }
 ];
 
@@ -27,16 +30,21 @@ const isMobileNavOpen = ref(false);
 
 const appointmentsStore = useAppointmentsStore();
 const helpRequestsStore = useHelpRequestsStore();
+const donorsStore = useDonorsStore();
 
 const { appointments } = storeToRefs(appointmentsStore);
 const { requests } = storeToRefs(helpRequestsStore);
+const { donors } = storeToRefs(donorsStore);
 
 const totalAppointments = computed(() => appointments.value.length);
 const totalRequests = computed(() => requests.value.length);
 const pendingRequests = computed(() => requests.value.length);
+const totalDonors = computed(() => donors.value.length);
+const activeDonors = computed(() => donors.value.filter((donor) => donor.status === 'ativo').length);
 
 const latestAppointments = computed(() => appointments.value.slice(0, 4));
 const latestRequests = computed(() => requests.value.slice(0, 4));
+const latestDonors = computed(() => donors.value.slice(0, 4));
 
 const removeRequest = (id) => {
   helpRequestsStore.removeRequest(id);
@@ -44,6 +52,14 @@ const removeRequest = (id) => {
 
 const cancelAppointment = (id) => {
   appointmentsStore.cancelAppointment(id);
+};
+
+const toggleDonorStatus = (id) => {
+  donorsStore.toggleStatus(id);
+};
+
+const removeDonor = (id) => {
+  donorsStore.removeDonor(id);
 };
 
 const setTab = (tab) => {
@@ -129,6 +145,7 @@ const setTab = (tab) => {
                 <div class="mt-8 flex flex-wrap gap-3">
                   <div class="px-4 py-2 rounded-full bg-white/10 border border-white/10 text-[12px] font-semibold">Pedidos pendentes: {{ pendingRequests }}</div>
                   <div class="px-4 py-2 rounded-full bg-white/10 border border-white/10 text-[12px] font-semibold">Agendamentos ativos: {{ totalAppointments }}</div>
+                  <div class="px-4 py-2 rounded-full bg-white/10 border border-white/10 text-[12px] font-semibold">Doadores ativos: {{ activeDonors }}</div>
                 </div>
               </div>
             </div>
@@ -153,10 +170,20 @@ const setTab = (tab) => {
                   <div class="text-4xl font-extrabold text-gray-900 flex items-baseline gap-2 tracking-tight">{{ totalAppointments }}</div>
                 </div>
               </div>
+
+              <div class="bg-white rounded-4xl p-6 border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] relative overflow-hidden">
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 border border-emerald-100/50">
+                  <UserRound class="w-6 h-6" stroke-width="2.5" />
+                </div>
+                <div>
+                  <div class="text-[13px] font-semibold text-gray-500 mb-1.5">Doadores ativos</div>
+                  <div class="text-4xl font-extrabold text-gray-900 flex items-baseline gap-2 tracking-tight">{{ activeDonors }}</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
               <div class="p-6 md:p-8 flex items-center justify-between">
                 <div>
@@ -204,6 +231,32 @@ const setTab = (tab) => {
                 </div>
               </div>
             </div>
+
+            <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+              <div class="p-6 md:p-8 flex items-center justify-between">
+                <div>
+                  <h3 class="text-lg font-bold text-gray-900">Doadores recentes</h3>
+                  <p class="text-sm text-gray-500 mt-1">Ultimos cadastros na plataforma.</p>
+                </div>
+                <button @click="setTab('donors')" class="text-[13px] font-semibold text-gray-900 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full transition-colors">Ver todos</button>
+              </div>
+
+              <div class="p-6 md:p-8 pt-0 space-y-3">
+                <div v-if="donors.length === 0" class="py-10 text-center border-2 border-dashed border-gray-100 rounded-3xl text-sm text-gray-500">
+                  Sem doadores registados.
+                </div>
+                <div v-else v-for="donor in latestDonors" :key="donor.id" class="flex items-center justify-between gap-4 border border-gray-100 rounded-2xl p-4 hover:bg-gray-50 transition-colors">
+                  <div>
+                    <div class="text-sm font-bold text-gray-900">{{ donor.nome || 'Doador' }}</div>
+                    <div class="text-[12px] text-gray-500 mt-1">{{ donor.tipo_sanguineo || 'N/A' }} • {{ donor.provincia || 'Provincia' }}</div>
+                    <div class="text-[11px] text-gray-400 mt-1">Status: {{ donor.status || 'ativo' }}</div>
+                  </div>
+                  <button @click="toggleDonorStatus(donor.id)" class="text-[12px] font-semibold text-emerald-600 hover:text-emerald-700">
+                    {{ donor.status === 'ativo' ? 'Suspender' : 'Reativar' }}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -233,6 +286,45 @@ const setTab = (tab) => {
                     <div class="text-[12px] text-gray-400 mt-2">{{ request.motivo || 'Motivo nao informado.' }}</div>
                   </div>
                   <button @click="removeRequest(request.id)" class="self-start px-4 py-2 rounded-2xl bg-rose-50 text-rose-600 font-semibold hover:bg-rose-100 transition-colors">Encerrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Donors Tab -->
+        <section v-else-if="activeTab === 'donors'" class="max-w-300 mx-auto pb-10">
+          <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-6 md:p-10">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+              <div>
+                <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Doadores</h2>
+                <p class="text-sm text-gray-500 mt-1">Gerencie os doadores registados na plataforma.</p>
+              </div>
+              <div class="text-[12px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-full">Total: {{ totalDonors }}</div>
+            </div>
+
+            <div v-if="donors.length === 0" class="py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl text-sm text-gray-500">
+              Sem doadores registados.
+            </div>
+
+            <div v-else class="space-y-4">
+              <div v-for="donor in donors" :key="donor.id" class="border border-gray-100 rounded-3xl p-5 md:p-6 hover:shadow-md transition-all">
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                  <div>
+                    <div class="text-sm font-bold text-gray-900">{{ donor.nome || 'Doador' }}</div>
+                    <div class="text-[12px] text-gray-500 mt-1">Sangue: {{ donor.tipo_sanguineo || 'N/A' }} • RH: {{ donor.rh || 'N/A' }}</div>
+                    <div class="text-[12px] text-gray-500 mt-1">Localizacao: {{ donor.provincia || 'Provincia' }} • {{ donor.municipio || 'Municipio' }}</div>
+                    <div class="text-[12px] text-gray-500 mt-1">Contacto: {{ donor.telefone || 'Nao informado' }} • {{ donor.email || 'Sem email' }}</div>
+                    <div class="text-[12px] text-gray-400 mt-2">Status: {{ donor.status || 'ativo' }}</div>
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <button @click="toggleDonorStatus(donor.id)" class="px-4 py-2 rounded-2xl bg-emerald-50 text-emerald-700 font-semibold hover:bg-emerald-100 transition-colors">
+                      {{ donor.status === 'ativo' ? 'Suspender' : 'Reativar' }}
+                    </button>
+                    <button @click="removeDonor(donor.id)" class="px-4 py-2 rounded-2xl bg-rose-50 text-rose-600 font-semibold hover:bg-rose-100 transition-colors">
+                      Remover
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
