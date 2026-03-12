@@ -25,7 +25,7 @@ const emit = defineEmits(['click-pedir-doacao', 'click-quero-doar']);
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
           </span>
-          <span class="text-[12px] font-bold text-rose-600 uppercase tracking-widest">Urgência: O- em Luanda</span>
+          <span class="text-[12px] font-bold text-rose-600 uppercase tracking-widest">Sempre Alerta Sobre As últimas Campanhas</span>
         </div>
 
         <h1 class="text-[40px] md:text-[72px] font-extrabold text-gray-900 mb-6 leading-[1.05] tracking-tight">

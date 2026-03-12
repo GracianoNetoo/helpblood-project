@@ -83,8 +83,8 @@ onUnmounted(() => {
                 <!-- Desktop Navigation Items -->
                 <div class="hidden md:flex items-center gap-1 bg-gray-100/50 p-1 rounded-full border border-gray-200/50">
                     <a href="#home" @click="activeLink = 'home'" :class="activeLink === 'home' ? 'text-gray-900 bg-white shadow-sm border-gray-200/30' : 'text-gray-500 hover:text-gray-900 hover:bg-white/50 border-transparent'" class="px-5 py-2 rounded-full text-[14px] font-semibold border transition-all">Pagina Inicial</a>
-                    <a href="#campanhas" @click="activeLink = 'campanhas'" :class="activeLink === 'campanhas' ? 'text-gray-900 bg-white shadow-sm border-gray-200/30' : 'text-gray-500 hover:text-gray-900 hover:bg-white/50 border-transparent'" class="px-5 py-2 rounded-full text-[14px] font-semibold border transition-all">Campanhas</a>
                     <a href="#missao" @click="activeLink = 'missao'" :class="activeLink === 'missao' ? 'text-gray-900 bg-white shadow-sm border-gray-200/30' : 'text-gray-500 hover:text-gray-900 hover:bg-white/50 border-transparent'" class="px-5 py-2 rounded-full text-[14px] font-semibold border transition-all">Missão</a>
+                    <a href="#campanhas" @click="activeLink = 'campanhas'" :class="activeLink === 'campanhas' ? 'text-gray-900 bg-white shadow-sm border-gray-200/30' : 'text-gray-500 hover:text-gray-900 hover:bg-white/50 border-transparent'" class="px-5 py-2 rounded-full text-[14px] font-semibold border transition-all">Campanhas</a>
                 </div>
 
                 <!-- Desktop CTA Actions -->
