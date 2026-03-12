@@ -14,6 +14,7 @@ const seedDonors = [
     telefone: '923000000',
     email: 'manuel@example.com',
     doacao_sangue: 'Sim, ja doei',
+    lastDonationLiters: null,
     status: 'ativo',
     createdAt: new Date().toISOString()
   },
@@ -27,6 +28,7 @@ const seedDonors = [
     telefone: '912000000',
     email: 'helena@example.com',
     doacao_sangue: 'Nao, sera a 1a vez',
+    lastDonationLiters: null,
     status: 'ativo',
     createdAt: new Date().toISOString()
   }
@@ -41,7 +43,10 @@ export const useDonorsStore = defineStore('donors', () => {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          donors.value = parsed;
+          donors.value = parsed.map((item) => ({
+            lastDonationLiters: null,
+            ...item
+          }));
         }
       }
     } catch (error) {
@@ -53,6 +58,7 @@ export const useDonorsStore = defineStore('donors', () => {
     donors.value.unshift({
       id: Date.now(),
       status: 'ativo',
+      lastDonationLiters: null,
       createdAt: new Date().toISOString(),
       ...donor
     });
@@ -66,6 +72,19 @@ export const useDonorsStore = defineStore('donors', () => {
 
   const removeDonor = (id) => {
     donors.value = donors.value.filter((item) => item.id !== id);
+  };
+
+  const updateLastDonationLiters = (id, liters) => {
+    const target = donors.value.find((item) => item.id === id);
+    if (!target) return;
+    if (liters === '' || liters === null || typeof liters === 'undefined') {
+      target.lastDonationLiters = null;
+      return;
+    }
+    const normalized = typeof liters === 'string' ? liters.replace(',', '.') : liters;
+    const parsed = Number(normalized);
+    if (!Number.isFinite(parsed) || parsed < 0) return;
+    target.lastDonationLiters = parsed;
   };
 
   loadFromStorage();
@@ -82,5 +101,5 @@ export const useDonorsStore = defineStore('donors', () => {
     { deep: true }
   );
 
-  return { donors, addDonor, toggleStatus, removeDonor };
+  return { donors, addDonor, toggleStatus, removeDonor, updateLastDonationLiters };
 });

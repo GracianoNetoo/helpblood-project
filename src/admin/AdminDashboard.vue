@@ -81,6 +81,21 @@ const removeDonor = (id) => {
   donorsStore.removeDonor(id);
 };
 
+const donationDrafts = ref({});
+const formatLiters = (value) => (value === null || typeof value === 'undefined' ? '' : String(value));
+
+const syncDonationDraft = (donorId) => {
+  const donor = donors.value.find((item) => item.id === donorId);
+  if (!donor) return;
+  donationDrafts.value[donorId] = formatLiters(donor.lastDonationLiters);
+};
+
+const saveDonationLiters = (donorId) => {
+  const draftValue = donationDrafts.value[donorId] ?? '';
+  donorsStore.updateLastDonationLiters(donorId, draftValue);
+  syncDonationDraft(donorId);
+};
+
 const toggleCampaignStatus = (id) => {
   campaignsStore.toggleStatus(id);
 };
@@ -597,8 +612,30 @@ const addCampaign = () => {
                     <div class="text-[12px] text-gray-500 mt-1">Localizacao: {{ donor.provincia || 'Provincia' }} • {{ donor.municipio || 'Municipio' }}</div>
                     <div class="text-[12px] text-gray-500 mt-1">Contacto: {{ donor.telefone || 'Nao informado' }} • {{ donor.email || 'Sem email' }}</div>
                     <div class="text-[12px] text-gray-400 mt-2">Status: {{ donor.status || 'ativo' }}</div>
+                    <div class="text-[12px] text-gray-500 mt-1">
+                      Ultima doacao: {{ donor.lastDonationLiters !== null && typeof donor.lastDonationLiters !== 'undefined' ? donor.lastDonationLiters + ' L' : 'Nao informado' }}
+                    </div>
                   </div>
-                  <div class="flex flex-col gap-2">
+                  <div class="flex flex-col gap-2 min-w-[220px]">
+                    <div class="bg-gray-50 border border-gray-200 rounded-2xl p-3">
+                      <label class="text-[11px] font-bold text-gray-500">Litros na ultima campanha</label>
+                      <input
+                        :value="donationDrafts[donor.id] ?? formatLiters(donor.lastDonationLiters)"
+                        @input="donationDrafts[donor.id] = $event.target.value"
+                        @blur="syncDonationDraft(donor.id)"
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        placeholder="0.45"
+                        class="mt-2 w-full bg-white border border-gray-200 text-gray-900 text-[13px] rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
+                      />
+                      <button
+                        @click="saveDonationLiters(donor.id)"
+                        class="mt-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-3 py-2 text-[12px] font-bold transition-all"
+                      >
+                        Guardar
+                      </button>
+                    </div>
                     <button @click="toggleDonorStatus(donor.id)" class="px-4 py-2 rounded-2xl bg-emerald-50 text-emerald-700 font-semibold hover:bg-emerald-100 transition-colors">
                       {{ donor.status === 'ativo' ? 'Suspender' : 'Reativar' }}
                     </button>
