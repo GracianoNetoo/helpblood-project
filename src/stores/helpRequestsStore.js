@@ -12,7 +12,10 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          requests.value = parsed;
+          requests.value = parsed.map((item) => ({
+            status: 'pending',
+            ...item
+          }));
         }
       }
     } catch (error) {
@@ -24,8 +27,21 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
     requests.value.unshift({
       id: Date.now(),
       createdAt: new Date().toISOString(),
+      status: 'pending',
       ...request
     });
+  };
+
+  const approveRequest = (id) => {
+    const target = requests.value.find((item) => item.id === id);
+    if (!target) return;
+    target.status = 'approved';
+  };
+
+  const rejectRequest = (id) => {
+    const target = requests.value.find((item) => item.id === id);
+    if (!target) return;
+    target.status = 'rejected';
   };
 
   const removeRequest = (id) => {
@@ -46,5 +62,5 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
     { deep: true }
   );
 
-  return { requests, addRequest, removeRequest };
+  return { requests, addRequest, removeRequest, approveRequest, rejectRequest };
 });
