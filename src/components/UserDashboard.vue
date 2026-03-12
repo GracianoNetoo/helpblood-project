@@ -121,6 +121,7 @@ const handleSelectTab = (tabId, options = {}) => {
           :is="navItems.find(item => item.id === activeTab).component"
           :auto-open="activeTab === 'campaigns' ? autoOpenCampaigns : false"
           @open-campaigns="handleSelectTab('campaigns', $event || {})"
+          @open-requests="handleSelectTab('emergencies')"
           @reset-auto-open="autoOpenCampaigns = false"
         />
       </div>

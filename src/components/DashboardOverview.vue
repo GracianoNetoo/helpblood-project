@@ -5,13 +5,16 @@ import { jsPDF } from 'jspdf';
 import { Droplet, CalendarDays, MapPin, Navigation, Activity, FileText } from 'lucide-vue-next';
 import { useDonorsStore } from '../stores/donorsStore';
 import { useAuthStore } from '../stores/authStore';
+import { useHelpRequestsStore } from '../stores/helpRequestsStore';
 
-const emit = defineEmits(['open-campaigns']);
+const emit = defineEmits(['open-campaigns', 'open-requests']);
 
 const donorsStore = useDonorsStore();
 const authStore = useAuthStore();
+const helpRequestsStore = useHelpRequestsStore();
 const { donors } = storeToRefs(donorsStore);
 const { currentDonorId } = storeToRefs(authStore);
+const { requests } = storeToRefs(helpRequestsStore);
 
 const currentDonor = computed(() => donors.value.find((donor) => donor.id === currentDonorId.value));
 const formatDonorId = (donor) => (donor?.id ? `DV-${String(donor.id).padStart(6, '0')}` : 'DV-000000');
@@ -21,6 +24,8 @@ const cardData = computed(() => ({
   id: formatDonorId(currentDonor.value),
   blood: currentDonor.value?.tipo_sanguineo || 'O+'
 }));
+
+const activeHelpRequests = computed(() => requests.value.filter((item) => item.status === 'approved').slice(0, 3));
 
 const downloadCard = () => {
   const data = cardData.value;
@@ -178,7 +183,7 @@ const downloadCard = () => {
         </div>
       </div>
 
-      <!-- Urgencies List Bento -->
+      <!-- Help Requests Bento -->
       <div class="lg:col-span-7 bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col h-full overflow-hidden">
         <div class="p-6 md:p-8 pb-4 flex justify-between items-end">
           <div>
@@ -187,40 +192,29 @@ const downloadCard = () => {
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                 <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
               </div>
-              Urgências
+              Pedidos de Ajuda Ativos
             </h3>
-            <p class="text-sm text-gray-500 mt-1">Hospitais na Província de Luanda</p>
+            <p class="text-sm text-gray-500 mt-1">Pedidos aprovados pelo administrador.</p>
           </div>
-          <button class="text-[13px] font-semibold text-gray-900 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full transition-colors">Ver Mapa</button>
+          <button @click="emit('open-requests')" class="text-[13px] font-semibold text-gray-900 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full transition-colors">Ver Todos</button>
         </div>
         
         <div class="p-6 md:p-8 pt-0 space-y-3">
-          
-          <div class="group border border-gray-100 hover:border-gray-200 bg-white hover:bg-gray-50 rounded-2xl p-4 md:p-5 transition-all cursor-pointer flex justify-between items-center shadow-sm hover:shadow-md">
-            <div class="flex items-center gap-4">
-              <div class="w-14 h-14 bg-linear-to-br from-rose-500 to-rose-600 rounded-2xl flex flex-col items-center justify-center font-bold text-white shadow-inner shadow-white/20">
-                <span class="text-lg leading-none">O-</span>
-                <span class="text-[9px] uppercase tracking-widest opacity-80 font-medium mt-0.5">Crítico</span>
-              </div>
-              <div>
-                <p class="font-bold text-gray-900 text-[15px] group-hover:text-rose-700 transition-colors">Instituto Nacional de Sangue</p>
-                <p class="text-[13px] text-gray-500 mt-1 flex items-center gap-1.5 font-medium"><MapPin class="w-3.5 h-3.5 text-gray-400"/> 2.4 km • Luanda</p>
-              </div>
-            </div>
-            <div class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform text-gray-400 group-hover:text-rose-600">
-              <Navigation class="w-4 h-4" stroke-width="2.5" />
-            </div>
+          <div v-if="activeHelpRequests.length === 0" class="py-10 text-center border-2 border-dashed border-gray-100 rounded-3xl text-sm text-gray-500">
+            Sem pedidos aprovados no momento.
           </div>
 
-          <div class="group border border-gray-100 hover:border-gray-200 bg-white hover:bg-gray-50 rounded-[20px] p-4 md:p-5 transition-all cursor-pointer flex justify-between items-center shadow-sm hover:shadow-md">
+          <div v-else v-for="request in activeHelpRequests" :key="request.id" class="group border border-gray-100 hover:border-gray-200 bg-white hover:bg-gray-50 rounded-2xl p-4 md:p-5 transition-all cursor-pointer flex justify-between items-center shadow-sm hover:shadow-md">
             <div class="flex items-center gap-4">
-              <div class="w-14 h-14 bg-white border border-gray-200 text-gray-700 rounded-2xl flex flex-col items-center justify-center font-bold shadow-sm">
-                <span class="text-lg leading-none">A+</span>
-                <span class="text-[9px] uppercase tracking-widest opacity-80 font-medium mt-0.5">Médio</span>
+              <div class="w-14 h-14 bg-linear-to-br from-rose-500 to-rose-600 rounded-2xl flex flex-col items-center justify-center font-bold text-white shadow-inner shadow-white/20">
+                <span class="text-lg leading-none">{{ request.tipo_sanguineo || 'N/A' }}</span>
+                <span class="text-[9px] uppercase tracking-widest opacity-80 font-medium mt-0.5">Aprovado</span>
               </div>
               <div>
-                <p class="font-bold text-gray-900 text-[15px] group-hover:text-rose-700 transition-colors">Clínica Girassol</p>
-                <p class="text-[13px] text-gray-500 mt-1 flex items-center gap-1.5 font-medium"><MapPin class="w-3.5 h-3.5 text-gray-400"/> 5.1 km • Luanda</p>
+                <p class="font-bold text-gray-900 text-[15px] group-hover:text-rose-700 transition-colors">{{ request.nome || 'Pedido Anonimo' }}</p>
+                <p class="text-[13px] text-gray-500 mt-1 flex items-center gap-1.5 font-medium">
+                  <MapPin class="w-3.5 h-3.5 text-gray-400"/> {{ request.localizacao || 'Localizacao nao informada' }}
+                </p>
               </div>
             </div>
             <div class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform text-gray-400 group-hover:text-rose-600">
