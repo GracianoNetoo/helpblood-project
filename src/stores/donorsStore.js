@@ -15,6 +15,7 @@ const seedDonors = [
     email: 'manuel@example.com',
     doacao_sangue: 'Sim, ja doei',
     lastDonationLiters: null,
+    lastDonationDate: null,
     status: 'ativo',
     createdAt: new Date().toISOString()
   },
@@ -29,6 +30,7 @@ const seedDonors = [
     email: 'helena@example.com',
     doacao_sangue: 'Nao, sera a 1a vez',
     lastDonationLiters: null,
+    lastDonationDate: null,
     status: 'ativo',
     createdAt: new Date().toISOString()
   }
@@ -45,6 +47,7 @@ export const useDonorsStore = defineStore('donors', () => {
         if (Array.isArray(parsed)) {
           donors.value = parsed.map((item) => ({
             lastDonationLiters: null,
+            lastDonationDate: null,
             ...item
           }));
         }
@@ -59,6 +62,7 @@ export const useDonorsStore = defineStore('donors', () => {
       id: Date.now(),
       status: 'ativo',
       lastDonationLiters: null,
+      lastDonationDate: null,
       createdAt: new Date().toISOString(),
       ...donor
     });
@@ -79,12 +83,14 @@ export const useDonorsStore = defineStore('donors', () => {
     if (!target) return;
     if (liters === '' || liters === null || typeof liters === 'undefined') {
       target.lastDonationLiters = null;
+      target.lastDonationDate = null;
       return;
     }
     const normalized = typeof liters === 'string' ? liters.replace(',', '.') : liters;
     const parsed = Number(normalized);
     if (!Number.isFinite(parsed) || parsed < 0) return;
     target.lastDonationLiters = parsed;
+    target.lastDonationDate = new Date().toISOString().split('T')[0];
   };
 
   loadFromStorage();

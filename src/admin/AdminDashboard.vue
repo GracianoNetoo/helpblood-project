@@ -96,6 +96,13 @@ const saveDonationLiters = (donorId) => {
   syncDonationDraft(donorId);
 };
 
+const formatDonationDate = (value) => {
+  if (!value) return 'Sem data';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(parsed);
+};
+
 const toggleCampaignStatus = (id) => {
   campaignsStore.toggleStatus(id);
 };
@@ -613,7 +620,10 @@ const addCampaign = () => {
                     <div class="text-[12px] text-gray-500 mt-1">Contacto: {{ donor.telefone || 'Nao informado' }} • {{ donor.email || 'Sem email' }}</div>
                     <div class="text-[12px] text-gray-400 mt-2">Status: {{ donor.status || 'ativo' }}</div>
                     <div class="text-[12px] text-gray-500 mt-1">
-                      Ultima doacao: {{ donor.lastDonationLiters !== null && typeof donor.lastDonationLiters !== 'undefined' ? donor.lastDonationLiters + ' L' : 'Nao informado' }}
+                      <span v-if="donor.lastDonationLiters !== null && typeof donor.lastDonationLiters !== 'undefined'">
+                        Ultima doacao: {{ donor.lastDonationLiters }} L • {{ formatDonationDate(donor.lastDonationDate) }}
+                      </span>
+                      <span v-else>Ultima doacao: Nao informado</span>
                     </div>
                   </div>
                   <div class="flex flex-col gap-2 min-w-[220px]">
