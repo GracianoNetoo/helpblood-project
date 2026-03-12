@@ -10,17 +10,20 @@ import {
   Users,
   Menu,
   UserRound,
+  Megaphone,
   ClipboardList
 } from 'lucide-vue-next';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
 import { useHelpRequestsStore } from '../stores/helpRequestsStore';
 import { useDonorsStore } from '../stores/donorsStore';
+import { useCampaignsStore } from '../stores/campaignsStore';
 
 const emit = defineEmits(['logout']);
 
 const navItems = [
   { id: 'overview', name: 'Visao Geral', icon: LayoutDashboard },
   { id: 'requests', name: 'Pedidos de Ajuda', icon: AlertTriangle },
+  { id: 'campaigns', name: 'Campanhas', icon: Megaphone },
   { id: 'donors', name: 'Doadores', icon: UserRound },
   { id: 'appointments', name: 'Agendamentos', icon: CalendarDays }
 ];
@@ -31,20 +34,25 @@ const isMobileNavOpen = ref(false);
 const appointmentsStore = useAppointmentsStore();
 const helpRequestsStore = useHelpRequestsStore();
 const donorsStore = useDonorsStore();
+const campaignsStore = useCampaignsStore();
 
 const { appointments } = storeToRefs(appointmentsStore);
 const { requests } = storeToRefs(helpRequestsStore);
 const { donors } = storeToRefs(donorsStore);
+const { campaigns } = storeToRefs(campaignsStore);
 
 const totalAppointments = computed(() => appointments.value.length);
 const totalRequests = computed(() => requests.value.length);
 const pendingRequests = computed(() => requests.value.length);
 const totalDonors = computed(() => donors.value.length);
 const activeDonors = computed(() => donors.value.filter((donor) => donor.status === 'ativo').length);
+const totalCampaigns = computed(() => campaigns.value.length);
+const activeCampaigns = computed(() => campaigns.value.filter((camp) => camp.status !== 'inativo').length);
 
 const latestAppointments = computed(() => appointments.value.slice(0, 4));
 const latestRequests = computed(() => requests.value.slice(0, 4));
 const latestDonors = computed(() => donors.value.slice(0, 4));
+const latestCampaigns = computed(() => campaigns.value.slice(0, 4));
 
 const removeRequest = (id) => {
   helpRequestsStore.removeRequest(id);
@@ -62,9 +70,79 @@ const removeDonor = (id) => {
   donorsStore.removeDonor(id);
 };
 
+const toggleCampaignStatus = (id) => {
+  campaignsStore.toggleStatus(id);
+};
+
+const removeCampaign = (id) => {
+  campaignsStore.removeCampaign(id);
+};
+
 const setTab = (tab) => {
   activeTab.value = tab;
   isMobileNavOpen.value = false;
+};
+
+const newCampaign = ref({
+  title: '',
+  location: '',
+  dateISO: '',
+  time: '',
+  description: '',
+  tags: '',
+  highlight: 'Aberto'
+});
+const campaignSubmitted = ref(false);
+const campaignTouched = ref({
+  title: false,
+  location: false,
+  dateISO: false
+});
+
+const isCampaignInvalid = computed(() => {
+  if (!newCampaign.value.title) return true;
+  if (!newCampaign.value.location) return true;
+  if (!newCampaign.value.dateISO) return true;
+  return false;
+});
+
+const shouldShowCampaignError = (field) => campaignSubmitted.value || campaignTouched.value[field];
+
+const resetCampaignForm = () => {
+  newCampaign.value = {
+    title: '',
+    location: '',
+    dateISO: '',
+    time: '',
+    description: '',
+    tags: '',
+    highlight: 'Aberto'
+  };
+  campaignSubmitted.value = false;
+  campaignTouched.value = {
+    title: false,
+    location: false,
+    dateISO: false
+  };
+};
+
+const addCampaign = () => {
+  campaignSubmitted.value = true;
+  if (isCampaignInvalid.value) return;
+  const tagsArray = newCampaign.value.tags
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+  campaignsStore.addCampaign({
+    title: newCampaign.value.title,
+    location: newCampaign.value.location,
+    dateISO: newCampaign.value.dateISO,
+    time: newCampaign.value.time,
+    description: newCampaign.value.description,
+    tags: tagsArray.length ? tagsArray : ['Todos'],
+    highlight: newCampaign.value.highlight
+  });
+  resetCampaignForm();
 };
 </script>
 
@@ -146,6 +224,7 @@ const setTab = (tab) => {
                   <div class="px-4 py-2 rounded-full bg-white/10 border border-white/10 text-[12px] font-semibold">Pedidos pendentes: {{ pendingRequests }}</div>
                   <div class="px-4 py-2 rounded-full bg-white/10 border border-white/10 text-[12px] font-semibold">Agendamentos ativos: {{ totalAppointments }}</div>
                   <div class="px-4 py-2 rounded-full bg-white/10 border border-white/10 text-[12px] font-semibold">Doadores ativos: {{ activeDonors }}</div>
+                  <div class="px-4 py-2 rounded-full bg-white/10 border border-white/10 text-[12px] font-semibold">Campanhas ativas: {{ activeCampaigns }}</div>
                 </div>
               </div>
             </div>
@@ -161,16 +240,7 @@ const setTab = (tab) => {
                 </div>
               </div>
 
-              <div class="bg-white rounded-4xl p-6 border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] relative overflow-hidden">
-                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 border border-blue-100/50">
-                  <CalendarDays class="w-6 h-6" stroke-width="2.5" />
-                </div>
-                <div>
-                  <div class="text-[13px] font-semibold text-gray-500 mb-1.5">Agendamentos</div>
-                  <div class="text-4xl font-extrabold text-gray-900 flex items-baseline gap-2 tracking-tight">{{ totalAppointments }}</div>
-                </div>
-              </div>
-
+              
               <div class="bg-white rounded-4xl p-6 border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] relative overflow-hidden">
                 <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 border border-emerald-100/50">
                   <UserRound class="w-6 h-6" stroke-width="2.5" />
@@ -180,10 +250,20 @@ const setTab = (tab) => {
                   <div class="text-4xl font-extrabold text-gray-900 flex items-baseline gap-2 tracking-tight">{{ activeDonors }}</div>
                 </div>
               </div>
+
+              <div class="bg-white rounded-4xl p-6 border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] relative overflow-hidden">
+                <div class="w-12 h-12 bg-sky-50 text-sky-600 rounded-2xl flex items-center justify-center mb-6 border border-sky-100/50">
+                  <Megaphone class="w-6 h-6" stroke-width="2.5" />
+                </div>
+                <div>
+                  <div class="text-[13px] font-semibold text-gray-500 mb-1.5">Campanhas ativas</div>
+                  <div class="text-4xl font-extrabold text-gray-900 flex items-baseline gap-2 tracking-tight">{{ activeCampaigns }}</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
             <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
               <div class="p-6 md:p-8 flex items-center justify-between">
                 <div>
@@ -257,6 +337,32 @@ const setTab = (tab) => {
                 </div>
               </div>
             </div>
+
+            <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+              <div class="p-6 md:p-8 flex items-center justify-between">
+                <div>
+                  <h3 class="text-lg font-bold text-gray-900">Campanhas recentes</h3>
+                  <p class="text-sm text-gray-500 mt-1">Ultimas campanhas criadas.</p>
+                </div>
+                <button @click="setTab('campaigns')" class="text-[13px] font-semibold text-gray-900 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full transition-colors">Ver todas</button>
+              </div>
+
+              <div class="p-6 md:p-8 pt-0 space-y-3">
+                <div v-if="campaigns.length === 0" class="py-10 text-center border-2 border-dashed border-gray-100 rounded-3xl text-sm text-gray-500">
+                  Sem campanhas registadas.
+                </div>
+                <div v-else v-for="camp in latestCampaigns" :key="camp.id" class="flex items-center justify-between gap-4 border border-gray-100 rounded-2xl p-4 hover:bg-gray-50 transition-colors">
+                  <div>
+                    <div class="text-sm font-bold text-gray-900">{{ camp.title || 'Campanha' }}</div>
+                    <div class="text-[12px] text-gray-500 mt-1">{{ camp.location || 'Local' }} • {{ camp.dateISO || 'Data' }}</div>
+                    <div class="text-[11px] text-gray-400 mt-1">Status: {{ camp.status || 'ativo' }}</div>
+                  </div>
+                  <button @click="toggleCampaignStatus(camp.id)" class="text-[12px] font-semibold text-sky-600 hover:text-sky-700">
+                    {{ camp.status === 'ativo' ? 'Desativar' : 'Ativar' }}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -286,6 +392,123 @@ const setTab = (tab) => {
                     <div class="text-[12px] text-gray-400 mt-2">{{ request.motivo || 'Motivo nao informado.' }}</div>
                   </div>
                   <button @click="removeRequest(request.id)" class="self-start px-4 py-2 rounded-2xl bg-rose-50 text-rose-600 font-semibold hover:bg-rose-100 transition-colors">Encerrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Campaigns Tab -->
+        <section v-else-if="activeTab === 'campaigns'" class="max-w-300 mx-auto pb-10">
+          <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-6 md:p-10">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+              <div>
+                <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Campanhas</h2>
+                <p class="text-sm text-gray-500 mt-1">Crie campanhas para os utilizadores.</p>
+              </div>
+              <div class="text-[12px] font-bold text-sky-600 bg-sky-50 border border-sky-100 px-4 py-2 rounded-full">Total: {{ totalCampaigns }}</div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              <div class="space-y-4">
+                <div>
+                  <label class="text-[12px] font-bold text-gray-600">Titulo</label>
+                  <input
+                    v-model="newCampaign.title"
+                    @blur="campaignTouched.title = true"
+                    type="text"
+                    placeholder="Ex: Campanha Central"
+                    class="mt-2 w-full bg-gray-50 border text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 transition-all font-medium"
+                    :class="shouldShowCampaignError('title') && !newCampaign.title ? 'border-rose-300 focus:ring-rose-500/20 focus:border-rose-500' : 'border-gray-200 focus:ring-sky-500/20 focus:border-sky-500'"
+                  />
+                  <p v-if="shouldShowCampaignError('title') && !newCampaign.title" class="text-[11px] text-rose-600 font-bold mt-1">Titulo e obrigatorio.</p>
+                </div>
+                <div>
+                  <label class="text-[12px] font-bold text-gray-600">Localizacao</label>
+                  <input
+                    v-model="newCampaign.location"
+                    @blur="campaignTouched.location = true"
+                    type="text"
+                    placeholder="Ex: Luanda"
+                    class="mt-2 w-full bg-gray-50 border text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 transition-all font-medium"
+                    :class="shouldShowCampaignError('location') && !newCampaign.location ? 'border-rose-300 focus:ring-rose-500/20 focus:border-rose-500' : 'border-gray-200 focus:ring-sky-500/20 focus:border-sky-500'"
+                  />
+                  <p v-if="shouldShowCampaignError('location') && !newCampaign.location" class="text-[11px] text-rose-600 font-bold mt-1">Localizacao e obrigatoria.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="text-[12px] font-bold text-gray-600">Data</label>
+                    <input
+                      v-model="newCampaign.dateISO"
+                      @blur="campaignTouched.dateISO = true"
+                      type="date"
+                      class="mt-2 w-full bg-gray-50 border text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 transition-all font-medium"
+                      :class="shouldShowCampaignError('dateISO') && !newCampaign.dateISO ? 'border-rose-300 focus:ring-rose-500/20 focus:border-rose-500' : 'border-gray-200 focus:ring-sky-500/20 focus:border-sky-500'"
+                    />
+                    <p v-if="shouldShowCampaignError('dateISO') && !newCampaign.dateISO" class="text-[11px] text-rose-600 font-bold mt-1">Data e obrigatoria.</p>
+                  </div>
+                  <div>
+                    <label class="text-[12px] font-bold text-gray-600">Hora</label>
+                    <input v-model="newCampaign.time" type="time"
+                      class="mt-2 w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all font-medium" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <label class="text-[12px] font-bold text-gray-600">Descricao</label>
+                  <textarea v-model="newCampaign.description" rows="5" placeholder="Descreva a campanha."
+                    class="mt-2 w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all font-medium resize-none"></textarea>
+                </div>
+                <div>
+                  <label class="text-[12px] font-bold text-gray-600">Tags (separadas por virgula)</label>
+                  <input v-model="newCampaign.tags" type="text" placeholder="Ex: O+, O-"
+                    class="mt-2 w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all font-medium" />
+                </div>
+                <div>
+                  <label class="text-[12px] font-bold text-gray-600">Destaque</label>
+                  <select v-model="newCampaign.highlight"
+                    class="mt-2 w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all font-medium">
+                    <option>Aberto</option>
+                    <option>Critico</option>
+                    <option>Disponivel</option>
+                  </select>
+                </div>
+                <button
+                  @click="addCampaign"
+                  :disabled="isCampaignInvalid"
+                  class="w-full bg-sky-600 hover:bg-sky-700 text-white rounded-2xl px-6 py-3.5 font-extrabold text-[14px] shadow-[0_8px_20px_rgba(14,165,233,0.2)] transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-sky-600"
+                >
+                  Criar campanha
+                </button>
+                <button @click="resetCampaignForm" class="w-full mt-2 bg-white text-gray-700 border border-gray-200 rounded-2xl px-6 py-3 font-semibold text-[13px] hover:bg-gray-50 transition-all">
+                  Limpar campos
+                </button>
+              </div>
+            </div>
+
+            <div v-if="campaigns.length === 0" class="py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl text-sm text-gray-500">
+              Sem campanhas registadas.
+            </div>
+
+            <div v-else class="space-y-4">
+              <div v-for="camp in campaigns" :key="camp.id" class="border border-gray-100 rounded-3xl p-5 md:p-6 hover:shadow-md transition-all">
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                  <div>
+                    <div class="text-sm font-bold text-gray-900">{{ camp.title || 'Campanha' }}</div>
+                    <div class="text-[12px] text-gray-500 mt-1">Local: {{ camp.location || 'Local' }} • Data: {{ camp.dateISO || 'Data' }} • {{ camp.time || 'Horario' }}</div>
+                    <div class="text-[12px] text-gray-500 mt-1">Tags: {{ (camp.tags || []).join(', ') }}</div>
+                    <div class="text-[12px] text-gray-400 mt-2">Status: {{ camp.status || 'ativo' }}</div>
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <button @click="toggleCampaignStatus(camp.id)" class="px-4 py-2 rounded-2xl bg-sky-50 text-sky-700 font-semibold hover:bg-sky-100 transition-colors">
+                      {{ camp.status === 'ativo' ? 'Desativar' : 'Ativar' }}
+                    </button>
+                    <button @click="removeCampaign(camp.id)" class="px-4 py-2 rounded-2xl bg-rose-50 text-rose-600 font-semibold hover:bg-rose-100 transition-colors">
+                      Remover
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

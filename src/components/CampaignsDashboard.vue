@@ -1,7 +1,8 @@
-<script setup>
+﻿<script setup>
 import { ref, computed, onMounted } from 'vue';
 import { MapPin, CalendarDays, ArrowRight, ShieldCheck } from 'lucide-vue-next';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
+import { useCampaignsStore } from '../stores/campaignsStore';
 import { storeToRefs } from 'pinia';
 
 const props = defineProps({
@@ -13,51 +14,29 @@ const props = defineProps({
 const emit = defineEmits(['agendar', 'reset-auto-open']);
 
 const appointmentsStore = useAppointmentsStore();
+const campaignsStore = useCampaignsStore();
 const { appointments } = storeToRefs(appointmentsStore);
+const { campaigns } = storeToRefs(campaignsStore);
 const selectedCampaign = ref(null);
 const isConfirmOpen = ref(false);
 const showToast = ref(false);
 
-const campaigns = [
-  {
-    id: 'camp-1',
-    title: 'Mutirão Nacional: Universidade Agostinho Neto',
-    location: 'Luanda',
-    dateLabel: 'Hoje, 10h - 15h',
-    dateISO: new Date().toISOString().split('T')[0],
-    time: '10:00',
-    description: 'Unidade móvel em frente à reitoria, com foco na reposição urgente do banco de sangue central.',
-    tags: ['O-', 'A+'],
-    highlight: 'Crítico'
-  },
-  {
-    id: 'camp-2',
-    title: 'Ação Comunitária Praia Morena',
-    location: 'Benguela',
-    dateLabel: 'Próx Sáb, 08h',
-    dateISO: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    time: '08:00',
-    description: 'Postos de triagem e coleta com apoio de voluntários locais e parceiros comunitários.',
-    tags: ['Todos'],
-    highlight: 'Aberto'
-  },
-  {
-    id: 'camp-3',
-    title: 'Campanha Solidária Kilamba',
-    location: 'Luanda',
-    dateLabel: 'Dom, 09h',
-    dateISO: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    time: '09:00',
-    description: 'Coleta organizada para famílias da região, com prioridade para doadores regulares.',
-    tags: ['O+', 'B+'],
-    highlight: 'Disponível'
-  }
-];
+const activeCampaigns = computed(() => campaigns.value.filter((item) => item.status !== 'inativo'));
 
 const scheduledCampaignIds = computed(() => new Set(appointments.value.map((apt) => apt.campaignId).filter(Boolean)));
 
 const isScheduled = (campaignId) => {
   return scheduledCampaignIds.value.has(campaignId);
+};
+
+const formatDateLabel = (campaign) => {
+  if (!campaign.dateISO) return 'Data a definir';
+  const base = new Date(`${campaign.dateISO}T${campaign.time || '00:00'}`);
+  if (Number.isNaN(base.getTime())) return campaign.dateISO;
+  const formatter = new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short' });
+  const datePart = formatter.format(base);
+  const timePart = campaign.time ? campaign.time.replace(':', 'h') : 'Horario a definir';
+  return `${datePart}, ${timePart}`;
 };
 
 const openConfirm = (campaign) => {
@@ -89,7 +68,7 @@ const confirmSchedule = () => {
 
 onMounted(() => {
   if (props.autoOpen) {
-    const firstAvailable = campaigns.find((c) => !isScheduled(c.id));
+    const firstAvailable = activeCampaigns.value.find((c) => !isScheduled(c.id));
     if (firstAvailable) openConfirm(firstAvailable);
     emit('reset-auto-open');
   }
@@ -102,18 +81,22 @@ onMounted(() => {
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Campanhas Ativas</h2>
-          <p class="text-sm text-gray-500 mt-1">Escolha um local e agende a sua próxima doação.</p>
+          <p class="text-sm text-gray-500 mt-1">Escolha um local e agende a sua proxima doacao.</p>
         </div>
         <button class="bg-gray-900 hover:bg-black text-white px-5 py-3 md:py-2.5 rounded-2xl font-bold shadow-md transition-all text-sm">
           Ver Mapa
         </button>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="camp in campaigns" :key="camp.id" class="group border border-gray-200 rounded-3xl p-6 bg-white hover:shadow-lg hover:border-rose-200 transition-all">
+      <div v-if="activeCampaigns.length === 0" class="py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl text-sm text-gray-500">
+        Sem campanhas ativas no momento.
+      </div>
+
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div v-for="camp in activeCampaigns" :key="camp.id" class="group border border-gray-200 rounded-3xl p-6 bg-white hover:shadow-lg hover:border-rose-200 transition-all">
           <div class="flex items-center justify-between mb-4">
             <span class="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full"
-              :class="camp.highlight === 'Crítico' ? 'bg-rose-600 text-white' : 'bg-gray-100 text-gray-700'">
+              :class="camp.highlight === 'Critico' ? 'bg-rose-600 text-white' : 'bg-gray-100 text-gray-700'">
               {{ camp.highlight }}
             </span>
             <div class="flex gap-1">
@@ -138,7 +121,7 @@ onMounted(() => {
               <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 border border-gray-100">
                 <CalendarDays class="w-4 h-4" />
               </div>
-              {{ camp.dateLabel }}
+              {{ formatDateLabel(camp) }}
             </div>
           </div>
 
@@ -150,7 +133,7 @@ onMounted(() => {
             class="mt-5 w-full border border-gray-200 font-bold rounded-2xl py-3 transition-all flex items-center justify-center gap-2"
             :class="isScheduled(camp.id) ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-900 hover:bg-gray-900 hover:text-white'"
           >
-            {{ isScheduled(camp.id) ? 'Agendado' : 'Agendar Horário' }}
+            {{ isScheduled(camp.id) ? 'Agendado' : 'Agendar Horario' }}
             <ArrowRight v-if="!isScheduled(camp.id)" class="w-4 h-4" />
           </button>
         </div>
