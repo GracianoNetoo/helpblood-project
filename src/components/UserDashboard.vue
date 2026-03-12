@@ -1,7 +1,9 @@
 ﻿<script setup>
-import { ref, defineEmits, markRaw, onMounted, watch } from 'vue';
+import { ref, defineEmits, markRaw, onMounted, watch, computed } from 'vue';
 import { LayoutDashboard, Droplet, CalendarDays, LogOut, Bell, AlertCircle, Menu, Megaphone } from 'lucide-vue-next';
 import { useRoute } from 'vue-router';
+import { storeToRefs } from 'pinia';
+import { useHelpRequestsStore } from '../stores/helpRequestsStore';
 
 import DashboardOverview from './DashboardOverview.vue';
 import MyDonations from './MyDonations.vue';
@@ -11,6 +13,8 @@ import CampaignsDashboard from './CampaignsDashboard.vue';
 
 const emit = defineEmits(['logout']);
 const route = useRoute();
+const helpRequestsStore = useHelpRequestsStore();
+const { requests } = storeToRefs(helpRequestsStore);
 
 const navItems = [
   { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard, component: markRaw(DashboardOverview) },
@@ -23,6 +27,7 @@ const navItems = [
 const activeTab = ref('dashboard');
 const isMobileNavOpen = ref(false);
 const autoOpenCampaigns = ref(false);
+const approvedRequestsCount = computed(() => requests.value.filter((item) => item.status === 'approved').length);
 
 const syncTabFromRoute = (tab) => {
   if (!tab) return;
@@ -69,11 +74,17 @@ const handleSelectTab = (tabId, options = {}) => {
           :key="item.id"
           @click="activeTab = item.id"
           class="w-full flex items-center lg:justify-start justify-center gap-3.5 p-3 rounded-2xl transition-all duration-200 group relative outline-none"
-          :class="activeTab === item.id ? 'bg-white shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-gray-100 text-rose-600 font-semibold' : 'text-gray-500 hover:bg-gray-50/80 hover:text-gray-900 font-medium'"
+          :class="(activeTab === item.id ? 'bg-white shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-gray-100 text-rose-600 font-semibold' : 'text-gray-500 hover:bg-gray-50/80 hover:text-gray-900 font-medium') + (item.id === 'emergencies' && approvedRequestsCount > 0 ? ' ring-1 ring-rose-200' : '')"
         >
           <div v-if="activeTab === item.id" class="absolute -left-4 w-1 h-6 rounded-r-full bg-rose-500 hidden lg:block"></div>
-          <component :is="item.icon" class="w-5.5 h-5.5 transition-transform group-hover:scale-110" :class="activeTab === item.id ? 'text-rose-600' : 'text-gray-400 group-hover:text-gray-500'" stroke-width="2" />
+          <div class="relative">
+            <component :is="item.icon" class="w-5.5 h-5.5 transition-transform group-hover:scale-110" :class="activeTab === item.id ? 'text-rose-600' : 'text-gray-400 group-hover:text-gray-500'" stroke-width="2" />
+            <span v-if="item.id === 'emergencies' && approvedRequestsCount > 0" class="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-white"></span>
+          </div>
           <span class="hidden lg:block">{{ item.name }}</span>
+          <span v-if="item.id === 'emergencies' && approvedRequestsCount > 0" class="hidden lg:inline-flex ml-auto text-[10px] font-bold bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full">
+            {{ approvedRequestsCount }}
+          </span>
         </button>
       </div>
       
@@ -146,10 +157,16 @@ const handleSelectTab = (tabId, options = {}) => {
             :key="item.id"
             @click="handleSelectTab(item.id)"
             class="w-full flex items-center gap-3 p-3 rounded-[14px] transition-all text-left"
-            :class="activeTab === item.id ? 'bg-rose-50 text-rose-700 font-semibold' : 'text-gray-600 hover:bg-gray-50'"
+            :class="(activeTab === item.id ? 'bg-rose-50 text-rose-700 font-semibold' : 'text-gray-600 hover:bg-gray-50') + (item.id === 'emergencies' && approvedRequestsCount > 0 ? ' ring-1 ring-rose-200' : '')"
           >
-            <component :is="item.icon" class="w-5 h-5" />
+            <div class="relative">
+              <component :is="item.icon" class="w-5 h-5" />
+              <span v-if="item.id === 'emergencies' && approvedRequestsCount > 0" class="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-white"></span>
+            </div>
             <span>{{ item.name }}</span>
+            <span v-if="item.id === 'emergencies' && approvedRequestsCount > 0" class="ml-auto text-[10px] font-bold bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full">
+              {{ approvedRequestsCount }}
+            </span>
           </button>
         </div>
         <div class="p-4 border-t border-gray-100">
