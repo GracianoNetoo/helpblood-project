@@ -1,7 +1,78 @@
 ﻿<script setup>
+import { computed } from 'vue';
+import { storeToRefs } from 'pinia';
+import { jsPDF } from 'jspdf';
 import { Droplet, CalendarDays, MapPin, Navigation, Activity, FileText } from 'lucide-vue-next';
+import { useDonorsStore } from '../stores/donorsStore';
+import { useAuthStore } from '../stores/authStore';
 
 const emit = defineEmits(['open-campaigns']);
+
+const donorsStore = useDonorsStore();
+const authStore = useAuthStore();
+const { donors } = storeToRefs(donorsStore);
+const { currentDonorId } = storeToRefs(authStore);
+
+const currentDonor = computed(() => donors.value.find((donor) => donor.id === currentDonorId.value));
+const formatDonorId = (donor) => (donor?.id ? `DV-${String(donor.id).padStart(6, '0')}` : 'DV-000000');
+
+const cardData = computed(() => ({
+  name: currentDonor.value?.nome || 'Doador',
+  id: formatDonorId(currentDonor.value),
+  blood: currentDonor.value?.tipo_sanguineo || 'O+'
+}));
+
+const downloadCard = () => {
+  const data = cardData.value;
+  const width = 760;
+  const height = 480;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: [width, height] });
+
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(20, 20, width - 40, height - 40, 28, 28, 'F');
+  doc.setDrawColor(226, 232, 240);
+  doc.roundedRect(20, 20, width - 40, height - 40, 28, 28);
+
+  doc.setFillColor(255, 228, 230);
+  doc.circle(width - 120, 120, 80, 'F');
+  doc.circle(120, height - 120, 90, 'F');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(20);
+  doc.setTextColor(15, 23, 42);
+  doc.text('UNIVIDA', 60, 90);
+
+  doc.setFontSize(12);
+  doc.setTextColor(100, 116, 139);
+  doc.text('DOADOR', width - 170, 90);
+
+  doc.setFontSize(12);
+  doc.setTextColor(148, 163, 184);
+  doc.text('TITULAR', 60, 160);
+
+  doc.setFontSize(32);
+  doc.setTextColor(15, 23, 42);
+  doc.text(data.name, 60, 210, { maxWidth: 420 });
+
+  doc.setFillColor(241, 245, 249);
+  doc.roundedRect(60, 230, 240, 40, 10, 10, 'F');
+  doc.setFont('courier', 'bold');
+  doc.setFontSize(14);
+  doc.setTextColor(71, 85, 105);
+  doc.text(data.id, 76, 256);
+
+  doc.setFillColor(255, 241, 242);
+  doc.setDrawColor(254, 205, 211);
+  doc.roundedRect(width - 220, height - 200, 140, 100, 16, 16, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.setTextColor(244, 63, 94);
+  doc.text('SANGUE', width - 200, height - 170);
+  doc.setFontSize(40);
+  doc.text(data.blood, width - 190, height - 125);
+
+  doc.save('cartao-doador.pdf');
+};
 </script>
 
 <template>
@@ -73,7 +144,7 @@ const emit = defineEmits(['open-campaigns']);
         
         <div class="w-full flex justify-between items-center mb-8 relative z-10 max-w-sm mx-auto">
           <h3 class="text-lg font-bold text-gray-900">Cartão Digital</h3>
-          <button class="text-sm font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 px-3 py-1.5 rounded-full transition-colors flex items-center gap-1.5">
+          <button @click="downloadCard" class="text-sm font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 px-3 py-1.5 rounded-full transition-colors flex items-center gap-1.5">
             <FileText class="w-4 h-4"/> Baixar
           </button>
         </div>
@@ -96,12 +167,12 @@ const emit = defineEmits(['open-campaigns']);
           <div class="relative z-10 flex justify-between items-end">
             <div>
               <p class="text-[9px] uppercase tracking-[0.2em] text-gray-400 mb-1.5 font-bold">Titular</p>
-              <p class="text-[17px] font-extrabold text-gray-900 tracking-tight mb-1">Manuel Francisco</p>
-              <p class="text-[11px] font-medium text-gray-500 font-mono tracking-widest bg-gray-100/50 px-2 py-0.5 rounded-md inline-block">007241052LA</p>
+              <p class="text-[17px] font-extrabold text-gray-900 tracking-tight mb-1">{{ cardData.name }}</p>
+              <p class="text-[11px] font-medium text-gray-500 font-mono tracking-widest bg-gray-100/50 px-2 py-0.5 rounded-md inline-block">{{ cardData.id }}</p>
             </div>
             <div class="bg-rose-50/80 backdrop-blur-sm px-4 py-2 rounded-2xl border border-rose-100 text-center shadow-sm">
               <p class="text-[9px] uppercase tracking-widest text-rose-600 mb-0.5 font-extrabold">Sangue</p>
-              <p class="text-[26px] leading-none font-black text-rose-600">O<span class="text-xl">+</span></p>
+              <p class="text-[26px] leading-none font-black text-rose-600">{{ cardData.blood }}</p>
             </div>
           </div>
         </div>
@@ -164,4 +235,3 @@ const emit = defineEmits(['open-campaigns']);
 
   </div>
 </template>
-

@@ -2,9 +2,11 @@
 import { ref, computed, defineEmits } from 'vue';
 import { Eye, EyeOff } from 'lucide-vue-next';
 import { useDonorsStore } from '../stores/donorsStore';
+import { useAuthStore } from '../stores/authStore';
 
 const emit = defineEmits(['sucesso']);
 const donorsStore = useDonorsStore();
+const authStore = useAuthStore();
 
 const mostrarSenha = ref(false);
 const mostrarSenhaConfirmacao = ref(false);
@@ -85,7 +87,7 @@ const handleSubmit = () => {
     submitted.value = true;
     if (isFormInvalid.value) return;
 
-    donorsStore.addDonor({
+    const newDonor = donorsStore.addDonor({
         nome: form.value.nome,
         tipo_sanguineo: form.value.tipo_sanguineo,
         rh: form.value.rh,
@@ -95,6 +97,9 @@ const handleSubmit = () => {
         email: form.value.email,
         doacao_sangue: form.value.doacao_sangue
     });
+    if (newDonor?.id) {
+        authStore.setCurrentDonorId(newDonor.id);
+    }
 
     alert("Cadastro realizado com sucesso!");
     emit('sucesso'); 

@@ -58,14 +58,16 @@ export const useDonorsStore = defineStore('donors', () => {
   };
 
   const addDonor = (donor) => {
-    donors.value.unshift({
+    const record = {
       id: Date.now(),
       status: 'ativo',
       lastDonationLiters: null,
       lastDonationDate: null,
       createdAt: new Date().toISOString(),
       ...donor
-    });
+    };
+    donors.value.unshift(record);
+    return record;
   };
 
   const toggleStatus = (id) => {

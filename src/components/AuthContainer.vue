@@ -1,7 +1,10 @@
-<script setup>
-import { ref, defineEmits, defineProps, watch } from 'vue'
-import RegisterForm from './RegisterForm.vue'
+﻿<script setup>
+import { ref, defineEmits, defineProps, watch } from 'vue';
+import { storeToRefs } from 'pinia';
+import RegisterForm from './RegisterForm.vue';
 import { LogIn, UserPlus, Droplet, ArrowRight, ShieldCheck } from 'lucide-vue-next';
+import { useDonorsStore } from '../stores/donorsStore';
+import { useAuthStore } from '../stores/authStore';
 
 const props = defineProps({
     initialTab: {
@@ -10,18 +13,43 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(['sucesso'])
-const abaAtiva = ref(props.initialTab) 
+const emit = defineEmits(['sucesso']);
+const abaAtiva = ref(props.initialTab);
+const loginIdentifier = ref('');
+const loginError = ref('');
+
+const donorsStore = useDonorsStore();
+const authStore = useAuthStore();
+const { donors } = storeToRefs(donorsStore);
 
 const realizarLoginManual = () => {
-    // Simula validação de login
-    emit('sucesso')
-}
+    loginError.value = '';
+    const raw = loginIdentifier.value.trim();
+    if (!raw) {
+        loginError.value = 'Informe email ou telefone.';
+        return;
+    }
+    const lower = raw.toLowerCase();
+    const digits = raw.replace(/\D/g, '');
+    const found = donors.value.find((item) => {
+        const emailMatch = item.email && item.email.toLowerCase() === lower;
+        const phoneMatch = digits && item.telefone && item.telefone.replace(/\D/g, '') === digits;
+        return emailMatch || phoneMatch;
+    });
+    if (!found) {
+        loginError.value = 'Doador nao encontrado.';
+        return;
+    }
+    authStore.setCurrentDonorId(found.id);
+    emit('sucesso');
+};
+
 watch(
     () => props.initialTab,
     (nextTab) => {
         if (['cadastro', 'login', 'recuperar'].includes(nextTab)) {
             abaAtiva.value = nextTab;
+            loginError.value = '';
         }
     }
 );
@@ -72,7 +100,7 @@ watch(
 
             <div class="relative z-10 mt-auto pt-8 border-t border-white/10 hidden md:flex items-start gap-3 text-[13px] text-gray-400 font-medium">
                 <ShieldCheck class="w-5 h-5 shrink-0 text-emerald-400" stroke-width="2" />
-                <p>Os seus dados médicos são encriptados ponto-a-ponto e partilhados apenas com hospitais autorizados.</p>
+                <p>Os seus dados medicos sao encriptados ponto-a-ponto e partilhados apenas com hospitais autorizados.</p>
             </div>
         </div>
 
@@ -87,8 +115,8 @@ watch(
                     <!-- Cadastro -->
                     <div v-if="abaAtiva === 'cadastro'" class="w-full max-w-2xl mx-auto animation-slide-up">
                         <div class="mb-8">
-                            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Junte-se à Rede</h2>
-                            <p class="text-[15px] text-gray-500 font-medium">Complete os seus dados básicos para integrar o banco nacional de doadores.</p>
+                            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Junte-se a Rede</h2>
+                            <p class="text-[15px] text-gray-500 font-medium">Complete os seus dados basicos para integrar o banco nacional de doadores.</p>
                         </div>
                         <RegisterForm @sucesso="$emit('sucesso')" />
                     </div>
@@ -100,13 +128,14 @@ watch(
                                 <Droplet class="w-8 h-8 fill-rose-600/20" stroke-width="2" />
                             </div>
                             <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">Bem-vindo de volta</h2>
-                            <p class="text-[15px] text-gray-500 font-medium">Há vidas esperando por si hoje.</p>
+                            <p class="text-[15px] text-gray-500 font-medium">Ha vidas esperando por si hoje.</p>
                         </div>
                         
                         <div class="space-y-5">
                             <div>
                                 <label class="block text-[13px] font-bold text-gray-700 mb-1.5 ml-1">E-mail ou Numero de telefone</label>
-                                <input type="email" placeholder="nome@exemplo.com" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[15px] rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all placeholder:text-gray-400 font-medium" />
+                                <input v-model="loginIdentifier" type="text" placeholder="nome@exemplo.com" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[15px] rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all placeholder:text-gray-400 font-medium" />
+                                <p v-if="loginError" class="text-[12px] text-rose-600 font-bold mt-2">{{ loginError }}</p>
                             </div>
                             <div>
                                 <div class="flex justify-between items-center mb-1.5 ml-1 mr-1">
@@ -123,7 +152,7 @@ watch(
                         </div>
                         
                         <p class="text-center text-[14px] text-gray-500 font-medium mt-8">
-                            Não tem uma conta? <button @click="abaAtiva = 'cadastro'" class="text-rose-600 font-bold hover:underline">Registe-se agora</button>
+                            Nao tem uma conta? <button @click="abaAtiva = 'cadastro'" class="text-rose-600 font-bold hover:underline">Registe-se agora</button>
                         </p>
                     </div>
 
@@ -134,7 +163,7 @@ watch(
                                 <ShieldCheck class="w-8 h-8 fill-blue-600/20" stroke-width="2" />
                             </div>
                             <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-3">Recuperar Acesso</h2>
-                            <p class="text-[15px] text-gray-500 font-medium">Insira o seu email para receber um link de recuperação rápido e seguro.</p>
+                            <p class="text-[15px] text-gray-500 font-medium">Insira o seu email para receber um link de recuperacao rapido e seguro.</p>
                         </div>
                         
                         <div class="space-y-5">
@@ -144,12 +173,12 @@ watch(
                             </div>
                             
                             <button @click="abaAtiva = 'login'" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-2xl font-bold text-[15px] shadow-[0_4px_14px_rgba(37,99,235,0.2)] transition-all hover:-translate-y-0.5 mt-4 flex justify-center items-center gap-2">
-                                Enviar Codigo de Recuperação
+                                Enviar Codigo de Recuperacao
                             </button>
                         </div>
                         
                         <p class="text-center text-[14px] text-gray-500 font-medium mt-8">
-                            Lembrou-se da senha? <button @click="abaAtiva = 'login'" class="text-gray-900 font-bold hover:underline">Faça login</button>
+                            Lembrou-se da senha? <button @click="abaAtiva = 'login'" class="text-gray-900 font-bold hover:underline">Faca login</button>
                         </p>
                     </div>
 
