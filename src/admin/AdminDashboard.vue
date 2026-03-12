@@ -283,16 +283,6 @@ const addCampaign = () => {
                   <div class="text-4xl font-extrabold text-gray-900 flex items-baseline gap-2 tracking-tight">{{ activeDonors }}</div>
                 </div>
               </div>
-
-              <div class="bg-white rounded-4xl p-6 border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] relative overflow-hidden">
-                <div class="w-12 h-12 bg-sky-50 text-sky-600 rounded-2xl flex items-center justify-center mb-6 border border-sky-100/50">
-                  <Megaphone class="w-6 h-6" stroke-width="2.5" />
-                </div>
-                <div>
-                  <div class="text-[13px] font-semibold text-gray-500 mb-1.5">Campanhas ativas</div>
-                  <div class="text-4xl font-extrabold text-gray-900 flex items-baseline gap-2 tracking-tight">{{ activeCampaigns }}</div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -552,7 +542,6 @@ const addCampaign = () => {
                     class="mt-2 w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all font-medium">
                     <option>Aberto</option>
                     <option>Critico</option>
-                    <option>Disponivel</option>
                   </select>
                 </div>
                 <button
@@ -626,7 +615,7 @@ const addCampaign = () => {
                       <span v-else>Ultima doacao: Nao informado</span>
                     </div>
                   </div>
-                  <div class="flex flex-col gap-2 min-w-[220px]">
+                  <div class="flex flex-col gap-2 min-w-55">
                     <div class="bg-gray-50 border border-gray-200 rounded-2xl p-3">
                       <label class="text-[11px] font-bold text-gray-500">Litros na ultima campanha</label>
                       <input
