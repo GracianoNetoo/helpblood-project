@@ -522,7 +522,7 @@ const addCampaign = () => {
                       @blur="campaignTouched.dateISO = true"
                       type="date"
                       :min="todayISO"
-                      class="mt-2 w-full bg-gray-50 border text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 transition-all font-medium"
+                      class="mt-2 w-full bg-gray-200 border text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 transition-all font-medium"
                       :class="(shouldShowCampaignError('dateISO') && !newCampaign.dateISO) || isDateInPast ? 'border-rose-300 focus:ring-rose-500/20 focus:border-rose-500' : 'border-gray-200 focus:ring-sky-500/20 focus:border-sky-500'"
                     />
                     <p v-if="shouldShowCampaignError('dateISO') && !newCampaign.dateISO" class="text-[11px] text-rose-600 font-bold mt-1">Data e obrigatoria.</p>
@@ -535,7 +535,7 @@ const addCampaign = () => {
                       @blur="campaignTouched.time = true"
                       type="time"
                       step="900"
-                      class="mt-2 w-full bg-gray-50 border text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 transition-all font-medium"
+                      class="mt-2 w-full bg-gray-200 border text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 transition-all font-medium"
                       :class="shouldShowCampaignError('time') && !newCampaign.time ? 'border-rose-300 focus:ring-rose-500/20 focus:border-rose-500' : 'border-gray-200 focus:ring-sky-500/20 focus:border-sky-500'"
                     />
                     <p v-if="shouldShowCampaignError('time') && !newCampaign.time" class="text-[11px] text-rose-600 font-bold mt-1">Hora e obrigatoria.</p>
