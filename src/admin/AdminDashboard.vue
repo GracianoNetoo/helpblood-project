@@ -129,13 +129,21 @@ const campaignSubmitted = ref(false);
 const campaignTouched = ref({
   title: false,
   location: false,
-  dateISO: false
+  dateISO: false,
+  time: false
+});
+const todayISO = new Date().toISOString().split('T')[0];
+const isDateInPast = computed(() => {
+  if (!newCampaign.value.dateISO) return false;
+  return newCampaign.value.dateISO < todayISO;
 });
 
 const isCampaignInvalid = computed(() => {
   if (!newCampaign.value.title) return true;
   if (!newCampaign.value.location) return true;
   if (!newCampaign.value.dateISO) return true;
+  if (isDateInPast.value) return true;
+  if (!newCampaign.value.time) return true;
   return false;
 });
 
@@ -155,7 +163,8 @@ const resetCampaignForm = () => {
   campaignTouched.value = {
     title: false,
     location: false,
-    dateISO: false
+    dateISO: false,
+    time: false
   };
 };
 
@@ -512,15 +521,24 @@ const addCampaign = () => {
                       v-model="newCampaign.dateISO"
                       @blur="campaignTouched.dateISO = true"
                       type="date"
+                      :min="todayISO"
                       class="mt-2 w-full bg-gray-50 border text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 transition-all font-medium"
-                      :class="shouldShowCampaignError('dateISO') && !newCampaign.dateISO ? 'border-rose-300 focus:ring-rose-500/20 focus:border-rose-500' : 'border-gray-200 focus:ring-sky-500/20 focus:border-sky-500'"
+                      :class="(shouldShowCampaignError('dateISO') && !newCampaign.dateISO) || isDateInPast ? 'border-rose-300 focus:ring-rose-500/20 focus:border-rose-500' : 'border-gray-200 focus:ring-sky-500/20 focus:border-sky-500'"
                     />
                     <p v-if="shouldShowCampaignError('dateISO') && !newCampaign.dateISO" class="text-[11px] text-rose-600 font-bold mt-1">Data e obrigatoria.</p>
+                    <p v-else-if="isDateInPast" class="text-[11px] text-rose-600 font-bold mt-1">Escolha uma data a partir de hoje.</p>
                   </div>
                   <div>
                     <label class="text-[12px] font-bold text-gray-600">Hora</label>
-                    <input v-model="newCampaign.time" type="time"
-                      class="mt-2 w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all font-medium" />
+                    <input
+                      v-model="newCampaign.time"
+                      @blur="campaignTouched.time = true"
+                      type="time"
+                      step="900"
+                      class="mt-2 w-full bg-gray-50 border text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 transition-all font-medium"
+                      :class="shouldShowCampaignError('time') && !newCampaign.time ? 'border-rose-300 focus:ring-rose-500/20 focus:border-rose-500' : 'border-gray-200 focus:ring-sky-500/20 focus:border-sky-500'"
+                    />
+                    <p v-if="shouldShowCampaignError('time') && !newCampaign.time" class="text-[11px] text-rose-600 font-bold mt-1">Hora e obrigatoria.</p>
                   </div>
                 </div>
               </div>
