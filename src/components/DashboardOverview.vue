@@ -25,6 +25,14 @@ const cardData = computed(() => ({
   blood: currentDonor.value?.tipo_sanguineo || 'O+'
 }));
 
+const donationVolume = computed(() => {
+  const value = currentDonor.value?.lastDonationLiters;
+  if (value === null || typeof value === 'undefined') return 0;
+  return value;
+});
+
+const donationVolumeLabel = computed(() => Number(donationVolume.value || 0).toFixed(1));
+
 const activeHelpRequests = computed(() => requests.value.filter((item) => item.status === 'approved').slice(0, 3));
 
 const downloadCard = () => {
@@ -133,7 +141,7 @@ const downloadCard = () => {
           </div>
           <div>
             <div class="text-[13px] font-semibold text-gray-500 mb-1.5">Volume Doado</div>
-            <div class="text-4xl font-extrabold text-gray-900 tracking-tight">1.8 <span class="text-xl text-gray-400 font-semibold">Litros</span></div>
+            <div class="text-4xl font-extrabold text-gray-900 tracking-tight">{{ donationVolumeLabel }} <span class="text-xl text-gray-400 font-semibold">Litros</span></div>
           </div>
         </div>
 
