@@ -52,7 +52,8 @@ const activeDonors = computed(() => donors.value.filter((donor) => donor.status 
 const totalCampaigns = computed(() => campaigns.value.length);
 const activeCampaigns = computed(() => campaigns.value.filter((camp) => camp.status !== 'inativo').length);
 
-const latestAppointments = computed(() => appointments.value.slice(0, 4));
+const scheduledAppointments = computed(() => appointments.value.filter((apt) => apt.campaignId));
+const latestAppointments = computed(() => scheduledAppointments.value.slice(0, 4));
 const latestRequests = computed(() => pendingRequests.value.slice(0, 4));
 const latestDonors = computed(() => donors.value.slice(0, 4));
 const latestCampaigns = computed(() => campaigns.value.slice(0, 4));
@@ -330,8 +331,8 @@ const addCampaign = () => {
               </div>
 
               <div class="p-6 md:p-8 pt-0 space-y-3">
-                <div v-if="appointments.length === 0" class="py-10 text-center border-2 border-dashed border-gray-100 rounded-3xl text-sm text-gray-500">
-                  Sem agendamentos.
+                <div v-if="scheduledAppointments.length === 0" class="py-10 text-center border-2 border-dashed border-gray-100 rounded-3xl text-sm text-gray-500">
+                  Sem campanhas marcados.
                 </div>
                 <div v-else v-for="apt in latestAppointments" :key="apt.id" class="flex items-center justify-between gap-4 border border-gray-100 rounded-2xl p-4 hover:bg-gray-50 transition-colors">
                   <div>
@@ -677,12 +678,12 @@ const addCampaign = () => {
               <div class="text-[12px] font-bold text-blue-600 bg-blue-50 border border-blue-100 px-4 py-2 rounded-full">Total: {{ totalAppointments }}</div>
             </div>
 
-            <div v-if="appointments.length === 0" class="py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl text-sm text-gray-500">
-              Sem agendamentos.
+            <div v-if="scheduledAppointments.length === 0" class="py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl text-sm text-gray-500">
+              Sem campanhas marcados.
             </div>
 
             <div v-else class="space-y-4">
-              <div v-for="apt in appointments" :key="apt.id" class="border border-gray-100 rounded-3xl p-5 md:p-6 hover:shadow-md transition-all">
+              <div v-for="apt in scheduledAppointments" :key="apt.id" class="border border-gray-100 rounded-3xl p-5 md:p-6 hover:shadow-md transition-all">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div>
                     <div class="text-sm font-bold text-gray-900">{{ apt.hospital || 'Hospital' }}</div>
