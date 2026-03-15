@@ -11,6 +11,7 @@ const authStore = useAuthStore();
 const mostrarSenha = ref(false);
 const mostrarSenhaConfirmacao = ref(false);
 const submitted = ref(false);
+const isSubmitting = ref(false);
 const touched = ref({
     nome: false,
     tipo_sanguineo: false,
@@ -85,7 +86,9 @@ const shouldShowError = (field) => submitted.value || touched.value[field];
 
 const handleSubmit = () => {
     submitted.value = true;
-    if (isFormInvalid.value) return;
+    if (isFormInvalid.value || isSubmitting.value) return;
+
+    isSubmitting.value = true;
 
     const newDonor = donorsStore.addDonor({
         nome: form.value.nome,
@@ -101,14 +104,26 @@ const handleSubmit = () => {
         authStore.setCurrentDonorId(newDonor.id);
     }
 
-    alert("Cadastro realizado com sucesso!");
-    emit('sucesso'); 
+    setTimeout(() => {
+        emit('sucesso'); 
+        isSubmitting.value = false;
+    }, 900);
 }
 </script>
 
 <template>
     <form @submit.prevent="handleSubmit"
         class="w-full space-y-6 bg-white p-0 relative z-20 max-h-95 md:max-h-[65vh] overflow-y-auto px-2 pb-6 custom-scrollbar">
+
+        <div v-if="isSubmitting" class="absolute inset-0 z-30 bg-white/80 backdrop-blur-sm flex items-center justify-center">
+            <div class="bg-white border border-rose-100 shadow-xl rounded-3xl px-6 py-5 flex items-center gap-3">
+                <span class="w-5 h-5 border-2 border-rose-300 border-t-rose-600 rounded-full animate-spin"></span>
+                <div>
+                    <p class="text-sm font-bold text-gray-900">A processar cadastro</p>
+                    <p class="text-[12px] text-gray-500">Estamos a finalizar a sua inscrição.</p>
+                </div>
+            </div>
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div class="form-control w-full space-y-1.5">
@@ -227,9 +242,13 @@ const handleSubmit = () => {
         </div>
 
         <div class="pt-4">
-            <button type="submit" :disabled="isFormInvalid" 
+            <button type="submit" :disabled="isFormInvalid || isSubmitting" 
                 class="w-full bg-rose-600 hover:bg-rose-700 text-white rounded-2xl px-6 py-4 font-extrabold text-[15px] shadow-[0_8px_20px_rgba(225,29,72,0.2)] transition-all hover:-translate-y-0.5 mt-2 flex justify-center items-center gap-2 group tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">
-                Finalizar Registo Seguro
+                <span v-if="isSubmitting" class="inline-flex items-center gap-2">
+                    <span class="w-4 h-4 border-2 border-white/60 border-t-white rounded-full animate-spin"></span>
+                    A processar...
+                </span>
+                <span v-else>Finalizar Registo Seguro</span>
             </button>
             <p class="text-center text-[12px] text-gray-500 font-medium mt-4">
                 Ao registrar-se, concorda com as <a href="#" class="text-rose-600 hover:underline">Políticas de Privacidade Médica.</a>
