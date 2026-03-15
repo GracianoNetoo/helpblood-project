@@ -4,6 +4,8 @@ import { LayoutDashboard, Droplet, CalendarDays, LogOut, Bell, AlertCircle, Menu
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useHelpRequestsStore } from '../stores/helpRequestsStore';
+import { useDonorsStore } from '../stores/donorsStore';
+import { useAuthStore } from '../stores/authStore';
 
 import DashboardOverview from './DashboardOverview.vue';
 import MyDonations from './MyDonations.vue';
@@ -15,6 +17,10 @@ const emit = defineEmits(['logout']);
 const route = useRoute();
 const helpRequestsStore = useHelpRequestsStore();
 const { requests } = storeToRefs(helpRequestsStore);
+const donorsStore = useDonorsStore();
+const authStore = useAuthStore();
+const { donors } = storeToRefs(donorsStore);
+const { currentDonorId } = storeToRefs(authStore);
 
 const navItems = [
   { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard, component: markRaw(DashboardOverview) },
@@ -28,6 +34,18 @@ const activeTab = ref('dashboard');
 const isMobileNavOpen = ref(false);
 const autoOpenCampaigns = ref(false);
 const approvedRequestsCount = computed(() => requests.value.filter((item) => item.status === 'approved').length);
+const currentDonor = computed(() => donors.value.find((donor) => donor.id === currentDonorId.value));
+const donorName = computed(() => currentDonor.value?.nome || 'Doador');
+const donorBlood = computed(() => currentDonor.value?.tipo_sanguineo || 'N/A');
+const donorInitials = computed(() => {
+  const name = donorName.value.trim();
+  if (!name) return 'DV';
+  const parts = name.split(' ').filter(Boolean);
+  const first = parts[0]?.[0] || '';
+  const last = parts.length > 1 ? parts[parts.length - 1]?.[0] : '';
+  const initials = `${first}${last}`.toUpperCase();
+  return initials || 'DV';
+});
 
 const syncTabFromRoute = (tab) => {
   if (!tab) return;
@@ -115,11 +133,11 @@ const handleSelectTab = (tabId, options = {}) => {
           
           <div class="flex items-center gap-3 group cursor-pointer hover:bg-white p-1.5 md:p-2 rounded-full md:rounded-[20px] pr-2 md:pr-4 transition-all border border-transparent hover:border-gray-200/60 hover:shadow-sm">
             <div class="w-10 h-10 bg-linear-to-br from-rose-100 to-orange-50 rounded-full border border-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] overflow-hidden flex items-center justify-center">
-              <span class="text-rose-600 font-bold text-sm">MN</span>
+              <span class="text-rose-600 font-bold text-sm">{{ donorInitials }}</span>
             </div>
             <div class="hidden md:block">
-              <p class="text-[13px] font-bold text-gray-900 leading-none">Manuel F.</p>
-              <p class="text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full inline-flex mt-1 uppercase tracking-wider">Doador O+</p>
+              <p class="text-[13px] font-bold text-gray-900 leading-none">{{ donorName }}</p>
+              <p class="text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full inline-flex mt-1 uppercase tracking-wider">Doador {{ donorBlood }}</p>
             </div>
           </div>
         </div>
