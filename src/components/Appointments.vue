@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, computed } from 'vue';
 import { Plus, Calendar, Clock } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
@@ -9,6 +9,7 @@ const emit = defineEmits(['open-campaigns']);
 // Instanciar a Store
 const appointmentsStore = useAppointmentsStore();
 const { appointments, autoOpenBooking } = storeToRefs(appointmentsStore);
+const scheduledCampaigns = computed(() => appointments.value.filter((apt) => apt.campaignId));
 const openCampaigns = () => {
   emit('open-campaigns', { autoOpenCampaign: true });
 };
@@ -55,14 +56,14 @@ onMounted(() => {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
         <!-- Estado Vazio se Array estiver vazio -->
-        <div v-if="appointments.length === 0" class="col-span-full py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl">
+        <div v-if="scheduledCampaigns.length === 0" class="col-span-full py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl">
           <Calendar class="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 class="text-lg font-bold text-gray-900">Nenhuma visita agendada</h3>
+          <h3 class="text-lg font-bold text-gray-900">Sem agendamentos marcados</h3>
           <p class="text-sm text-gray-500 mt-2">Use o botão Ver Campanhas para escolher onde doar.</p>
         </div>
 
         <!-- Cartões Fictícios / Dinâmicos de Agendamentos -->
-        <div v-for="apt in appointments" :key="apt.id" class="group relative overflow-hidden bg-white border border-gray-200 hover:border-rose-200 rounded-3xl p-6 hover:shadow-xl hover:shadow-rose-100 transition-all">
+        <div v-for="apt in scheduledCampaigns" :key="apt.id" class="group relative overflow-hidden bg-white border border-gray-200 hover:border-rose-200 rounded-3xl p-6 hover:shadow-xl hover:shadow-rose-100 transition-all">
           <div class="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-rose-400 to-orange-300"></div>
           
           <div class="flex justify-between items-start mb-4">
