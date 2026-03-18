@@ -688,17 +688,27 @@ const addCampaign = () => {
                   <div class="flex flex-col gap-2 min-w-55">
                     <div class="bg-gray-50 border border-gray-200 rounded-2xl p-3">
                       <label class="text-[11px] font-bold text-gray-500">Litros na ultima campanha</label>
-                      <input
-                        :value="getDonationDraftValue(donor.id, formatLiters(donor.lastDonationLiters))"
-                        @focus="ensureDonationDraft(donor.id)"
-                        @input="donationDrafts[donor.id] = $event.target.value; donationTouched[donor.id] = true"
-                        type="number"
-                        :min="donationMin"
-                        :max="donationMax"
-                        :step="donationStep"
-                        placeholder="0.45"
-                        class="mt-2 w-full bg-white border border-gray-200 text-gray-900 text-[13px] rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
-                      />
+                      <div class="relative mt-2">
+                        <input
+                          :value="getDonationDraftValue(donor.id, formatLiters(donor.lastDonationLiters))"
+                          @focus="ensureDonationDraft(donor.id)"
+                          @input="donationDrafts[donor.id] = $event.target.value; donationTouched[donor.id] = true"
+                          type="number"
+                          :min="donationMin"
+                          :max="donationMax"
+                          :step="donationStep"
+                          placeholder="0.45"
+                          class="w-full bg-white border border-gray-200 text-gray-900 text-[13px] rounded-xl pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
+                        />
+                        <button
+                          type="button"
+                          @click="donationDrafts[donor.id] = ''; donationTouched[donor.id] = true"
+                          class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-gray-100 text-gray-500 hover:text-gray-700 hover:bg-gray-200 transition-colors"
+                          aria-label="Limpar valor"
+                        >
+                          <span class="text-[11px] font-bold">X</span>
+                        </button>
+                      </div>
                       <div class="mt-2 flex flex-wrap gap-2">
                         <button @click="applyDonationPreset(donor.id, 0.45)" class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100">0.45 L</button>
                         <button @click="applyDonationPreset(donor.id, 0.5)" class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100">0.50 L</button>
