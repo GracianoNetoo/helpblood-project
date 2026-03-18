@@ -84,6 +84,28 @@ const removeDonor = (id) => {
 
 const donationDrafts = ref({});
 const formatLiters = (value) => (value === null || typeof value === 'undefined' ? '' : String(value));
+const donationMin = 0.1;
+const donationMax = 1.0;
+const donationStep = 0.05;
+
+const parseDonationValue = (value) => {
+  if (value === null || typeof value === 'undefined') return null;
+  const raw = String(value).trim();
+  if (!raw) return null;
+  const normalized = raw.replace(',', '.');
+  const parsed = Number(normalized);
+  if (!Number.isFinite(parsed)) return null;
+  return parsed;
+};
+
+const getDonationError = (value) => {
+  const parsed = parseDonationValue(value);
+  if (parsed === null) return 'Informe um valor em litros.';
+  if (parsed < donationMin || parsed > donationMax) {
+    return `Use entre ${donationMin} e ${donationMax} L.`;
+  }
+  return '';
+};
 
 const syncDonationDraft = (donorId) => {
   const donor = donors.value.find((item) => item.id === donorId);
@@ -93,8 +115,14 @@ const syncDonationDraft = (donorId) => {
 
 const saveDonationLiters = (donorId) => {
   const draftValue = donationDrafts.value[donorId] ?? '';
+  const error = getDonationError(draftValue);
+  if (error) return;
   donorsStore.updateLastDonationLiters(donorId, draftValue);
   syncDonationDraft(donorId);
+};
+
+const applyDonationPreset = (donorId, value) => {
+  donationDrafts.value[donorId] = String(value);
 };
 
 const formatDonationDate = (value) => {
@@ -642,14 +670,25 @@ const addCampaign = () => {
                         @input="donationDrafts[donor.id] = $event.target.value"
                         @blur="syncDonationDraft(donor.id)"
                         type="number"
-                        min="0"
-                        step="0.1"
+                        :min="donationMin"
+                        :max="donationMax"
+                        :step="donationStep"
                         placeholder="0.45"
                         class="mt-2 w-full bg-white border border-gray-200 text-gray-900 text-[13px] rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
                       />
+                      <div class="mt-2 flex flex-wrap gap-2">
+                        <button @click="applyDonationPreset(donor.id, 0.45)" class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100">0.45 L</button>
+                        <button @click="applyDonationPreset(donor.id, 0.5)" class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100">0.50 L</button>
+                        <button @click="applyDonationPreset(donor.id, 0.6)" class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100">0.60 L</button>
+                      </div>
+                      <p class="mt-2 text-[11px] text-gray-400">Referencia: 0.45 L e o volume padrao.</p>
+                      <p v-if="getDonationError(donationDrafts[donor.id] ?? formatLiters(donor.lastDonationLiters))" class="text-[11px] text-rose-600 font-bold mt-1">
+                        {{ getDonationError(donationDrafts[donor.id] ?? formatLiters(donor.lastDonationLiters)) }}
+                      </p>
                       <button
                         @click="saveDonationLiters(donor.id)"
-                        class="mt-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-3 py-2 text-[12px] font-bold transition-all"
+                        :disabled="getDonationError(donationDrafts[donor.id] ?? formatLiters(donor.lastDonationLiters))"
+                        class="mt-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-3 py-2 text-[12px] font-bold transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-emerald-600"
                       >
                         Guardar
                       </button>
