@@ -95,10 +95,13 @@ export const useDonorsStore = defineStore('donors', () => {
     const normalized = typeof liters === 'string' ? liters.replace(',', '.') : liters;
     const parsed = Number(normalized);
     if (!Number.isFinite(parsed) || parsed < 0) return;
+    const previous = Number(target.lastDonationLiters);
+    const previousValue = Number.isFinite(previous) ? previous : 0;
+    const currentTotal = Number(target.totalDonationLiters) || 0;
+    const nextTotal = Math.max(0, currentTotal - previousValue + parsed);
     target.lastDonationLiters = parsed;
     target.lastDonationDate = new Date().toISOString().split('T')[0];
-    const currentTotal = Number(target.totalDonationLiters) || 0;
-    target.totalDonationLiters = Number((currentTotal + parsed).toFixed(2));
+    target.totalDonationLiters = Number(nextTotal.toFixed(2));
   };
 
   loadFromStorage();
