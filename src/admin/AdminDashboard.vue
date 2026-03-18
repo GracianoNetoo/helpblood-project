@@ -83,6 +83,7 @@ const removeDonor = (id) => {
 };
 
 const donationDrafts = ref({});
+const donationTouched = ref({});
 const formatLiters = (value) => (value === null || typeof value === 'undefined' ? '' : String(value));
 const donationMin = 0.1;
 const donationMax = 1.0;
@@ -113,6 +114,11 @@ const syncDonationDraft = (donorId) => {
   donationDrafts.value[donorId] = formatLiters(donor.lastDonationLiters);
 };
 
+const ensureDonationDraft = (donorId) => {
+  if (typeof donationDrafts.value[donorId] !== 'undefined') return;
+  syncDonationDraft(donorId);
+};
+
 const saveDonationLiters = (donorId) => {
   const draftValue = donationDrafts.value[donorId] ?? '';
   const error = getDonationError(draftValue);
@@ -123,6 +129,23 @@ const saveDonationLiters = (donorId) => {
 
 const applyDonationPreset = (donorId, value) => {
   donationDrafts.value[donorId] = String(value);
+  donationTouched.value[donorId] = true;
+};
+
+const getDonationDraftValue = (donorId, fallback) => {
+  const draft = donationDrafts.value[donorId];
+  return typeof draft === 'undefined' ? fallback : draft;
+};
+
+const getDonationErrorFor = (donorId, fallback) => {
+  const value = getDonationDraftValue(donorId, fallback);
+  if (!donationTouched.value[donorId]) return '';
+  return getDonationError(value);
+};
+
+const canSaveDonation = (donorId, fallback) => {
+  const value = getDonationDraftValue(donorId, fallback);
+  return !getDonationError(value);
 };
 
 const formatDonationDate = (value) => {
@@ -666,9 +689,9 @@ const addCampaign = () => {
                     <div class="bg-gray-50 border border-gray-200 rounded-2xl p-3">
                       <label class="text-[11px] font-bold text-gray-500">Litros na ultima campanha</label>
                       <input
-                        :value="donationDrafts[donor.id] ?? formatLiters(donor.lastDonationLiters)"
-                        @input="donationDrafts[donor.id] = $event.target.value"
-                        @blur="syncDonationDraft(donor.id)"
+                        :value="getDonationDraftValue(donor.id, formatLiters(donor.lastDonationLiters))"
+                        @focus="ensureDonationDraft(donor.id)"
+                        @input="donationDrafts[donor.id] = $event.target.value; donationTouched[donor.id] = true"
                         type="number"
                         :min="donationMin"
                         :max="donationMax"
@@ -682,12 +705,12 @@ const addCampaign = () => {
                         <button @click="applyDonationPreset(donor.id, 0.6)" class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100">0.60 L</button>
                       </div>
                       <p class="mt-2 text-[11px] text-gray-400">Referencia: 0.45 L e o volume padrao.</p>
-                      <p v-if="getDonationError(donationDrafts[donor.id] ?? formatLiters(donor.lastDonationLiters))" class="text-[11px] text-rose-600 font-bold mt-1">
-                        {{ getDonationError(donationDrafts[donor.id] ?? formatLiters(donor.lastDonationLiters)) }}
+                      <p v-if="getDonationErrorFor(donor.id, formatLiters(donor.lastDonationLiters))" class="text-[11px] text-rose-600 font-bold mt-1">
+                        {{ getDonationErrorFor(donor.id, formatLiters(donor.lastDonationLiters)) }}
                       </p>
                       <button
                         @click="saveDonationLiters(donor.id)"
-                        :disabled="getDonationError(donationDrafts[donor.id] ?? formatLiters(donor.lastDonationLiters))"
+                        :disabled="!canSaveDonation(donor.id, formatLiters(donor.lastDonationLiters))"
                         class="mt-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-3 py-2 text-[12px] font-bold transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-emerald-600"
                       >
                         Guardar
