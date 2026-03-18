@@ -16,6 +16,7 @@ const seedDonors = [
     doacao_sangue: 'Sim, ja doei',
     lastDonationLiters: null,
     lastDonationDate: null,
+    totalDonationLiters: 0,
     status: 'ativo',
     createdAt: new Date().toISOString()
   },
@@ -31,6 +32,7 @@ const seedDonors = [
     doacao_sangue: 'Nao, sera a 1a vez',
     lastDonationLiters: null,
     lastDonationDate: null,
+    totalDonationLiters: 0,
     status: 'ativo',
     createdAt: new Date().toISOString()
   }
@@ -48,6 +50,7 @@ export const useDonorsStore = defineStore('donors', () => {
           donors.value = parsed.map((item) => ({
             lastDonationLiters: null,
             lastDonationDate: null,
+            totalDonationLiters: 0,
             ...item
           }));
         }
@@ -63,6 +66,7 @@ export const useDonorsStore = defineStore('donors', () => {
       status: 'ativo',
       lastDonationLiters: null,
       lastDonationDate: null,
+      totalDonationLiters: 0,
       createdAt: new Date().toISOString(),
       ...donor
     };
@@ -93,6 +97,8 @@ export const useDonorsStore = defineStore('donors', () => {
     if (!Number.isFinite(parsed) || parsed < 0) return;
     target.lastDonationLiters = parsed;
     target.lastDonationDate = new Date().toISOString().split('T')[0];
+    const currentTotal = Number(target.totalDonationLiters) || 0;
+    target.totalDonationLiters = Number((currentTotal + parsed).toFixed(2));
   };
 
   loadFromStorage();

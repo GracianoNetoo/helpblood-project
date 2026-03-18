@@ -26,7 +26,7 @@ const cardData = computed(() => ({
 }));
 
 const donationVolume = computed(() => {
-  const value = currentDonor.value?.lastDonationLiters;
+  const value = currentDonor.value?.totalDonationLiters;
   if (value === null || typeof value === 'undefined') return 0;
   return value;
 });
