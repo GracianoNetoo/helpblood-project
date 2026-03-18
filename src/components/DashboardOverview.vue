@@ -16,7 +16,9 @@ const { donors } = storeToRefs(donorsStore);
 const { currentDonorId } = storeToRefs(authStore);
 const { requests } = storeToRefs(helpRequestsStore);
 
-const currentDonor = computed(() => donors.value.find((donor) => donor.id === currentDonorId.value));
+const currentDonorIdValue = computed(() => Number(currentDonorId.value));
+const fallbackDonor = computed(() => donors.value[0] || null);
+const currentDonor = computed(() => donors.value.find((donor) => donor.id === currentDonorIdValue.value) || fallbackDonor.value);
 const formatDonorId = (donor) => (donor?.id ? `DV-${String(donor.id).padStart(6, '0')}` : 'DV-000000');
 
 const cardData = computed(() => ({
@@ -31,7 +33,7 @@ const donationVolume = computed(() => {
   return value;
 });
 
-const donationVolumeLabel = computed(() => Number(donationVolume.value || 0).toFixed(1));
+const donationVolumeLabel = computed(() => Number(donationVolume.value || 0).toFixed(2));
 
 const activeHelpRequests = computed(() => requests.value.filter((item) => item.status === 'approved').slice(0, 3));
 

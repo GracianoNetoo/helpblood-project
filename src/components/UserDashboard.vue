@@ -34,9 +34,17 @@ const activeTab = ref('dashboard');
 const isMobileNavOpen = ref(false);
 const autoOpenCampaigns = ref(false);
 const approvedRequestsCount = computed(() => requests.value.filter((item) => item.status === 'approved').length);
-const currentDonor = computed(() => donors.value.find((donor) => donor.id === currentDonorId.value));
+const currentDonorIdValue = computed(() => Number(currentDonorId.value));
+const fallbackDonor = computed(() => donors.value[0] || null);
+const currentDonor = computed(() => donors.value.find((donor) => donor.id === currentDonorIdValue.value) || fallbackDonor.value);
 const donorName = computed(() => currentDonor.value?.nome || 'Doador');
 const donorBlood = computed(() => currentDonor.value?.tipo_sanguineo || 'N/A');
+const donorTotalLiters = computed(() => {
+  const value = currentDonor.value?.totalDonationLiters;
+  if (value === null || typeof value === 'undefined') return 0;
+  return Number(value) || 0;
+});
+const donorTotalLabel = computed(() => donorTotalLiters.value.toFixed(2));
 const donorInitials = computed(() => {
   const name = donorName.value.trim();
   if (!name) return 'DV';
@@ -138,6 +146,7 @@ const handleSelectTab = (tabId, options = {}) => {
             <div class="hidden md:block">
               <p class="text-[13px] font-bold text-gray-900 leading-none">{{ donorName }}</p>
               <p class="text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full inline-flex mt-1 uppercase tracking-wider">Doador {{ donorBlood }}</p>
+              <p class="text-[11px] text-gray-500 mt-1">Total doado: {{ donorTotalLabel }} L</p>
             </div>
           </div>
         </div>
