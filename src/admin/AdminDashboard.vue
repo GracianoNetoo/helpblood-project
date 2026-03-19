@@ -51,6 +51,7 @@ const totalDonors = computed(() => donors.value.length);
 const activeDonors = computed(() => donors.value.filter((donor) => donor.status === 'ativo').length);
 const totalCampaigns = computed(() => campaigns.value.length);
 const activeCampaigns = computed(() => campaigns.value.filter((camp) => camp.status !== 'inativo').length);
+const activeCampaignOptions = computed(() => campaigns.value.filter((camp) => camp.status !== 'inativo'));
 
 const scheduledAppointments = computed(() => appointments.value.filter((apt) => apt.campaignId));
 const latestAppointments = computed(() => scheduledAppointments.value.slice(0, 4));
@@ -119,11 +120,11 @@ const ensureDonationDraft = (donorId) => {
   syncDonationDraft(donorId);
 };
 
-const saveDonationLiters = (donorId) => {
-  const draftValue = donationDrafts.value[donorId] ?? '';
+const saveDonationLiters = (donorId, liters, campaign) => {
+  const draftValue = typeof liters === 'undefined' ? donationDrafts.value[donorId] ?? '' : liters;
   const error = getDonationError(draftValue);
   if (error) return;
-  donorsStore.updateLastDonationLiters(donorId, draftValue);
+  donorsStore.updateLastDonationLiters(donorId, draftValue, campaign);
   syncDonationDraft(donorId);
 };
 
@@ -146,6 +147,63 @@ const getDonationErrorFor = (donorId, fallback) => {
 const canSaveDonation = (donorId, fallback) => {
   const value = getDonationDraftValue(donorId, fallback);
   return !getDonationError(value);
+};
+
+const isDonationModalOpen = ref(false);
+const donationModal = ref({
+  donorId: null,
+  liters: '',
+  campaignId: ''
+});
+const donationModalError = ref('');
+
+const openDonationModal = (donorId) => {
+  donationTouched.value[donorId] = true;
+  ensureDonationDraft(donorId);
+  const donor = donors.value.find((item) => item.id === donorId);
+  const fallbackValue = donor ? formatLiters(donor.lastDonationLiters) : '';
+  const draftValue = getDonationDraftValue(donorId, fallbackValue);
+  const error = getDonationError(draftValue);
+  if (error) return;
+  const availableCampaigns = activeCampaignOptions.value;
+  donationModal.value = {
+    donorId,
+    liters: draftValue,
+    campaignId: availableCampaigns.length ? availableCampaigns[0].id : ''
+  };
+  donationModalError.value = '';
+  isDonationModalOpen.value = true;
+};
+
+const closeDonationModal = () => {
+  isDonationModalOpen.value = false;
+  donationModalError.value = '';
+};
+
+const selectedDonationCampaign = computed(() => {
+  if (!donationModal.value.campaignId) return null;
+  return activeCampaignOptions.value.find((camp) => camp.id === donationModal.value.campaignId) || null;
+});
+
+const selectedDonationDonor = computed(() => {
+  if (!donationModal.value.donorId) return null;
+  return donors.value.find((item) => item.id === donationModal.value.donorId) || null;
+});
+
+const confirmDonationModal = () => {
+  const { donorId, liters, campaignId } = donationModal.value;
+  if (!donorId) return;
+  if (!campaignId) {
+    donationModalError.value = 'Selecione uma campanha ativa.';
+    return;
+  }
+  const campaign = activeCampaignOptions.value.find((camp) => camp.id === campaignId);
+  if (!campaign) {
+    donationModalError.value = 'Campanha invalida ou inativa.';
+    return;
+  }
+  saveDonationLiters(donorId, liters, campaign);
+  closeDonationModal();
 };
 
 const formatDonationDate = (value) => {
@@ -681,6 +739,7 @@ const addCampaign = () => {
                     <div class="text-[12px] text-gray-500 mt-1">
                       <span v-if="donor.lastDonationLiters !== null && typeof donor.lastDonationLiters !== 'undefined'">
                         Ultima doacao: {{ donor.lastDonationLiters }} L • {{ formatDonationDate(donor.lastDonationDate) }}
+                        <span v-if="donor.lastDonationCampaignTitle"> • {{ donor.lastDonationCampaignTitle }}</span>
                       </span>
                       <span v-else>Ultima doacao: Nao informado</span>
                     </div>
@@ -719,7 +778,7 @@ const addCampaign = () => {
                         {{ getDonationErrorFor(donor.id, formatLiters(donor.lastDonationLiters)) }}
                       </p>
                       <button
-                        @click="saveDonationLiters(donor.id)"
+                        @click="openDonationModal(donor.id)"
                         :disabled="!canSaveDonation(donor.id, formatLiters(donor.lastDonationLiters))"
                         class="mt-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-3 py-2 text-[12px] font-bold transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-emerald-600"
                       >
@@ -770,6 +829,67 @@ const addCampaign = () => {
         </section>
       </div>
     </main>
+
+    <!-- Donation Campaign Modal -->
+    <div v-if="isDonationModalOpen" class="fixed inset-0 z-40 flex items-center justify-center px-4">
+      <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="closeDonationModal"></div>
+      <div class="relative w-full max-w-lg rounded-4xl bg-white p-6 md:p-8 shadow-2xl border border-gray-200/70">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-gray-900">Confirmar doacao</h3>
+            <p class="text-sm text-gray-500 mt-1">Associe a doacao a uma campanha ativa para confirmar a presenca.</p>
+          </div>
+          <button @click="closeDonationModal" class="w-10 h-10 rounded-full bg-gray-100 text-gray-500 hover:text-gray-700 hover:bg-gray-200 transition-colors" aria-label="Fechar">
+            X
+          </button>
+        </div>
+
+        <div class="mt-6 space-y-4">
+          <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+            <div class="text-[12px] font-bold text-gray-500">Resumo</div>
+            <div class="mt-2 text-sm text-gray-900 font-semibold">
+              {{ selectedDonationDonor?.nome || 'Doador' }} • {{ donationModal.liters }} L
+            </div>
+          </div>
+
+          <div>
+            <label class="text-[12px] font-bold text-gray-600">Campanha ativa</label>
+            <select
+              v-model="donationModal.campaignId"
+              class="mt-2 w-full bg-white border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
+            >
+              <option value="" disabled>Selecione uma campanha</option>
+              <option v-for="camp in activeCampaignOptions" :key="camp.id" :value="camp.id">
+                {{ camp.title }} • {{ camp.location }} • {{ camp.dateISO }} {{ camp.time }}
+              </option>
+            </select>
+            <p v-if="activeCampaignOptions.length === 0" class="text-[11px] text-rose-600 font-bold mt-2">
+              Sem campanhas ativas no momento.
+            </p>
+          </div>
+
+          <div v-if="selectedDonationCampaign" class="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 text-[12px] text-emerald-900">
+            <div class="font-bold">{{ selectedDonationCampaign.title }}</div>
+            <div class="mt-1 text-emerald-700">{{ selectedDonationCampaign.location }} • {{ selectedDonationCampaign.dateISO }} • {{ selectedDonationCampaign.time }}</div>
+          </div>
+
+          <p v-if="donationModalError" class="text-[12px] text-rose-600 font-bold">{{ donationModalError }}</p>
+        </div>
+
+        <div class="mt-6 flex flex-col sm:flex-row gap-3">
+          <button @click="closeDonationModal" class="w-full sm:w-auto px-5 py-3 rounded-2xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-all">
+            Cancelar
+          </button>
+          <button
+            @click="confirmDonationModal"
+            :disabled="activeCampaignOptions.length === 0"
+            class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            Confirmar doacao
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Mobile Navigation Drawer -->
     <div v-if="isMobileNavOpen" class="fixed inset-0 z-30 md:hidden">

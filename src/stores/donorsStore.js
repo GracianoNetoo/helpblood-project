@@ -16,6 +16,9 @@ const seedDonors = [
     doacao_sangue: 'Sim, ja doei',
     lastDonationLiters: null,
     lastDonationDate: null,
+    lastDonationCampaignId: null,
+    lastDonationCampaignTitle: null,
+    donationHistory: [],
     totalDonationLiters: 0,
     status: 'ativo',
     createdAt: new Date().toISOString()
@@ -32,6 +35,9 @@ const seedDonors = [
     doacao_sangue: 'Nao, sera a 1a vez',
     lastDonationLiters: null,
     lastDonationDate: null,
+    lastDonationCampaignId: null,
+    lastDonationCampaignTitle: null,
+    donationHistory: [],
     totalDonationLiters: 0,
     status: 'ativo',
     createdAt: new Date().toISOString()
@@ -50,6 +56,9 @@ export const useDonorsStore = defineStore('donors', () => {
           donors.value = parsed.map((item) => ({
             lastDonationLiters: null,
             lastDonationDate: null,
+            lastDonationCampaignId: null,
+            lastDonationCampaignTitle: null,
+            donationHistory: [],
             totalDonationLiters: 0,
             ...item
           }));
@@ -66,6 +75,9 @@ export const useDonorsStore = defineStore('donors', () => {
       status: 'ativo',
       lastDonationLiters: null,
       lastDonationDate: null,
+      lastDonationCampaignId: null,
+      lastDonationCampaignTitle: null,
+      donationHistory: [],
       totalDonationLiters: 0,
       createdAt: new Date().toISOString(),
       ...donor
@@ -84,21 +96,39 @@ export const useDonorsStore = defineStore('donors', () => {
     donors.value = donors.value.filter((item) => item.id !== id);
   };
 
-  const updateLastDonationLiters = (id, liters) => {
+  const updateLastDonationLiters = (id, liters, campaign = null) => {
     const target = donors.value.find((item) => item.id === id);
     if (!target) return;
     if (liters === '' || liters === null || typeof liters === 'undefined') {
       target.lastDonationLiters = null;
       target.lastDonationDate = null;
+      target.lastDonationCampaignId = null;
+      target.lastDonationCampaignTitle = null;
       return;
     }
     const normalized = typeof liters === 'string' ? liters.replace(',', '.') : liters;
     const parsed = Number(normalized);
     if (!Number.isFinite(parsed) || parsed < 0) return;
     const currentTotal = Number(target.totalDonationLiters) || 0;
+    const donationDate = new Date().toISOString().split('T')[0];
+    const campaignId = campaign && campaign.id ? campaign.id : null;
+    const campaignTitle = campaign && campaign.title ? campaign.title : null;
+    const history = Array.isArray(target.donationHistory) ? target.donationHistory : [];
     target.lastDonationLiters = parsed;
-    target.lastDonationDate = new Date().toISOString().split('T')[0];
+    target.lastDonationDate = donationDate;
+    target.lastDonationCampaignId = campaignId;
+    target.lastDonationCampaignTitle = campaignTitle;
     target.totalDonationLiters = Number((currentTotal + parsed).toFixed(2));
+    target.donationHistory = [
+      {
+        id: `don-${Date.now()}`,
+        liters: parsed,
+        date: donationDate,
+        campaignId,
+        campaignTitle
+      },
+      ...history
+    ];
   };
 
   loadFromStorage();
