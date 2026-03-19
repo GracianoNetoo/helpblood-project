@@ -18,6 +18,7 @@ const seedDonors = [
     lastDonationDate: null,
     lastDonationCampaignId: null,
     lastDonationCampaignTitle: null,
+    lastDonationCampaignLocation: null,
     donationHistory: [],
     totalDonationLiters: 0,
     status: 'ativo',
@@ -37,6 +38,7 @@ const seedDonors = [
     lastDonationDate: null,
     lastDonationCampaignId: null,
     lastDonationCampaignTitle: null,
+    lastDonationCampaignLocation: null,
     donationHistory: [],
     totalDonationLiters: 0,
     status: 'ativo',
@@ -58,6 +60,7 @@ export const useDonorsStore = defineStore('donors', () => {
             lastDonationDate: null,
             lastDonationCampaignId: null,
             lastDonationCampaignTitle: null,
+            lastDonationCampaignLocation: null,
             donationHistory: [],
             totalDonationLiters: 0,
             ...item
@@ -77,6 +80,7 @@ export const useDonorsStore = defineStore('donors', () => {
       lastDonationDate: null,
       lastDonationCampaignId: null,
       lastDonationCampaignTitle: null,
+      lastDonationCampaignLocation: null,
       donationHistory: [],
       totalDonationLiters: 0,
       createdAt: new Date().toISOString(),
@@ -104,6 +108,7 @@ export const useDonorsStore = defineStore('donors', () => {
       target.lastDonationDate = null;
       target.lastDonationCampaignId = null;
       target.lastDonationCampaignTitle = null;
+      target.lastDonationCampaignLocation = null;
       return;
     }
     const normalized = typeof liters === 'string' ? liters.replace(',', '.') : liters;
@@ -113,11 +118,13 @@ export const useDonorsStore = defineStore('donors', () => {
     const donationDate = new Date().toISOString().split('T')[0];
     const campaignId = campaign && campaign.id ? campaign.id : null;
     const campaignTitle = campaign && campaign.title ? campaign.title : null;
+    const campaignLocation = campaign && campaign.location ? campaign.location : null;
     const history = Array.isArray(target.donationHistory) ? target.donationHistory : [];
     target.lastDonationLiters = parsed;
     target.lastDonationDate = donationDate;
     target.lastDonationCampaignId = campaignId;
     target.lastDonationCampaignTitle = campaignTitle;
+    target.lastDonationCampaignLocation = campaignLocation;
     target.totalDonationLiters = Number((currentTotal + parsed).toFixed(2));
     target.donationHistory = [
       {
@@ -125,7 +132,8 @@ export const useDonorsStore = defineStore('donors', () => {
         liters: parsed,
         date: donationDate,
         campaignId,
-        campaignTitle
+        campaignTitle,
+        campaignLocation
       },
       ...history
     ];

@@ -1,53 +1,80 @@
-<script setup>
-import { History, CalendarDays, Droplet, CheckCircle, Clock } from 'lucide-vue-next';
+﻿<script setup>
+import { computed } from 'vue';
+import { storeToRefs } from 'pinia';
+import { History, Droplet } from 'lucide-vue-next';
+import { useAuthStore } from '../stores/authStore';
+import { useDonorsStore } from '../stores/donorsStore';
+import { useCampaignsStore } from '../stores/campaignsStore';
 
-// Dados fictícios simulando o histórico de doações
-const donations = [
-  {
-    id: 'D-8472',
-    date: '12 de Outubro, 2023',
-    location: 'Instituto Nacional de Sangue',
-    volume: '450 ml',
-    type: 'Sangue Total',
-    status: 'concluido'
-  },
-  {
-    id: 'D-5921',
-    date: '05 de Junho, 2023',
-    location: 'Clínica Sagrada Esperança',
-    volume: '450 ml',
-    type: 'Sangue Total',
-    status: 'concluido'
-  },
-  {
-    id: 'D-3184',
-    date: '18 Janeiro, 2023',
-    location: 'Hospital Geral de Luanda',
-    volume: '450 ml',
-    type: 'Plaquetas',
-    status: 'concluido'
-  },
-  {
-    id: 'D-9033',
-    date: '11 de Agosto, 2022',
-    location: 'Instituto Nacional de Sangue',
-    volume: '450 ml',
-    type: 'Sangue Total',
-    status: 'concluido'
+const authStore = useAuthStore();
+const donorsStore = useDonorsStore();
+const campaignsStore = useCampaignsStore();
+
+const { currentDonorId } = storeToRefs(authStore);
+const { donors } = storeToRefs(donorsStore);
+const { campaigns } = storeToRefs(campaignsStore);
+
+const currentDonorIdValue = computed(() => Number(currentDonorId.value));
+const fallbackDonor = computed(() => donors.value[0] || null);
+const currentDonor = computed(() => donors.value.find((donor) => donor.id === currentDonorIdValue.value) || fallbackDonor.value);
+
+const donationHistory = computed(() => {
+  const history = currentDonor.value?.donationHistory;
+  if (!Array.isArray(history)) return [];
+  return history;
+});
+
+const donationCount = computed(() => donationHistory.value.length);
+const totalDonationLiters = computed(() => {
+  const value = currentDonor.value?.totalDonationLiters;
+  if (value === null || typeof value === 'undefined') return 0;
+  return value;
+});
+
+const latestDonationDate = computed(() => {
+  const first = donationHistory.value[0];
+  if (first?.date) return first.date;
+  return currentDonor.value?.lastDonationDate || null;
+});
+
+const formatDate = (value) => {
+  if (!value) return 'Sem registo';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return new Intl.DateTimeFormat('pt-PT', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  }).format(parsed);
+};
+
+const campaignMap = computed(() => {
+  const map = new Map();
+  campaigns.value.forEach((camp) => {
+    map.set(camp.id, camp);
+  });
+  return map;
+});
+
+const resolveLocation = (donation) => {
+  if (!donation) return 'Local não informado';
+  if (donation.campaignLocation) return donation.campaignLocation;
+  if (donation.campaignId && campaignMap.value.has(donation.campaignId)) {
+    return campaignMap.value.get(donation.campaignId).location || 'Local não informado';
   }
-];
+  return 'Local não informado';
+};
 </script>
 
 <template>
   <div class="max-w-300 mx-auto pb-10">
     <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-6 md:p-10 overflow-hidden">
-      
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Histórico de Doações</h2>
           <p class="text-sm text-gray-500 mt-1">Registo das suas contribuições para a comunidade.</p>
         </div>
-        
+
         <div class="flex items-center gap-3">
           <div class="hidden md:flex bg-gray-50 border border-gray-100 rounded-2xl p-1.5 gap-1 shadow-inner">
             <div class="px-4 py-2 bg-white rounded-xl shadow-sm text-sm font-bold text-rose-600">Todas</div>
@@ -61,22 +88,18 @@ const donations = [
       </div>
 
       <!-- Sumário rápido (Cards) -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
         <div class="bg-rose-50/50 p-4 rounded-[20px] border border-rose-100/50">
           <div class="text-[11px] uppercase tracking-widest text-rose-600 font-bold mb-1">Total Doado</div>
-          <div class="text-2xl font-black text-gray-900 tracking-tight">1.8 <span class="text-sm text-gray-500 font-semibold">Litros</span></div>
+          <div class="text-2xl font-black text-gray-900 tracking-tight">{{ Number(totalDonationLiters).toFixed(2) }} <span class="text-sm text-gray-500 font-semibold">Litros</span></div>
         </div>
         <div class="bg-blue-50/50 p-4 rounded-[20px] border border-blue-100/50">
           <div class="text-[11px] uppercase tracking-widest text-blue-600 font-bold mb-1">Doações</div>
-          <div class="text-2xl font-black text-gray-900 tracking-tight">04</div>
-        </div>
-        <div class="bg-emerald-50/50 p-4 rounded-[20px] border border-emerald-100/50">
-          <div class="text-[11px] uppercase tracking-widest text-emerald-600 font-bold mb-1">Vidas Salvas</div>
-          <div class="text-2xl font-black text-gray-900 tracking-tight">04</div>
+          <div class="text-2xl font-black text-gray-900 tracking-tight">{{ donationCount }}</div>
         </div>
         <div class="bg-amber-50/50 p-4 rounded-[20px] border border-amber-100/50">
-          <div class="text-[11px] uppercase tracking-widest text-amber-600 font-bold mb-1">Última Visita</div>
-          <div class="text-lg font-black text-gray-900 tracking-tight mt-1">12 Out, 2023</div>
+          <div class="text-[11px] uppercase tracking-widest text-amber-600 font-bold mb-1">Última Doação</div>
+          <div class="text-lg font-black text-gray-900 tracking-tight mt-1">{{ formatDate(latestDonationDate) }}</div>
         </div>
       </div>
 
@@ -85,21 +108,15 @@ const donations = [
         <table class="w-full text-left border-collapse min-w-175">
           <thead>
             <tr class="bg-gray-50/80 border-y border-gray-100">
-              <th class="py-4 px-5 text-[12px] font-bold text-gray-400 uppercase tracking-widest rounded-tl-2xl">ID Doação</th>
-              <th class="py-4 px-5 text-[12px] font-bold text-gray-400 uppercase tracking-widest">Data & Local</th>
+              <th class="py-4 px-5 text-[12px] font-bold text-gray-400 uppercase tracking-widest rounded-tl-2xl">Data & Local</th>
               <th class="py-4 px-5 text-[12px] font-bold text-gray-400 uppercase tracking-widest">Detalhes</th>
-              <th class="py-4 px-5 text-[12px] font-bold text-gray-400 uppercase tracking-widest rounded-tr-2xl text-right">Estado</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100/80">
-            
-            <tr v-for="donation in donations" :key="donation.id" class="hover:bg-gray-50/50 transition-colors group">
+            <tr v-for="donation in donationHistory" :key="donation.id" class="hover:bg-gray-50/50 transition-colors group">
               <td class="py-5 px-5">
-                <span class="font-mono text-sm font-semibold text-gray-600 bg-gray-100 px-2.5 py-1 rounded-lg">{{ donation.id }}</span>
-              </td>
-              <td class="py-5 px-5">
-                <div class="font-bold text-gray-900">{{ donation.date }}</div>
-                <div class="text-sm text-gray-500 font-medium mt-0.5">{{ donation.location }}</div>
+                <div class="font-bold text-gray-900">{{ formatDate(donation.date) }}</div>
+                <div class="text-sm text-gray-500 font-medium mt-0.5">{{ resolveLocation(donation) }}</div>
               </td>
               <td class="py-5 px-5">
                 <div class="flex items-center gap-2">
@@ -107,26 +124,21 @@ const donations = [
                     <Droplet class="w-4 h-4" stroke-width="2.5" />
                   </div>
                   <div>
-                    <div class="font-bold text-gray-900 text-sm">{{ donation.volume }}</div>
-                    <div class="text-[12px] text-gray-500 font-medium">{{ donation.type }}</div>
+                    <div class="font-bold text-gray-900 text-sm">{{ Number(donation.liters || 0).toFixed(2) }} L</div>
+                    <div class="text-[12px] text-gray-500 font-medium">{{ donation.campaignTitle || 'Campanha não informada' }}</div>
                   </div>
-                </div>
-              </td>
-              <td class="py-5 px-5 text-right">
-                <div v-if="donation.status === 'concluido'" class="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 text-emerald-700 px-3 py-1.5 rounded-full text-[12px] font-bold shadow-sm">
-                  <CheckCircle class="w-3.5 h-3.5" /> Concluído
-                </div>
-                <!-- Exemplo para um status PENDENTE (caso usassem futuramente) -->
-                <div v-else-if="donation.status === 'agendado'" class="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-100 text-amber-700 px-3 py-1.5 rounded-full text-[12px] font-bold shadow-sm">
-                  <Clock class="w-3.5 h-3.5" /> Próximo
                 </div>
               </td>
             </tr>
 
+            <tr v-if="donationHistory.length === 0">
+              <td colspan="2" class="py-10 text-center text-sm text-gray-500">
+                Sem doações registadas.
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
-
     </div>
   </div>
 </template>
