@@ -161,10 +161,6 @@ onMounted(() => {
 
           <p class="mt-4 text-[13px] text-gray-500 leading-relaxed">{{ camp.description }}</p>
 
-          <div v-if="hasParticipated(camp.id)" class="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-[12px] font-semibold text-emerald-700">
-            Sua presença nesta campanha já foi confirmada pelo admin.
-          </div>
-
           <button
             @click="openConfirm(camp)"
             :disabled="isScheduled(camp.id) || hasParticipated(camp.id)"
