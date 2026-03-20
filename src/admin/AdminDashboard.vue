@@ -58,6 +58,19 @@ const latestAppointments = computed(() => scheduledAppointments.value.slice(0, 4
 const latestRequests = computed(() => pendingRequests.value.slice(0, 4));
 const latestDonors = computed(() => donors.value.slice(0, 4));
 const latestCampaigns = computed(() => campaigns.value.slice(0, 4));
+const donorNameById = (donorId) => {
+  const donor = donors.value.find((item) => Number(item.id) === Number(donorId));
+  return donor?.nome || 'Doador nao identificado';
+};
+
+const getDefaultCampaignIdForDonor = (donorId) => {
+  const donorAppointment = scheduledAppointments.value.find((appointment) => {
+    return Number(appointment.donorId) === Number(donorId)
+      && activeCampaignOptions.value.some((campaign) => campaign.id === appointment.campaignId);
+  });
+  if (donorAppointment?.campaignId) return donorAppointment.campaignId;
+  return activeCampaignOptions.value.length ? activeCampaignOptions.value[0].id : '';
+};
 
 const removeRequest = (id) => {
   helpRequestsStore.removeRequest(id);
@@ -169,7 +182,7 @@ const openDonationModal = (donorId) => {
   donationModal.value = {
     donorId,
     liters: draftValue,
-    campaignId: availableCampaigns.length ? availableCampaigns[0].id : ''
+    campaignId: availableCampaigns.length ? getDefaultCampaignIdForDonor(donorId) : ''
   };
   donationModalError.value = '';
   isDonationModalOpen.value = true;
@@ -203,6 +216,7 @@ const confirmDonationModal = () => {
     return;
   }
   saveDonationLiters(donorId, liters, campaign);
+  appointmentsStore.completeCampaignForDonor(donorId, campaignId);
   closeDonationModal();
 };
 
@@ -446,6 +460,7 @@ const addCampaign = () => {
                 <div v-else v-for="apt in latestAppointments" :key="apt.id" class="flex items-center justify-between gap-4 border border-gray-100 rounded-2xl p-4 hover:bg-gray-50 transition-colors">
                   <div>
                     <div class="text-sm font-bold text-gray-900">{{ apt.hospital || 'Hospital' }}</div>
+                    <div class="text-[12px] text-gray-500 mt-1">{{ donorNameById(apt.donorId) }}</div>
                     <div class="text-[12px] text-gray-500 mt-1">{{ apt.date }} • {{ apt.time || 'Horario' }}</div>
                     <div class="text-[11px] text-gray-400 mt-1">{{ apt.status || 'confirmado' }}</div>
                   </div>
@@ -818,6 +833,7 @@ const addCampaign = () => {
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div>
                     <div class="text-sm font-bold text-gray-900">{{ apt.hospital || 'Hospital' }}</div>
+                    <div class="text-[12px] text-gray-500 mt-1">{{ donorNameById(apt.donorId) }}</div>
                     <div class="text-[12px] text-gray-500 mt-1">{{ apt.date }} • {{ apt.time || 'Horario' }}</div>
                     <div class="text-[12px] text-gray-400 mt-1">Status: {{ apt.status || 'confirmado' }}</div>
                   </div>
@@ -871,6 +887,7 @@ const addCampaign = () => {
           <div v-if="selectedDonationCampaign" class="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 text-[12px] text-emerald-900">
             <div class="font-bold">{{ selectedDonationCampaign.title }}</div>
             <div class="mt-1 text-emerald-700">{{ selectedDonationCampaign.location }} • {{ selectedDonationCampaign.dateISO }} • {{ selectedDonationCampaign.time }}</div>
+            <div class="mt-2 text-emerald-700">Ao confirmar, o agendamento deste doador para esta campanha sera removido automaticamente.</div>
           </div>
 
           <p v-if="donationModalError" class="text-[12px] text-rose-600 font-bold">{{ donationModalError }}</p>

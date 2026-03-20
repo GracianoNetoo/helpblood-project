@@ -1,9 +1,11 @@
-﻿<script setup>
+<script setup>
 import { ref, computed, onMounted } from 'vue';
 import { MapPin, CalendarDays, ArrowRight, ShieldCheck } from 'lucide-vue-next';
+import { storeToRefs } from 'pinia';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
 import { useCampaignsStore } from '../stores/campaignsStore';
-import { storeToRefs } from 'pinia';
+import { useAuthStore } from '../stores/authStore';
+import { useDonorsStore } from '../stores/donorsStore';
 
 const props = defineProps({
   autoOpen: {
@@ -11,23 +13,52 @@ const props = defineProps({
     default: false
   }
 });
+
 const emit = defineEmits(['agendar', 'reset-auto-open']);
 
 const appointmentsStore = useAppointmentsStore();
 const campaignsStore = useCampaignsStore();
+const authStore = useAuthStore();
+const donorsStore = useDonorsStore();
+
 const { appointments } = storeToRefs(appointmentsStore);
 const { campaigns } = storeToRefs(campaignsStore);
+const { currentDonorId } = storeToRefs(authStore);
+const { donors } = storeToRefs(donorsStore);
+
 const selectedCampaign = ref(null);
 const isConfirmOpen = ref(false);
 const showToast = ref(false);
 
 const activeCampaigns = computed(() => campaigns.value.filter((item) => item.status !== 'inativo'));
+const fallbackDonor = computed(() => donors.value[0] || null);
+const currentDonorIdValue = computed(() => {
+  const parsedCurrentId = Number(currentDonorId.value);
+  if (Number.isFinite(parsedCurrentId) && parsedCurrentId > 0) return parsedCurrentId;
+  return fallbackDonor.value?.id ? Number(fallbackDonor.value.id) : null;
+});
 
-const scheduledCampaignIds = computed(() => new Set(appointments.value.map((apt) => apt.campaignId).filter(Boolean)));
+const currentDonor = computed(() => {
+  if (currentDonorIdValue.value === null) return fallbackDonor.value;
+  return donors.value.find((donor) => Number(donor.id) === currentDonorIdValue.value) || fallbackDonor.value;
+});
 
-const isScheduled = (campaignId) => {
-  return scheduledCampaignIds.value.has(campaignId);
-};
+const scheduledCampaignIds = computed(() => {
+  const ids = appointments.value
+    .filter((appointment) => Number(appointment.donorId) === currentDonorIdValue.value)
+    .map((appointment) => appointment.campaignId)
+    .filter(Boolean);
+  return new Set(ids);
+});
+
+const participatedCampaignIds = computed(() => {
+  const history = Array.isArray(currentDonor.value?.donationHistory) ? currentDonor.value.donationHistory : [];
+  const ids = history.map((donation) => donation.campaignId).filter(Boolean);
+  return new Set(ids);
+});
+
+const isScheduled = (campaignId) => scheduledCampaignIds.value.has(campaignId);
+const hasParticipated = (campaignId) => participatedCampaignIds.value.has(campaignId);
 
 const formatDateLabel = (campaign) => {
   if (!campaign.dateISO) return 'Data a definir';
@@ -40,7 +71,7 @@ const formatDateLabel = (campaign) => {
 };
 
 const openConfirm = (campaign) => {
-  if (isScheduled(campaign.id)) return;
+  if (isScheduled(campaign.id) || hasParticipated(campaign.id)) return;
   selectedCampaign.value = campaign;
   isConfirmOpen.value = true;
 };
@@ -53,6 +84,7 @@ const closeConfirm = () => {
 const confirmSchedule = () => {
   if (!selectedCampaign.value) return;
   appointmentsStore.addAppointment({
+    donorId: currentDonorIdValue.value,
     hospital: selectedCampaign.value.title,
     date: selectedCampaign.value.dateISO,
     time: selectedCampaign.value.time,
@@ -68,7 +100,9 @@ const confirmSchedule = () => {
 
 onMounted(() => {
   if (props.autoOpen) {
-    const firstAvailable = activeCampaigns.value.find((c) => !isScheduled(c.id));
+    const firstAvailable = activeCampaigns.value.find((campaign) => {
+      return !isScheduled(campaign.id) && !hasParticipated(campaign.id);
+    });
     if (firstAvailable) openConfirm(firstAvailable);
     emit('reset-auto-open');
   }
@@ -127,14 +161,22 @@ onMounted(() => {
 
           <p class="mt-4 text-[13px] text-gray-500 leading-relaxed">{{ camp.description }}</p>
 
+          <div v-if="hasParticipated(camp.id)" class="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-[12px] font-semibold text-emerald-700">
+            Sua presença nesta campanha já foi confirmada pelo admin.
+          </div>
+
           <button
             @click="openConfirm(camp)"
-            :disabled="isScheduled(camp.id)"
+            :disabled="isScheduled(camp.id) || hasParticipated(camp.id)"
             class="mt-5 w-full border border-gray-200 font-bold rounded-2xl py-3 transition-all flex items-center justify-center gap-2"
-            :class="isScheduled(camp.id) ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-900 hover:bg-gray-900 hover:text-white'"
+            :class="hasParticipated(camp.id)
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 cursor-not-allowed'
+              : isScheduled(camp.id)
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-white text-gray-900 hover:bg-gray-900 hover:text-white'"
           >
-            {{ isScheduled(camp.id) ? 'Agendado' : 'Agendar Horario' }}
-            <ArrowRight v-if="!isScheduled(camp.id)" class="w-4 h-4" />
+            {{ hasParticipated(camp.id) ? 'Participou nesta campanha' : isScheduled(camp.id) ? 'Agendado' : 'Agendar Horario' }}
+            <ArrowRight v-if="!isScheduled(camp.id) && !hasParticipated(camp.id)" class="w-4 h-4" />
           </button>
         </div>
       </div>

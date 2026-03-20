@@ -1,15 +1,36 @@
-﻿<script setup>
+<script setup>
 import { onMounted, onUnmounted, computed } from 'vue';
 import { Plus, Calendar, Clock } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
+import { useAuthStore } from '../stores/authStore';
+import { useDonorsStore } from '../stores/donorsStore';
 
 const emit = defineEmits(['open-campaigns']);
 
-// Instanciar a Store
 const appointmentsStore = useAppointmentsStore();
+const authStore = useAuthStore();
+const donorsStore = useDonorsStore();
+
 const { appointments, autoOpenBooking } = storeToRefs(appointmentsStore);
-const scheduledCampaigns = computed(() => appointments.value.filter((apt) => apt.campaignId));
+const { currentDonorId } = storeToRefs(authStore);
+const { donors } = storeToRefs(donorsStore);
+
+const fallbackDonor = computed(() => donors.value[0] || null);
+const currentDonorIdValue = computed(() => {
+  const parsedCurrentId = Number(currentDonorId.value);
+  if (Number.isFinite(parsedCurrentId) && parsedCurrentId > 0) return parsedCurrentId;
+  return fallbackDonor.value?.id ? Number(fallbackDonor.value.id) : null;
+});
+
+const scheduledCampaigns = computed(() =>
+  appointments.value.filter((appointment) => {
+    if (!appointment.campaignId) return false;
+    if (currentDonorIdValue.value === null) return true;
+    return Number(appointment.donorId) === currentDonorIdValue.value;
+  })
+);
+
 const openCampaigns = () => {
   emit('open-campaigns', { autoOpenCampaign: true });
 };
@@ -40,7 +61,6 @@ onMounted(() => {
 <template>
   <div class="max-w-300 mx-auto pb-10">
     <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-6 md:p-10 relative">
-      
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-8 border-b border-gray-100">
         <div>
           <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Meus Agendamentos</h2>
@@ -52,20 +72,16 @@ onMounted(() => {
         </button>
       </div>
 
-      <!-- Grid de Agendamentos Ativos -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        
-        <!-- Estado Vazio se Array estiver vazio -->
         <div v-if="scheduledCampaigns.length === 0" class="col-span-full py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl">
           <Calendar class="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h3 class="text-lg font-bold text-gray-900">Sem agendamentos marcados</h3>
-          <p class="text-sm text-gray-500 mt-2">Use o botão Ver Campanhas para escolher onde doar.</p>
+          <p class="text-sm text-gray-500 mt-2">Se a sua doação já foi confirmada pelo admin, a campanha sai automaticamente desta lista.</p>
         </div>
 
-        <!-- Cartões Fictícios / Dinâmicos de Agendamentos -->
         <div v-for="apt in scheduledCampaigns" :key="apt.id" class="group relative overflow-hidden bg-white border border-gray-200 hover:border-rose-200 rounded-3xl p-6 hover:shadow-xl hover:shadow-rose-100 transition-all">
           <div class="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-rose-400 to-orange-300"></div>
-          
+
           <div class="flex justify-between items-start mb-4">
             <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-[11px] font-bold uppercase tracking-widest border border-emerald-100">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ apt.status }}
@@ -74,7 +90,7 @@ onMounted(() => {
           </div>
 
           <h3 class="font-bold text-gray-900 text-lg leading-tight mb-4 group-hover:text-rose-700 transition-colors">{{ apt.hospital }}</h3>
-          
+
           <div class="space-y-3">
             <div class="flex items-center gap-3 text-[14px] text-gray-600 font-medium">
               <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 border border-gray-100">
@@ -90,10 +106,7 @@ onMounted(() => {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
-
 </template>
-
