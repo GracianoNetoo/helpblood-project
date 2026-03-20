@@ -3,6 +3,20 @@ import { ref, watch } from 'vue';
 
 const STORAGE_KEY = 'univida_help_requests';
 
+const normalizeRequest = (request) => ({
+  id: request?.id ?? Date.now(),
+  createdAt: request?.createdAt ?? new Date().toISOString(),
+  status: request?.status ?? 'pending',
+  anonimo: Boolean(request?.anonimo),
+  nome: request?.anonimo ? '' : request?.nome ?? '',
+  tipo_sanguineo: request?.tipo_sanguineo ?? '',
+  localizacao: request?.localizacao ?? '',
+  volume: request?.volume ?? '',
+  urgencia: request?.urgencia ?? '',
+  motivo: request?.motivo ?? '',
+  contacto: request?.contacto ?? ''
+});
+
 export const useHelpRequestsStore = defineStore('helpRequests', () => {
   const requests = ref([]);
 
@@ -12,10 +26,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          requests.value = parsed.map((item) => ({
-            status: 'pending',
-            ...item
-          }));
+          requests.value = parsed.map(normalizeRequest);
         }
       }
     } catch (error) {
@@ -24,12 +35,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
   };
 
   const addRequest = (request) => {
-    requests.value.unshift({
-      id: Date.now(),
-      createdAt: new Date().toISOString(),
-      status: 'pending',
-      ...request
-    });
+    requests.value.unshift(normalizeRequest(request));
   };
 
   const approveRequest = (id) => {

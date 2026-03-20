@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { computed } from 'vue';
 import { AlertCircle, MapPin, Droplet, PhoneCall } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
@@ -10,6 +10,12 @@ const helpRequestsStore = useHelpRequestsStore();
 const { requests } = storeToRefs(helpRequestsStore);
 
 const approvedRequests = computed(() => requests.value.filter((item) => item.status === 'approved'));
+
+const getRequestTitle = (request) => {
+  if (request?.anonimo) return 'Pedido anonimo';
+  if (request?.nome) return request.nome;
+  return 'Pedido sem identificacao';
+};
 
 const acceptEmergency = (request) => {
   appointmentsStore.addAppointment({
@@ -56,13 +62,13 @@ const acceptEmergency = (request) => {
                 <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-rose-600 rounded-full text-[10px] font-bold text-white uppercase tracking-widest mb-2 shadow-sm shadow-rose-600/20">
                   <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> {{ request.urgencia }}
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 leading-tight">{{ request.nome }}</h3>
+                <h3 class="text-lg font-bold text-gray-900 leading-tight">{{ getRequestTitle(request) }}</h3>
                 <p class="text-sm text-gray-500 mt-1 flex items-center gap-1 font-medium">
                   <MapPin class="w-4 h-4 text-gray-400" /> {{ request.localizacao }}
                 </p>
                 <p class="text-sm text-gray-600 mt-3 max-w-xl">{{ request.motivo || 'Motivo nao informado.' }}</p>
                 <div class="mt-4 flex items-center gap-3 text-[13px] font-semibold text-gray-500">
-                  <span class="text-rose-600 bg-rose-100 px-2 py-1 rounded-md">Pedido anonimo</span>
+                  <span v-if="request.anonimo" class="text-rose-600 bg-rose-100 px-2 py-1 rounded-md">Pedido anonimo</span>
                   <span class="inline-flex items-center gap-1"><PhoneCall class="w-3.5 h-3.5" /> {{ request.contacto || 'Contacto indisponivel' }}</span>
                 </div>
               </div>
@@ -74,7 +80,6 @@ const acceptEmergency = (request) => {
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </template>
