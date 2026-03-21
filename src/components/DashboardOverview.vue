@@ -208,16 +208,12 @@ const downloadCard = () => {
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,113,133,0.12),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(251,146,60,0.10),transparent_34%)] pointer-events-none"></div>
         <div class="relative p-6 md:p-8 pb-4 flex justify-between items-end gap-4">
           <div>
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 border border-rose-100 text-[11px] font-extrabold uppercase tracking-[0.18em] text-rose-600 shadow-sm mb-4">
-              <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-              Alertas ativos
-            </div>
             <h3 class="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
               <div class="relative flex h-3 w-3">
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                 <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
               </div>
-              Pedidos de Ajuda Ativos
+              Pedidos de Ajuda
             </h3>
             <p class="text-sm text-gray-600 mt-1">Pedidos aprovados pelo administrador. Toque em qualquer card para abrir a aba de ajuda.</p>
           </div>
@@ -228,13 +224,8 @@ const downloadCard = () => {
         
         <div class="relative px-6 md:px-8 pb-6">
           <div class="mb-5 flex flex-wrap items-center gap-3">
-            <div class="inline-flex items-center gap-2 rounded-full bg-white/85 px-3 py-1.5 text-[12px] font-bold text-gray-700 border border-white shadow-sm">
-              <span class="text-rose-600">{{ approvedHelpRequestsCount }}</span>
-              pedidos em destaque
-            </div>
             <button @click="openRequests" class="inline-flex items-center gap-2 text-[12px] font-semibold text-rose-700 hover:text-rose-800 transition-colors">
               Abrir painel de ajuda
-              <Navigation class="w-3.5 h-3.5" stroke-width="2.5" />
             </button>
           </div>
 
@@ -252,15 +243,10 @@ const downloadCard = () => {
             >
               <div class="flex items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
-                  <div class="w-15 h-15 bg-linear-to-br from-rose-500 via-rose-500 to-orange-400 rounded-3xl flex flex-col items-center justify-center font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.28)] shrink-0">
+                  <div class="w-15 h-15 bg-linear-to-br from-rose-500 via-rose-500 to-white-400 rounded-3xl flex flex-col items-center justify-center font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.28)] shrink-0">
                     <span class="text-lg leading-none">{{ request.tipo_sanguineo || 'N/A' }}</span>
-                    <span class="text-[9px] uppercase tracking-widest opacity-80 font-medium mt-0.5">{{ request.urgencia || 'Ativo' }}</span>
                   </div>
                   <div>
-                    <div class="inline-flex items-center gap-2 rounded-full bg-rose-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-rose-600 border border-rose-100 mb-2">
-                      <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                      Prioridade ativa
-                    </div>
                     <p class="font-bold text-gray-900 text-[15px] group-hover:text-rose-700 transition-colors">{{ getRequestTitle(request) }}</p>
                     <p class="text-[13px] text-gray-500 mt-1 flex items-center gap-1.5 font-medium">
                       <MapPin class="w-3.5 h-3.5 text-gray-400" /> {{ request.localizacao || 'Localizacao nao informada' }}
@@ -269,12 +255,7 @@ const downloadCard = () => {
                   </div>
                 </div>
                 <div class="hidden sm:flex items-center gap-3">
-                  <div class="px-3 py-2 rounded-2xl bg-gray-50 border border-gray-100 text-[11px] font-bold text-gray-500 uppercase tracking-[0.18em]">
-                    Abrir
-                  </div>
-                  <div class="w-11 h-11 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center shadow-sm group-hover:scale-105 group-hover:bg-rose-100 transition-all text-rose-600">
-                    <Navigation class="w-4 h-4" stroke-width="2.5" />
-                  </div>
+
                 </div>
               </div>
             </button>
