@@ -115,12 +115,12 @@ const downloadCard = () => {
         <div class="relative z-10 flex flex-col h-full justify-between">
           <div>
             <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 mb-8 w-fit shadow-sm">
-              <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+              <div class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></div>
               <span class="text-[11px] font-bold text-emerald-50 uppercase tracking-widest">Apto para doar</span>
             </div>
             
-            <h2 class="text-3xl md:text-[42px] font-extrabold tracking-tight mb-4 leading-tight">Você pode salvar <br class="hidden md:block"/> <span class="text-transparent bg-clip-text bg-linear-to-r from-rose-400 to-orange-300">até 4 vidas</span> hoje.</h2>
-            <p class="text-gray-400 max-w-lg text-[15px] leading-relaxed">Os bancos de sangue estão precisando de doadores do tipo O+. O Seu tipo sanguíneo é essencial neste momento.</p>
+            <h2 class="text-3xl md:text-[42px] font-extrabold tracking-tight mb-4 leading-tight">Você pode salvar <br class="hidden md:block"/> <span class="text-transparent bg-clip-text bg-linear-to-r from-rose-400 to-red-300">até 4 vidas</span> com apenas 1 doação.</h2>
+            <p class="text-gray-400 max-w-lg text-[15px] leading-relaxed">Os bancos de sangue estão precisando de doadores. O Seu tipo sanguíneo é essencial.</p>
           </div>
           
           <div class="mt-10 flex gap-4 items-center">

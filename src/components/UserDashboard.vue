@@ -146,7 +146,6 @@ const handleSelectTab = (tabId, options = {}) => {
             <div class="hidden md:block">
               <p class="text-[13px] font-bold text-gray-900 leading-none">{{ donorName }}</p>
               <p class="text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full inline-flex mt-1 uppercase tracking-wider">Doador {{ donorBlood }}</p>
-              <p class="text-[11px] text-gray-500 mt-1">Total doado: {{ donorTotalLabel }} L</p>
             </div>
           </div>
         </div>
