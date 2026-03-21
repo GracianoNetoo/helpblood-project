@@ -36,6 +36,16 @@ const donationVolume = computed(() => {
 const donationVolumeLabel = computed(() => Number(donationVolume.value || 0).toFixed(2));
 
 const activeHelpRequests = computed(() => requests.value.filter((item) => item.status === 'approved').slice(0, 3));
+const approvedHelpRequestsCount = computed(() => requests.value.filter((item) => item.status === 'approved').length);
+
+const openRequests = () => {
+  emit('open-requests');
+};
+
+const getRequestTitle = (request) => {
+  if (request?.anonimo) return 'Pedido Anonimo';
+  return request?.nome || 'Pedido de Ajuda';
+};
 
 const downloadCard = () => {
   const data = cardData.value;
@@ -194,9 +204,14 @@ const downloadCard = () => {
       </div>
 
       <!-- Help Requests Bento -->
-      <div class="lg:col-span-7 bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col h-full overflow-hidden">
-        <div class="p-6 md:p-8 pb-4 flex justify-between items-end">
+      <div class="lg:col-span-7 relative bg-linear-to-br from-white via-rose-50/50 to-orange-50/40 rounded-4xl border border-rose-100/70 shadow-[0_18px_50px_rgba(244,63,94,0.08)] flex flex-col h-full overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,113,133,0.12),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(251,146,60,0.10),transparent_34%)] pointer-events-none"></div>
+        <div class="relative p-6 md:p-8 pb-4 flex justify-between items-end gap-4">
           <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 border border-rose-100 text-[11px] font-extrabold uppercase tracking-[0.18em] text-rose-600 shadow-sm mb-4">
+              <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+              Alertas ativos
+            </div>
             <h3 class="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
               <div class="relative flex h-3 w-3">
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
@@ -204,32 +219,65 @@ const downloadCard = () => {
               </div>
               Pedidos de Ajuda Ativos
             </h3>
-            <p class="text-sm text-gray-500 mt-1">Pedidos aprovados pelo administrador.</p>
+            <p class="text-sm text-gray-600 mt-1">Pedidos aprovados pelo administrador. Toque em qualquer card para abrir a aba de ajuda.</p>
           </div>
-          <button @click="emit('open-requests')" class="text-[13px] font-semibold text-gray-900 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full transition-colors">Ver Todos</button>
+          <button @click="openRequests" class="shrink-0 text-[13px] font-semibold text-rose-700 bg-white hover:bg-rose-50 px-4 py-2 rounded-full transition-all border border-rose-100 shadow-sm">
+            Ver Todos
+          </button>
         </div>
         
-        <div class="p-6 md:p-8 pt-0 space-y-3">
-          <div v-if="activeHelpRequests.length === 0" class="py-10 text-center border-2 border-dashed border-gray-100 rounded-3xl text-sm text-gray-500">
+        <div class="relative px-6 md:px-8 pb-6">
+          <div class="mb-5 flex flex-wrap items-center gap-3">
+            <div class="inline-flex items-center gap-2 rounded-full bg-white/85 px-3 py-1.5 text-[12px] font-bold text-gray-700 border border-white shadow-sm">
+              <span class="text-rose-600">{{ approvedHelpRequestsCount }}</span>
+              pedidos em destaque
+            </div>
+            <button @click="openRequests" class="inline-flex items-center gap-2 text-[12px] font-semibold text-rose-700 hover:text-rose-800 transition-colors">
+              Abrir painel de ajuda
+              <Navigation class="w-3.5 h-3.5" stroke-width="2.5" />
+            </button>
+          </div>
+
+          <div v-if="activeHelpRequests.length === 0" class="py-10 text-center border-2 border-dashed border-rose-100 bg-white/70 rounded-3xl text-sm text-gray-500">
             Sem pedidos aprovados no momento.
           </div>
 
-          <div v-else v-for="request in activeHelpRequests" :key="request.id" class="group border border-gray-100 hover:border-gray-200 bg-white hover:bg-gray-50 rounded-2xl p-4 md:p-5 transition-all cursor-pointer flex justify-between items-center shadow-sm hover:shadow-md">
-            <div class="flex items-center gap-4">
-              <div class="w-14 h-14 bg-linear-to-br from-rose-500 to-rose-600 rounded-2xl flex flex-col items-center justify-center font-bold text-white shadow-inner shadow-white/20">
-                <span class="text-lg leading-none">{{ request.tipo_sanguineo || 'N/A' }}</span>
-                <span class="text-[9px] uppercase tracking-widest opacity-80 font-medium mt-0.5">Aprovado</span>
+          <div v-else class="space-y-3">
+            <button
+              v-for="request in activeHelpRequests"
+              :key="request.id"
+              type="button"
+              @click="openRequests"
+              class="group w-full text-left border border-white/90 hover:border-rose-200 bg-white/90 hover:bg-white rounded-[28px] p-4 md:p-5 transition-all shadow-[0_8px_24px_rgba(15,23,42,0.05)] hover:shadow-[0_14px_32px_rgba(244,63,94,0.12)] hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-rose-300/60"
+            >
+              <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                  <div class="w-15 h-15 bg-linear-to-br from-rose-500 via-rose-500 to-orange-400 rounded-3xl flex flex-col items-center justify-center font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.28)] shrink-0">
+                    <span class="text-lg leading-none">{{ request.tipo_sanguineo || 'N/A' }}</span>
+                    <span class="text-[9px] uppercase tracking-widest opacity-80 font-medium mt-0.5">{{ request.urgencia || 'Ativo' }}</span>
+                  </div>
+                  <div>
+                    <div class="inline-flex items-center gap-2 rounded-full bg-rose-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-rose-600 border border-rose-100 mb-2">
+                      <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                      Prioridade ativa
+                    </div>
+                    <p class="font-bold text-gray-900 text-[15px] group-hover:text-rose-700 transition-colors">{{ getRequestTitle(request) }}</p>
+                    <p class="text-[13px] text-gray-500 mt-1 flex items-center gap-1.5 font-medium">
+                      <MapPin class="w-3.5 h-3.5 text-gray-400" /> {{ request.localizacao || 'Localizacao nao informada' }}
+                    </p>
+                    <p class="text-[12px] text-gray-400 mt-2">Clique para abrir a aba de pedidos de ajuda.</p>
+                  </div>
+                </div>
+                <div class="hidden sm:flex items-center gap-3">
+                  <div class="px-3 py-2 rounded-2xl bg-gray-50 border border-gray-100 text-[11px] font-bold text-gray-500 uppercase tracking-[0.18em]">
+                    Abrir
+                  </div>
+                  <div class="w-11 h-11 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center shadow-sm group-hover:scale-105 group-hover:bg-rose-100 transition-all text-rose-600">
+                    <Navigation class="w-4 h-4" stroke-width="2.5" />
+                  </div>
+                </div>
               </div>
-              <div>
-                <p class="font-bold text-gray-900 text-[15px] group-hover:text-rose-700 transition-colors">{{ request.nome || 'Pedido Anonimo' }}</p>
-                <p class="text-[13px] text-gray-500 mt-1 flex items-center gap-1.5 font-medium">
-                  <MapPin class="w-3.5 h-3.5 text-gray-400"/> {{ request.localizacao || 'Localizacao nao informada' }}
-                </p>
-              </div>
-            </div>
-            <div class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform text-gray-400 group-hover:text-rose-600">
-              <Navigation class="w-4 h-4" stroke-width="2.5" />
-            </div>
+            </button>
           </div>
 
         </div>
