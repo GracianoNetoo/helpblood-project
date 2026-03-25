@@ -2,6 +2,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+const isLegacyJwtKey = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
 
 const buildQueryString = (query = {}) => {
   const params = new URLSearchParams();
@@ -16,9 +17,13 @@ const buildQueryString = (query = {}) => {
 const buildHeaders = ({ accessToken, prefer } = {}) => {
   const headers = {
     apikey: supabaseAnonKey,
-    Authorization: `Bearer ${accessToken || supabaseAnonKey}`,
     'Content-Type': 'application/json'
   };
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`;
+  } else if (isLegacyJwtKey.test(supabaseAnonKey)) {
+    headers.Authorization = `Bearer ${supabaseAnonKey}`;
+  }
   if (prefer) {
     headers.Prefer = prefer;
   }
@@ -84,11 +89,7 @@ async function authRequest(path, { method = 'GET', body, accessToken } = {}) {
 
   const response = await fetch(`${supabaseUrl}/auth/v1/${path}`, {
     method,
-    headers: {
-      apikey: supabaseAnonKey,
-      Authorization: `Bearer ${accessToken || supabaseAnonKey}`,
-      'Content-Type': 'application/json'
-    },
+    headers: buildHeaders({ accessToken }),
     body: typeof body === 'undefined' ? undefined : JSON.stringify(body)
   });
 

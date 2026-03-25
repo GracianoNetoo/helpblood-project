@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { isSupabaseConfigured, insertRows, selectRows, updateRows, deleteRows } from '../lib/supabaseClient';
+import { useAuthStore } from './authStore';
 
 const STORAGE_KEY = 'univida_help_requests';
 
@@ -34,7 +35,8 @@ const mapRequestFromDb = (row) => normalizeRequest({
   source: 'supabase'
 });
 
-const mapRequestToDb = (request) => ({
+const mapRequestToDb = (request, requesterId = null) => ({
+  requester_id: requesterId,
   requester_name: request.anonimo ? '' : request.nome || '',
   anonimo: Boolean(request.anonimo),
   tipo_sanguineo: request.tipo_sanguineo,
@@ -104,29 +106,39 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
     }
   };
 
-  const addRequest = (request) => {
+  const addRequest = async (request) => {
     const localRequest = normalizeRequest({
       id: `req-temp-${Date.now()}`,
       ...request
     });
     requests.value.unshift(localRequest);
 
-    if (isSupabaseConfigured) {
-      insertRows('help_requests', mapRequestToDb(localRequest))
-        .then((rows) => {
-          const created = Array.isArray(rows) ? rows[0] : null;
-          if (!created) return;
-          replaceLocalRequest(localRequest.id, mapRequestFromDb(created));
-          syncSource.value = 'supabase';
-          lastSyncError.value = '';
-        })
-        .catch((error) => {
-          lastSyncError.value = error.message || 'Falha ao enviar pedido ao Supabase.';
-          console.warn('Falha ao criar pedido no Supabase:', error);
-        });
+    if (!isSupabaseConfigured) {
+      return { ok: true, request: localRequest, source: 'local' };
     }
 
-    return localRequest;
+    const authStore = useAuthStore();
+    const requesterId = authStore.isAuthenticated ? authStore.currentUser?.id || null : null;
+    const accessToken = authStore.isAuthenticated ? authStore.accessToken : null;
+
+    try {
+      const rows = await insertRows(
+        'help_requests',
+        mapRequestToDb(localRequest, requesterId),
+        accessToken ? { accessToken } : {}
+      );
+      const created = Array.isArray(rows) ? rows[0] : null;
+      if (created) {
+        replaceLocalRequest(localRequest.id, mapRequestFromDb(created));
+      }
+      syncSource.value = 'supabase';
+      lastSyncError.value = '';
+      return { ok: true, request: created ? mapRequestFromDb(created) : localRequest, source: 'supabase' };
+    } catch (error) {
+      lastSyncError.value = error.message || 'Falha ao enviar pedido ao Supabase.';
+      console.warn('Falha ao criar pedido no Supabase:', error);
+      return { ok: false, error, request: localRequest, source: 'local' };
+    }
   };
 
   const approveRequest = (id) => {

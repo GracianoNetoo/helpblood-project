@@ -20,6 +20,8 @@ const createInitialForm = () => ({
 const form = ref(createInitialForm());
 const submitted = ref(false);
 const showSuccess = ref(false);
+const isSubmitting = ref(false);
+const formError = ref('');
 
 const telefoneInvalido = computed(() => {
   const value = form.value.contacto.trim();
@@ -51,11 +53,14 @@ const isInvalid = computed(() => {
   return false;
 });
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   submitted.value = true;
+  formError.value = '';
   if (isInvalid.value) return;
 
-  helpRequestsStore.addRequest({
+  isSubmitting.value = true;
+
+  const result = await helpRequestsStore.addRequest({
     anonimo: form.value.anonimo,
     nome: form.value.anonimo ? '' : form.value.nome.trim(),
     tipo_sanguineo: form.value.tipo_sanguineo,
@@ -66,10 +71,17 @@ const handleSubmit = () => {
     contacto: form.value.contacto.trim()
   });
 
+  if (!result.ok) {
+    formError.value = 'Nao foi possivel enviar o pedido agora.';
+    isSubmitting.value = false;
+    return;
+  }
+
   emit('submitted');
   form.value = createInitialForm();
   submitted.value = false;
   showSuccess.value = true;
+  isSubmitting.value = false;
   setTimeout(() => {
     showSuccess.value = false;
   }, 2500);
@@ -218,10 +230,14 @@ const handleSubmit = () => {
         <button type="button" @click="$emit('cancel')" class="flex-1 px-6 py-4 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-2xl font-bold transition-colors">
           Cancelar
         </button>
-        <button type="submit" :disabled="isInvalid" class="flex-1 px-6 py-4 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold shadow-lg shadow-rose-600/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-          Enviar Pedido
+        <button type="submit" :disabled="isInvalid || isSubmitting" class="flex-1 px-6 py-4 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold shadow-lg shadow-rose-600/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          {{ isSubmitting ? 'A enviar...' : 'Enviar Pedido' }}
         </button>
       </div>
+
+      <p v-if="formError" class="text-[12px] font-bold text-rose-600">
+        {{ formError }}
+      </p>
     </form>
   </div>
 </template>
