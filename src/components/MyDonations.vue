@@ -14,9 +14,14 @@ const { currentDonorId } = storeToRefs(authStore);
 const { donors } = storeToRefs(donorsStore);
 const { campaigns } = storeToRefs(campaignsStore);
 
-const currentDonorIdValue = computed(() => Number(currentDonorId.value));
+const currentDonorIdValue = computed(() => (currentDonorId.value ? String(currentDonorId.value) : null));
 const fallbackDonor = computed(() => donors.value[0] || null);
-const currentDonor = computed(() => donors.value.find((donor) => donor.id === currentDonorIdValue.value) || fallbackDonor.value);
+const currentDonor = computed(() => {
+  if (currentDonorIdValue.value) {
+    return donors.value.find((donor) => String(donor.id) === currentDonorIdValue.value) || fallbackDonor.value;
+  }
+  return fallbackDonor.value;
+});
 
 const donationHistory = computed(() => {
   const history = currentDonor.value?.donationHistory;

@@ -6,8 +6,8 @@ import { useAuthStore } from '../stores/authStore';
 const router = useRouter();
 const authStore = useAuthStore();
 
-const sairDoSistema = () => {
-  authStore.clearSession();
+const sairDoSistema = async () => {
+  await authStore.signOut();
   router.push('/');
 };
 </script>

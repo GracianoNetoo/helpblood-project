@@ -1,44 +1,177 @@
-﻿import { defineStore } from 'pinia';
-import { ref, watch } from 'vue';
+import { defineStore } from 'pinia';
+import { computed, ref, watch } from 'vue';
+import { authGetUser, authSignInWithPassword, authSignOut, authSignUp, isSupabaseConfigured } from '../lib/supabaseClient';
+import { useDonorsStore } from './donorsStore';
 
-const STORAGE_KEY = 'univida_current_donor';
+const SESSION_STORAGE_KEY = 'univida_supabase_session';
 
 export const useAuthStore = defineStore('auth', () => {
+  const session = ref(null);
+  const currentUser = ref(null);
   const currentDonorId = ref(null);
+  const authError = ref('');
+  const isLoading = ref(false);
+  const isInitialized = ref(false);
 
-  const loadFromStorage = () => {
+  const accessToken = computed(() => session.value?.access_token || null);
+  const isAuthenticated = computed(() => Boolean(currentUser.value?.id && accessToken.value));
+
+  const syncDerivedState = () => {
+    currentDonorId.value = currentUser.value?.id || null;
+  };
+
+  const persistSession = () => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (parsed !== null && typeof parsed !== 'undefined') {
-        currentDonorId.value = parsed;
-      }
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session.value));
     } catch (error) {
-      console.warn('Falha ao carregar sessao:', error);
+      console.warn('Falha ao salvar sessao auth:', error);
     }
   };
 
-  const setCurrentDonorId = (id) => {
-    currentDonorId.value = id;
+  const loadStoredSession = () => {
+    try {
+      const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (error) {
+      console.warn('Falha ao carregar sessao auth:', error);
+      return null;
+    }
   };
 
   const clearSession = () => {
+    session.value = null;
+    currentUser.value = null;
     currentDonorId.value = null;
+    authError.value = '';
   };
 
-  loadFromStorage();
+  const refreshCurrentProfile = async () => {
+    if (!currentDonorId.value) return;
+    const donorsStore = useDonorsStore();
+    await donorsStore.refreshDonorProfile(currentDonorId.value, accessToken.value);
+  };
+
+  const setSessionState = async ({ nextSession, nextUser }) => {
+    session.value = nextSession;
+    currentUser.value = nextUser;
+    syncDerivedState();
+    persistSession();
+    await refreshCurrentProfile();
+  };
+
+  const initialize = async () => {
+    if (isInitialized.value) return;
+    isInitialized.value = true;
+
+    if (!isSupabaseConfigured) {
+      return;
+    }
+
+    const storedSession = loadStoredSession();
+    if (!storedSession?.access_token) {
+      clearSession();
+      return;
+    }
+
+    isLoading.value = true;
+    try {
+      const user = await authGetUser(storedSession.access_token);
+      await setSessionState({
+        nextSession: storedSession,
+        nextUser: user
+      });
+    } catch (error) {
+      clearSession();
+      authError.value = 'A sua sessao expirou. Faca login novamente.';
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  const signIn = async ({ email, password }) => {
+    authError.value = '';
+    isLoading.value = true;
+    try {
+      const response = await authSignInWithPassword({ email, password });
+      await setSessionState({
+        nextSession: response,
+        nextUser: response.user
+      });
+      return { ok: true };
+    } catch (error) {
+      authError.value = 'Nao foi possivel iniciar sessao com essas credenciais.';
+      return { ok: false, error };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  const signUpDonor = async ({ email, password, donorProfile }) => {
+    authError.value = '';
+    isLoading.value = true;
+    try {
+      const response = await authSignUp({
+        email,
+        password,
+        data: donorProfile
+      });
+
+      if (response.session && response.user) {
+        await setSessionState({
+          nextSession: response.session,
+          nextUser: response.user
+        });
+        return { ok: true, needsEmailConfirmation: false };
+      }
+
+      currentUser.value = response.user || null;
+      syncDerivedState();
+      authError.value = '';
+      persistSession();
+      return { ok: true, needsEmailConfirmation: true };
+    } catch (error) {
+      authError.value = 'Nao foi possivel criar a conta agora.';
+      return { ok: false, error };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      if (accessToken.value && isSupabaseConfigured) {
+        await authSignOut(accessToken.value);
+      }
+    } catch (error) {
+      console.warn('Falha ao terminar sessao no Supabase:', error);
+    } finally {
+      clearSession();
+      persistSession();
+    }
+  };
 
   watch(
-    currentDonorId,
-    (value) => {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
-      } catch (error) {
-        console.warn('Falha ao salvar sessao:', error);
-      }
-    }
+    session,
+    () => {
+      persistSession();
+    },
+    { deep: true }
   );
 
-  return { currentDonorId, setCurrentDonorId, clearSession };
+  return {
+    session,
+    currentUser,
+    currentDonorId,
+    accessToken,
+    authError,
+    isLoading,
+    isInitialized,
+    isAuthenticated,
+    initialize,
+    signIn,
+    signUpDonor,
+    signOut,
+    clearSession
+  };
 });

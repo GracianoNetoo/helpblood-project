@@ -76,13 +76,13 @@ const latestRequests = computed(() => pendingRequests.value.slice(0, 4));
 const latestDonors = computed(() => donors.value.slice(0, 4));
 const latestCampaigns = computed(() => campaigns.value.slice(0, 4));
 const donorNameById = (donorId) => {
-  const donor = donors.value.find((item) => Number(item.id) === Number(donorId));
+  const donor = donors.value.find((item) => String(item.id) === String(donorId));
   return donor?.nome || 'Doador nao identificado';
 };
 
 const getDefaultCampaignIdForDonor = (donorId) => {
   const donorAppointment = scheduledAppointments.value.find((appointment) => {
-    return Number(appointment.donorId) === Number(donorId)
+    return String(appointment.donorId) === String(donorId)
       && activeCampaignOptions.value.some((campaign) => campaign.id === appointment.campaignId);
   });
   if (donorAppointment?.campaignId) return donorAppointment.campaignId;

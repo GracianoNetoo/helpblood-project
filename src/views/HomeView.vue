@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onUnmounted, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import AboutSection from '../components/AboutSection.vue';
 import Header from '../components/Header.vue';
 import HeaderCard from '../components/HeaderCard.vue';
@@ -18,6 +18,7 @@ import AccessNoticeModal from '../components/AccessNoticeModal.vue';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
 
 const router = useRouter();
+const route = useRoute();
 const appointmentsStore = useAppointmentsStore();
 const authTab = ref('cadastro');
 const postAuthAction = ref('dashboard'); // 'dashboard' | 'booking'
@@ -144,6 +145,23 @@ const fecharAvisoRotas = () => {
 onUnmounted(() => {
   document.body.style.overflow = '';
 });
+
+const syncAuthModalFromRoute = (authParam) => {
+  if (authParam === 'login') {
+    abrirLogin();
+  }
+};
+
+onMounted(() => {
+  syncAuthModalFromRoute(route.query.auth);
+});
+
+watch(
+  () => route.query.auth,
+  (value) => {
+    syncAuthModalFromRoute(value);
+  }
+);
 
 </script>
 

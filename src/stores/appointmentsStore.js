@@ -21,7 +21,7 @@ const normalizeAppointment = (appointment) => ({
   donorId:
     appointment?.donorId === null || typeof appointment?.donorId === 'undefined'
       ? null
-      : Number(appointment.donorId),
+      : String(appointment.donorId),
   campaignId: appointment?.campaignId ?? null,
   hospital: appointment?.hospital ?? '',
   date: appointment?.date ?? '',
@@ -70,10 +70,10 @@ export const useAppointmentsStore = defineStore('appointments', () => {
   };
 
   const completeCampaignForDonor = (donorId, campaignId) => {
-    const normalizedDonorId = Number(donorId);
-    if (!Number.isFinite(normalizedDonorId) || !campaignId) return;
+    const normalizedDonorId = donorId ? String(donorId) : null;
+    if (!normalizedDonorId || !campaignId) return;
     appointments.value = appointments.value.filter((appointment) => {
-      return !(Number(appointment.donorId) === normalizedDonorId && appointment.campaignId === campaignId);
+      return !(String(appointment.donorId) === normalizedDonorId && appointment.campaignId === campaignId);
     });
   };
 

@@ -16,10 +16,15 @@ const { donors } = storeToRefs(donorsStore);
 const { currentDonorId } = storeToRefs(authStore);
 const { requests } = storeToRefs(helpRequestsStore);
 
-const currentDonorIdValue = computed(() => Number(currentDonorId.value));
+const currentDonorIdValue = computed(() => (currentDonorId.value ? String(currentDonorId.value) : null));
 const fallbackDonor = computed(() => donors.value[0] || null);
-const currentDonor = computed(() => donors.value.find((donor) => donor.id === currentDonorIdValue.value) || fallbackDonor.value);
-const formatDonorId = (donor) => (donor?.id ? `DV-${String(donor.id).padStart(6, '0')}` : 'DV-000000');
+const currentDonor = computed(() => {
+  if (currentDonorIdValue.value) {
+    return donors.value.find((donor) => String(donor.id) === currentDonorIdValue.value) || fallbackDonor.value;
+  }
+  return fallbackDonor.value;
+});
+const formatDonorId = (donor) => (donor?.id ? `DV-${String(donor.id).slice(0, 8).toUpperCase()}` : 'DV-000000');
 
 const cardData = computed(() => ({
   name: currentDonor.value?.nome || 'Doador',

@@ -33,19 +33,18 @@ const showToast = ref(false);
 const activeCampaigns = computed(() => campaigns.value.filter((item) => item.status !== 'inativo'));
 const fallbackDonor = computed(() => donors.value[0] || null);
 const currentDonorIdValue = computed(() => {
-  const parsedCurrentId = Number(currentDonorId.value);
-  if (Number.isFinite(parsedCurrentId) && parsedCurrentId > 0) return parsedCurrentId;
-  return fallbackDonor.value?.id ? Number(fallbackDonor.value.id) : null;
+  if (currentDonorId.value) return String(currentDonorId.value);
+  return fallbackDonor.value?.id ? String(fallbackDonor.value.id) : null;
 });
 
 const currentDonor = computed(() => {
   if (currentDonorIdValue.value === null) return fallbackDonor.value;
-  return donors.value.find((donor) => Number(donor.id) === currentDonorIdValue.value) || fallbackDonor.value;
+  return donors.value.find((donor) => String(donor.id) === currentDonorIdValue.value) || fallbackDonor.value;
 });
 
 const scheduledCampaignIds = computed(() => {
   const ids = appointments.value
-    .filter((appointment) => Number(appointment.donorId) === currentDonorIdValue.value)
+    .filter((appointment) => String(appointment.donorId) === currentDonorIdValue.value)
     .map((appointment) => appointment.campaignId)
     .filter(Boolean);
   return new Set(ids);

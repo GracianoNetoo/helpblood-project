@@ -76,3 +76,55 @@ export const deleteRows = (table, filters, options = {}) => {
     ...options
   });
 };
+
+async function authRequest(path, { method = 'GET', body, accessToken } = {}) {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase nao configurado.');
+  }
+
+  const response = await fetch(`${supabaseUrl}/auth/v1/${path}`, {
+    method,
+    headers: {
+      apikey: supabaseAnonKey,
+      Authorization: `Bearer ${accessToken || supabaseAnonKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: typeof body === 'undefined' ? undefined : JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || `Falha na autenticacao (${response.status}).`);
+  }
+
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
+}
+
+export const authSignUp = ({ email, password, data }) => {
+  return authRequest('signup', {
+    method: 'POST',
+    body: { email, password, data }
+  });
+};
+
+export const authSignInWithPassword = ({ email, password }) => {
+  return authRequest('token?grant_type=password', {
+    method: 'POST',
+    body: { email, password }
+  });
+};
+
+export const authGetUser = (accessToken) => {
+  return authRequest('user', {
+    method: 'GET',
+    accessToken
+  });
+};
+
+export const authSignOut = (accessToken) => {
+  return authRequest('logout', {
+    method: 'POST',
+    accessToken
+  });
+};

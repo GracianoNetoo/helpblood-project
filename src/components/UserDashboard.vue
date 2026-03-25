@@ -34,9 +34,14 @@ const activeTab = ref('dashboard');
 const isMobileNavOpen = ref(false);
 const autoOpenCampaigns = ref(false);
 const approvedRequestsCount = computed(() => requests.value.filter((item) => item.status === 'approved').length);
-const currentDonorIdValue = computed(() => Number(currentDonorId.value));
+const currentDonorIdValue = computed(() => (currentDonorId.value ? String(currentDonorId.value) : null));
 const fallbackDonor = computed(() => donors.value[0] || null);
-const currentDonor = computed(() => donors.value.find((donor) => donor.id === currentDonorIdValue.value) || fallbackDonor.value);
+const currentDonor = computed(() => {
+  if (currentDonorIdValue.value) {
+    return donors.value.find((donor) => String(donor.id) === currentDonorIdValue.value) || fallbackDonor.value;
+  }
+  return fallbackDonor.value;
+});
 const donorName = computed(() => currentDonor.value?.nome || 'Doador');
 const donorBlood = computed(() => currentDonor.value?.tipo_sanguineo || 'N/A');
 const donorTotalLiters = computed(() => {

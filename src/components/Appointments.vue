@@ -18,16 +18,15 @@ const { donors } = storeToRefs(donorsStore);
 
 const fallbackDonor = computed(() => donors.value[0] || null);
 const currentDonorIdValue = computed(() => {
-  const parsedCurrentId = Number(currentDonorId.value);
-  if (Number.isFinite(parsedCurrentId) && parsedCurrentId > 0) return parsedCurrentId;
-  return fallbackDonor.value?.id ? Number(fallbackDonor.value.id) : null;
+  if (currentDonorId.value) return String(currentDonorId.value);
+  return fallbackDonor.value?.id ? String(fallbackDonor.value.id) : null;
 });
 
 const scheduledCampaigns = computed(() =>
   appointments.value.filter((appointment) => {
     if (!appointment.campaignId) return false;
     if (currentDonorIdValue.value === null) return true;
-    return Number(appointment.donorId) === currentDonorIdValue.value;
+    return String(appointment.donorId) === currentDonorIdValue.value;
   })
 );
 
