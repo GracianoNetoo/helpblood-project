@@ -46,6 +46,32 @@ export const useAuthStore = defineStore('auth', () => {
     authError.value = '';
   };
 
+  const translateAuthError = (error, fallbackMessage) => {
+    const message = String(error?.message || '').toLowerCase();
+
+    if (message.includes('email not confirmed') || message.includes('email_not_confirmed')) {
+      return 'Confirme o seu email antes de iniciar sessao.';
+    }
+
+    if (message.includes('user already registered')) {
+      return 'Este email ja esta registado. Tente iniciar sessao.';
+    }
+
+    if (message.includes('invalid login credentials')) {
+      return 'Email ou palavra-passe incorretos.';
+    }
+
+    if (message.includes('rate limit') || message.includes('too many requests')) {
+      return 'Muitas tentativas em pouco tempo. Aguarde um pouco e tente novamente.';
+    }
+
+    if (message.includes('failed to fetch') || message.includes('networkerror')) {
+      return 'Nao foi possivel comunicar com o servidor de autenticacao.';
+    }
+
+    return fallbackMessage;
+  };
+
   const refreshCurrentProfile = async () => {
     if (!currentDonorId.value) return;
     const donorsStore = useDonorsStore();
@@ -94,13 +120,20 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading.value = true;
     try {
       const response = await authSignInWithPassword({ email, password });
+      const nextSession = response?.session || response;
+      const nextUser = response?.user || null;
+
+      if (!nextSession?.access_token || !nextUser?.id) {
+        throw new Error('Sessao invalida recebida do Supabase.');
+      }
+
       await setSessionState({
-        nextSession: response,
-        nextUser: response.user
+        nextSession,
+        nextUser
       });
       return { ok: true };
     } catch (error) {
-      authError.value = 'Nao foi possivel iniciar sessao com essas credenciais.';
+      authError.value = translateAuthError(error, 'Nao foi possivel iniciar sessao com essas credenciais.');
       return { ok: false, error };
     } finally {
       isLoading.value = false;
@@ -117,21 +150,28 @@ export const useAuthStore = defineStore('auth', () => {
         data: donorProfile
       });
 
-      if (response.session && response.user) {
+      const nextUser = response?.user || null;
+      const nextSession = response?.session || null;
+
+      if (nextSession && nextUser) {
         await setSessionState({
-          nextSession: response.session,
-          nextUser: response.user
+          nextSession,
+          nextUser
         });
         return { ok: true, needsEmailConfirmation: false };
       }
 
-      currentUser.value = response.user || null;
+      if (!nextUser?.id) {
+        throw new Error('Cadastro sem utilizador valido retornado pelo Supabase.');
+      }
+
+      currentUser.value = nextUser;
       syncDerivedState();
       authError.value = '';
       persistSession();
       return { ok: true, needsEmailConfirmation: true };
     } catch (error) {
-      authError.value = 'Nao foi possivel criar a conta agora.';
+      authError.value = translateAuthError(error, 'Nao foi possivel criar a conta agora.');
       return { ok: false, error };
     } finally {
       isLoading.value = false;

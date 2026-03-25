@@ -4,6 +4,28 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 const isLegacyJwtKey = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
 
+const parseJsonSafely = (text) => {
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+};
+
+const normalizeAuthPayload = (payload) => {
+  if (!payload) return null;
+
+  const normalizedUser = payload.user || (payload.id ? payload : null);
+  const normalizedSession = payload.session || (payload.access_token ? payload : null);
+
+  return {
+    ...payload,
+    user: normalizedUser,
+    session: normalizedSession
+  };
+};
+
 const buildQueryString = (query = {}) => {
   const params = new URLSearchParams();
   Object.entries(query).forEach(([key, value]) => {
@@ -43,7 +65,9 @@ async function request(path, { method = 'GET', query, body, accessToken, prefer 
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || `Falha na requisicao Supabase (${response.status}).`);
+    const errorPayload = parseJsonSafely(errorText);
+    const message = errorPayload?.msg || errorPayload?.message || errorPayload?.error_description || errorPayload?.error || errorText;
+    throw new Error(message || `Falha na requisicao Supabase (${response.status}).`);
   }
 
   const text = await response.text();
@@ -95,11 +119,13 @@ async function authRequest(path, { method = 'GET', body, accessToken } = {}) {
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || `Falha na autenticacao (${response.status}).`);
+    const errorPayload = parseJsonSafely(errorText);
+    const message = errorPayload?.msg || errorPayload?.message || errorPayload?.error_description || errorPayload?.error || errorText;
+    throw new Error(message || `Falha na autenticacao (${response.status}).`);
   }
 
   const text = await response.text();
-  return text ? JSON.parse(text) : null;
+  return normalizeAuthPayload(parseJsonSafely(text));
 }
 
 export const authSignUp = ({ email, password, data }) => {
