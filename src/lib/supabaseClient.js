@@ -142,10 +142,29 @@ export const authSignInWithPassword = ({ email, password }) => {
   });
 };
 
+export const authResetPasswordForEmail = ({ email, redirectTo }) => {
+  const query = redirectTo ? buildQueryString({ redirect_to: redirectTo }) : '';
+  return authRequest(`recover${query}`, {
+    method: 'POST',
+    body: {
+      email,
+      ...(redirectTo ? { redirect_to: redirectTo } : {})
+    }
+  });
+};
+
 export const authGetUser = (accessToken) => {
   return authRequest('user', {
     method: 'GET',
     accessToken
+  });
+};
+
+export const authUpdateUser = (accessToken, attributes) => {
+  return authRequest('user', {
+    method: 'PUT',
+    accessToken,
+    body: attributes
   });
 };
 

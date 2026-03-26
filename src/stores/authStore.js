@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref, watch } from 'vue';
-import { authGetUser, authSignInWithPassword, authSignOut, authSignUp, isSupabaseConfigured } from '../lib/supabaseClient';
+import { authGetUser, authResetPasswordForEmail, authSignInWithPassword, authSignOut, authSignUp, authUpdateUser, isSupabaseConfigured } from '../lib/supabaseClient';
 import { useDonorsStore } from './donorsStore';
 
 const SESSION_STORAGE_KEY = 'univida_supabase_session';
@@ -65,11 +65,61 @@ export const useAuthStore = defineStore('auth', () => {
       return 'Muitas tentativas em pouco tempo. Aguarde um pouco e tente novamente.';
     }
 
+    if (message.includes('security purposes') || message.includes('60 seconds')) {
+      return 'Aguarde alguns segundos antes de pedir um novo link.';
+    }
+
+    if (message.includes('redirect') && message.includes('not allowed')) {
+      return 'O link de retorno da recuperacao nao esta autorizado no Supabase.';
+    }
+
     if (message.includes('failed to fetch') || message.includes('networkerror')) {
       return 'Nao foi possivel comunicar com o servidor de autenticacao.';
     }
 
     return fallbackMessage;
+  };
+
+  const setRecoverySessionFromUrl = async (hash) => {
+    const normalizedHash = String(hash || '').replace(/^#/, '');
+    if (!normalizedHash) {
+      return { ok: false, reason: 'missing_hash' };
+    }
+
+    const params = new URLSearchParams(normalizedHash);
+    const accessTokenFromUrl = params.get('access_token');
+    const refreshTokenFromUrl = params.get('refresh_token');
+    const recoveryType = params.get('type');
+
+    if (!accessTokenFromUrl || recoveryType !== 'recovery') {
+      return { ok: false, reason: 'not_recovery' };
+    }
+
+    isLoading.value = true;
+    authError.value = '';
+
+    try {
+      const user = await authGetUser(accessTokenFromUrl);
+      const recoverySession = {
+        access_token: accessTokenFromUrl,
+        refresh_token: refreshTokenFromUrl,
+        token_type: params.get('token_type') || 'bearer',
+        expires_in: Number(params.get('expires_in') || 0) || null,
+        expires_at: Number(params.get('expires_at') || 0) || null
+      };
+
+      await setSessionState({
+        nextSession: recoverySession,
+        nextUser: user
+      });
+
+      return { ok: true, user };
+    } catch (error) {
+      authError.value = translateAuthError(error, 'Nao foi possivel validar o link de recuperacao.');
+      return { ok: false, error };
+    } finally {
+      isLoading.value = false;
+    }
   };
 
   const refreshCurrentProfile = async () => {
@@ -178,6 +228,44 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  const requestPasswordRecovery = async ({ email, redirectTo }) => {
+    authError.value = '';
+    isLoading.value = true;
+
+    try {
+      await authResetPasswordForEmail({ email, redirectTo });
+      return { ok: true };
+    } catch (error) {
+      authError.value = translateAuthError(error, 'Nao foi possivel enviar o link de recuperacao.');
+      return { ok: false, error };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  const updatePassword = async ({ password }) => {
+    authError.value = '';
+    isLoading.value = true;
+
+    try {
+      if (!accessToken.value) {
+        throw new Error('Sessao de recuperacao invalida.');
+      }
+
+      const response = await authUpdateUser(accessToken.value, { password });
+      currentUser.value = response?.user || response || currentUser.value;
+      syncDerivedState();
+      persistSession();
+      await refreshCurrentProfile();
+      return { ok: true };
+    } catch (error) {
+      authError.value = translateAuthError(error, 'Nao foi possivel atualizar a palavra-passe.');
+      return { ok: false, error };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
   const signOut = async () => {
     try {
       if (accessToken.value && isSupabaseConfigured) {
@@ -211,6 +299,9 @@ export const useAuthStore = defineStore('auth', () => {
     initialize,
     signIn,
     signUpDonor,
+    requestPasswordRecovery,
+    setRecoverySessionFromUrl,
+    updatePassword,
     signOut,
     clearSession
   };

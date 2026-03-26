@@ -16,10 +16,12 @@ import HelpCenterModal from '../components/HelpCenterModal.vue';
 import AboutModal from '../components/AboutModal.vue';
 import AccessNoticeModal from '../components/AccessNoticeModal.vue';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
+import { useAuthStore } from '../stores/authStore';
 
 const router = useRouter();
 const route = useRoute();
 const appointmentsStore = useAppointmentsStore();
+const authStore = useAuthStore();
 const authTab = ref('cadastro');
 const postAuthAction = ref('dashboard'); // 'dashboard' | 'booking'
 
@@ -42,6 +44,20 @@ const abrirCadastro = () => {
 
 const abrirLogin = () => {
   authTab.value = 'login';
+  postAuthAction.value = 'dashboard';
+  mostrarModal.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+const abrirRecuperacao = () => {
+  authTab.value = 'recuperar';
+  postAuthAction.value = 'dashboard';
+  mostrarModal.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+const abrirRedefinicaoSenha = () => {
+  authTab.value = 'redefinir-senha';
   postAuthAction.value = 'dashboard';
   mostrarModal.value = true;
   document.body.style.overflow = 'hidden';
@@ -149,10 +165,38 @@ onUnmounted(() => {
 const syncAuthModalFromRoute = (authParam) => {
   if (authParam === 'login') {
     abrirLogin();
+    return;
+  }
+
+  if (authParam === 'recuperar') {
+    abrirRecuperacao();
+    return;
+  }
+
+  if (authParam === 'redefinir-senha') {
+    abrirRedefinicaoSenha();
   }
 };
 
+const syncRecoveryFromHash = async () => {
+  const hash = window.location.hash;
+  if (!hash || !hash.includes('type=recovery') || !hash.includes('access_token=')) {
+    return;
+  }
+
+  const result = await authStore.setRecoverySessionFromUrl(hash);
+  if (!result.ok) {
+    return;
+  }
+
+  const nextQuery = { ...route.query, auth: 'redefinir-senha' };
+  window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.search}`);
+  await router.replace({ path: route.path, query: nextQuery });
+  abrirRedefinicaoSenha();
+};
+
 onMounted(() => {
+  syncRecoveryFromHash();
   syncAuthModalFromRoute(route.query.auth);
 });
 

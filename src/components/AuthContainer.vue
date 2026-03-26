@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineEmits, defineProps, watch } from 'vue';
+import { computed, ref, defineEmits, defineProps, watch } from 'vue';
 import RegisterForm from './RegisterForm.vue';
 import { LogIn, UserPlus, Droplet, ArrowRight, ShieldCheck } from 'lucide-vue-next';
 import { useAuthStore } from '../stores/authStore';
@@ -16,8 +16,27 @@ const abaAtiva = ref(props.initialTab);
 const loginEmail = ref('');
 const loginPassword = ref('');
 const loginError = ref('');
+const recoveryEmail = ref('');
+const recoveryError = ref('');
+const recoverySuccess = ref('');
+const resetPassword = ref('');
+const resetPasswordConfirm = ref('');
+const resetError = ref('');
+const resetSuccess = ref('');
 
 const authStore = useAuthStore();
+
+const recoveryEmailInvalid = computed(() => {
+  const email = recoveryEmail.value.trim();
+  if (!email) return false;
+  return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+});
+
+const resetPasswordShort = computed(() => resetPassword.value.length > 0 && resetPassword.value.length < 8);
+const resetPasswordMismatch = computed(() => resetPasswordConfirm.value.length > 0 && resetPassword.value !== resetPasswordConfirm.value);
+const canSubmitReset = computed(() => {
+  return Boolean(resetPassword.value && resetPasswordConfirm.value && !resetPasswordShort.value && !resetPasswordMismatch.value && !authStore.isLoading);
+});
 
 const realizarLoginManual = async () => {
   loginError.value = '';
@@ -43,12 +62,82 @@ const realizarLoginManual = async () => {
   emit('sucesso');
 };
 
+const enviarRecuperacaoSenha = async () => {
+  recoveryError.value = '';
+  recoverySuccess.value = '';
+
+  const email = recoveryEmail.value.trim().toLowerCase();
+  if (!email) {
+    recoveryError.value = 'Informe o email registado.';
+    return;
+  }
+
+  if (recoveryEmailInvalid.value) {
+    recoveryError.value = 'Informe um email valido.';
+    return;
+  }
+
+  const redirectUrl = new URL(import.meta.env.BASE_URL || '/', window.location.origin);
+  redirectUrl.searchParams.set('auth', 'redefinir-senha');
+
+  const result = await authStore.requestPasswordRecovery({
+    email,
+    redirectTo: redirectUrl.toString()
+  });
+
+  if (!result.ok) {
+    recoveryError.value = authStore.authError || 'Nao foi possivel enviar o link de recuperacao.';
+    return;
+  }
+
+  recoverySuccess.value = 'Enviamos um link de recuperacao para o seu email.';
+};
+
+const redefinirSenha = async () => {
+  resetError.value = '';
+  resetSuccess.value = '';
+
+  if (!resetPassword.value || !resetPasswordConfirm.value) {
+    resetError.value = 'Preencha e confirme a nova palavra-passe.';
+    return;
+  }
+
+  if (resetPasswordShort.value) {
+    resetError.value = 'A nova palavra-passe precisa de pelo menos 8 caracteres.';
+    return;
+  }
+
+  if (resetPasswordMismatch.value) {
+    resetError.value = 'As palavras-passe nao coincidem.';
+    return;
+  }
+
+  const result = await authStore.updatePassword({
+    password: resetPassword.value
+  });
+
+  if (!result.ok) {
+    resetError.value = authStore.authError || 'Nao foi possivel atualizar a palavra-passe.';
+    return;
+  }
+
+  resetSuccess.value = 'Palavra-passe atualizada com sucesso.';
+  emit('sucesso');
+};
+
 watch(
   () => props.initialTab,
   (nextTab) => {
-    if (['cadastro', 'login', 'recuperar'].includes(nextTab)) {
+    if (['cadastro', 'login', 'recuperar', 'redefinir-senha'].includes(nextTab)) {
       abaAtiva.value = nextTab;
       loginError.value = '';
+      recoveryError.value = '';
+      recoverySuccess.value = '';
+      resetError.value = '';
+      resetSuccess.value = '';
+      if (nextTab === 'recuperar' && loginEmail.value) {
+        recoveryEmail.value = loginEmail.value.trim().toLowerCase();
+      }
     }
   }
 );
@@ -158,16 +247,56 @@ watch(
                 <ShieldCheck class="w-8 h-8 fill-blue-600/20" stroke-width="2" />
               </div>
               <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-3">Recuperar Acesso</h2>
-              <p class="text-[15px] text-gray-500 font-medium">Configure depois o fluxo de reset com Supabase para envio de link por email.</p>
+              <p class="text-[15px] text-gray-500 font-medium">Informe o email da conta para receber o link de redefinicao de senha.</p>
             </div>
 
             <div class="space-y-5">
               <div>
                 <label class="block text-[13px] font-bold text-gray-700 mb-1.5 ml-1">E-mail registado</label>
-                <input type="email" placeholder="nome@exemplo.com" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[15px] rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400 font-medium" />
+                <input v-model="recoveryEmail" type="email" placeholder="nome@exemplo.com" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[15px] rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400 font-medium" />
+                <p v-if="recoveryError" class="text-[12px] text-rose-600 font-bold mt-2">{{ recoveryError }}</p>
+                <p v-else-if="recoverySuccess" class="text-[12px] text-emerald-600 font-bold mt-2">{{ recoverySuccess }}</p>
               </div>
 
-              <button type="button" @click="abaAtiva = 'login'" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-2xl font-bold text-[15px] shadow-[0_4px_14px_rgba(37,99,235,0.2)] transition-all hover:-translate-y-0.5 mt-4 flex justify-center items-center gap-2">
+              <button type="button" @click="enviarRecuperacaoSenha" :disabled="authStore.isLoading || recoveryEmailInvalid" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-2xl font-bold text-[15px] shadow-[0_4px_14px_rgba(37,99,235,0.2)] transition-all hover:-translate-y-0.5 mt-4 flex justify-center items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0">
+                {{ authStore.isLoading ? 'A enviar link...' : 'Recuperar Senha' }}
+              </button>
+
+              <button type="button" @click="abaAtiva = 'login'" class="w-full bg-white hover:bg-gray-50 text-blue-700 border border-blue-200 px-6 py-4 rounded-2xl font-bold text-[15px] transition-all flex justify-center items-center gap-2">
+                Voltar para login
+              </button>
+            </div>
+          </div>
+
+          <div v-else-if="abaAtiva === 'redefinir-senha'" class="w-full max-w-md mx-auto animation-slide-up">
+            <div class="mb-10 text-center">
+              <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-[20px] flex items-center justify-center mx-auto mb-6 border border-emerald-100">
+                <ShieldCheck class="w-8 h-8 fill-emerald-600/20" stroke-width="2" />
+              </div>
+              <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-3">Definir Nova Senha</h2>
+              <p class="text-[15px] text-gray-500 font-medium">Crie uma nova palavra-passe para voltar a aceder ao painel com seguranca.</p>
+            </div>
+
+            <div class="space-y-5">
+              <div>
+                <label class="block text-[13px] font-bold text-gray-700 mb-1.5 ml-1">Nova palavra-passe</label>
+                <input v-model="resetPassword" type="password" placeholder="Minimo 8 caracteres" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[15px] rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all placeholder:text-gray-400 font-medium" />
+              </div>
+
+              <div>
+                <label class="block text-[13px] font-bold text-gray-700 mb-1.5 ml-1">Confirmar nova palavra-passe</label>
+                <input v-model="resetPasswordConfirm" type="password" placeholder="Repita a palavra-passe" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[15px] rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all placeholder:text-gray-400 font-medium" />
+                <p v-if="resetError" class="text-[12px] text-rose-600 font-bold mt-2">{{ resetError }}</p>
+                <p v-else-if="resetPasswordShort" class="text-[12px] text-rose-600 font-bold mt-2">A nova palavra-passe precisa de pelo menos 8 caracteres.</p>
+                <p v-else-if="resetPasswordMismatch" class="text-[12px] text-rose-600 font-bold mt-2">As palavras-passe nao coincidem.</p>
+                <p v-else-if="resetSuccess" class="text-[12px] text-emerald-600 font-bold mt-2">{{ resetSuccess }}</p>
+              </div>
+
+              <button type="button" @click="redefinirSenha" :disabled="!canSubmitReset" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-4 rounded-2xl font-bold text-[15px] shadow-[0_4px_14px_rgba(5,150,105,0.2)] transition-all hover:-translate-y-0.5 mt-4 flex justify-center items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0">
+                {{ authStore.isLoading ? 'A atualizar...' : 'Atualizar Senha' }}
+              </button>
+
+              <button type="button" @click="abaAtiva = 'login'" class="w-full bg-white hover:bg-gray-50 text-emerald-700 border border-emerald-200 px-6 py-4 rounded-2xl font-bold text-[15px] transition-all flex justify-center items-center gap-2">
                 Voltar para login
               </button>
             </div>
