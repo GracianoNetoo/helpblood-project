@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { AlertCircle, MapPin, Droplet, PhoneCall } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import { useAppointmentsStore } from '../stores/appointmentsStore';
@@ -8,6 +8,8 @@ import { useHelpRequestsStore } from '../stores/helpRequestsStore';
 const appointmentsStore = useAppointmentsStore();
 const helpRequestsStore = useHelpRequestsStore();
 const { requests } = storeToRefs(helpRequestsStore);
+const showToast = ref(false);
+let toastTimeoutId = null;
 
 const approvedRequests = computed(() => requests.value.filter((item) => item.status === 'approved'));
 
@@ -25,7 +27,14 @@ const acceptEmergency = (request) => {
     notes: `Aceite Pedido de Ajuda: ${request.motivo}`
   });
   helpRequestsStore.removeRequest(request.id);
-  alert('Obrigado! Chamada de Emergencia aceite. Verifique a aba Agendamentos.');
+  showToast.value = true;
+  if (toastTimeoutId) {
+    clearTimeout(toastTimeoutId);
+  }
+  toastTimeoutId = window.setTimeout(() => {
+    showToast.value = false;
+    toastTimeoutId = null;
+  }, 2600);
 };
 </script>
 
@@ -80,6 +89,13 @@ const acceptEmergency = (request) => {
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div v-if="showToast" class="fixed bottom-6 right-6 z-30 max-w-sm">
+    <div class="bg-gray-900 text-white px-4 py-3 rounded-2xl shadow-lg text-sm font-semibold flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      Chamada aceite com sucesso. Verifique a aba Agendamentos.
     </div>
   </div>
 </template>
