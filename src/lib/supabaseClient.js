@@ -142,6 +142,13 @@ export const authSignInWithPassword = ({ email, password }) => {
   });
 };
 
+export const authRefreshSession = (refreshToken) => {
+  return authRequest('token?grant_type=refresh_token', {
+    method: 'POST',
+    body: { refresh_token: refreshToken }
+  });
+};
+
 export const authResetPasswordForEmail = ({ email, redirectTo }) => {
   const query = redirectTo ? buildQueryString({ redirect_to: redirectTo }) : '';
   return authRequest(`recover${query}`, {

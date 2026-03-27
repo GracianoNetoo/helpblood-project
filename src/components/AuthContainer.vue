@@ -25,6 +25,7 @@ const resetError = ref('');
 const resetSuccess = ref('');
 
 const authStore = useAuthStore();
+const displayedLoginError = computed(() => loginError.value || authStore.authError || '');
 
 const recoveryEmailInvalid = computed(() => {
   const email = recoveryEmail.value.trim();
@@ -219,7 +220,7 @@ watch(
               <div>
                 <label class="block text-[13px] font-bold text-gray-700 mb-1.5 ml-1">E-mail</label>
                 <input v-model="loginEmail" type="email" placeholder="nome@exemplo.com" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[15px] rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all placeholder:text-gray-400 font-medium" />
-                <p v-if="loginError" class="text-[12px] text-rose-600 font-bold mt-2">{{ loginError }}</p>
+                <p v-if="displayedLoginError" class="text-[12px] text-rose-600 font-bold mt-2">{{ displayedLoginError }}</p>
               </div>
 
               <div>

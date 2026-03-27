@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref, watch } from 'vue';
-import { authGetUser, authResetPasswordForEmail, authSignInWithPassword, authSignOut, authSignUp, authUpdateUser, isSupabaseConfigured } from '../lib/supabaseClient';
+import { authGetUser, authRefreshSession, authResetPasswordForEmail, authSignInWithPassword, authSignOut, authSignUp, authUpdateUser, isSupabaseConfigured } from '../lib/supabaseClient';
 import { useDonorsStore } from './donorsStore';
 
 const SESSION_STORAGE_KEY = 'univida_supabase_session';
@@ -18,6 +18,26 @@ export const useAuthStore = defineStore('auth', () => {
 
   const syncDerivedState = () => {
     currentDonorId.value = currentUser.value?.id || null;
+  };
+
+  const normalizeSession = (candidateSession) => {
+    if (!candidateSession) return null;
+
+    const expiresIn = Number(candidateSession.expires_in || 0) || null;
+    const expiresAt = Number(candidateSession.expires_at || 0) || null;
+
+    return {
+      ...candidateSession,
+      expires_in: expiresIn,
+      expires_at: expiresAt || (expiresIn ? Math.floor(Date.now() / 1000) + expiresIn : null)
+    };
+  };
+
+  const sessionNeedsRefresh = (candidateSession) => {
+    if (!candidateSession?.refresh_token) return false;
+    if (!candidateSession?.access_token) return true;
+    if (!candidateSession?.expires_at) return false;
+    return Number(candidateSession.expires_at) <= Math.floor(Date.now() / 1000) + 60;
   };
 
   const persistSession = () => {
@@ -129,11 +149,32 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   const setSessionState = async ({ nextSession, nextUser }) => {
-    session.value = nextSession;
+    session.value = normalizeSession(nextSession);
     currentUser.value = nextUser;
     syncDerivedState();
     persistSession();
     await refreshCurrentProfile();
+  };
+
+  const refreshSession = async (refreshToken) => {
+    if (!refreshToken) {
+      throw new Error('Refresh token ausente.');
+    }
+
+    const response = await authRefreshSession(refreshToken);
+    const nextSession = response?.session || response;
+    const nextUser = response?.user || null;
+
+    if (!nextSession?.access_token || !nextUser?.id) {
+      throw new Error('Nao foi possivel renovar a sessao.');
+    }
+
+    await setSessionState({
+      nextSession,
+      nextUser
+    });
+
+    return nextSession;
   };
 
   const initialize = async () => {
@@ -145,18 +186,30 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     const storedSession = loadStoredSession();
-    if (!storedSession?.access_token) {
+    if (!storedSession?.access_token && !storedSession?.refresh_token) {
       clearSession();
       return;
     }
 
     isLoading.value = true;
     try {
-      const user = await authGetUser(storedSession.access_token);
-      await setSessionState({
-        nextSession: storedSession,
-        nextUser: user
-      });
+      if (sessionNeedsRefresh(storedSession)) {
+        await refreshSession(storedSession.refresh_token);
+      } else {
+        try {
+          const user = await authGetUser(storedSession.access_token);
+          await setSessionState({
+            nextSession: storedSession,
+            nextUser: user
+          });
+        } catch (error) {
+          if (storedSession.refresh_token) {
+            await refreshSession(storedSession.refresh_token);
+          } else {
+            throw error;
+          }
+        }
+      }
     } catch (error) {
       clearSession();
       authError.value = 'A sua sessao expirou. Faca login novamente.';
@@ -215,6 +268,7 @@ export const useAuthStore = defineStore('auth', () => {
         throw new Error('Cadastro sem utilizador valido retornado pelo Supabase.');
       }
 
+      session.value = null;
       currentUser.value = nextUser;
       syncDerivedState();
       authError.value = '';
@@ -300,6 +354,7 @@ export const useAuthStore = defineStore('auth', () => {
     signIn,
     signUpDonor,
     requestPasswordRecovery,
+    refreshSession,
     setRecoverySessionFromUrl,
     updatePassword,
     signOut,
