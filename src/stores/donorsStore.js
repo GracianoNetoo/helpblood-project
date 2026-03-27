@@ -3,6 +3,7 @@ import { ref, watch } from 'vue';
 import { isSupabaseConfigured, selectRows } from '../lib/supabaseClient';
 
 const STORAGE_KEY = 'univida_donors';
+const SHOULD_USE_SEED_DONORS = import.meta.env.DEV;
 
 const seedDonors = [
   {
@@ -47,6 +48,8 @@ const seedDonors = [
   }
 ];
 
+const seedDonorIds = new Set(seedDonors.map((donor) => String(donor.id)));
+
 const normalizeDonor = (item) => ({
   id: item?.id ? String(item.id) : String(Date.now()),
   nome: item?.nome ?? '',
@@ -67,6 +70,8 @@ const normalizeDonor = (item) => ({
   status: item?.status ?? 'ativo',
   createdAt: item?.createdAt ?? new Date().toISOString()
 });
+
+const isSeedDonor = (donor) => seedDonorIds.has(String(donor?.id));
 
 const mapProfileFromDb = (row) => normalizeDonor({
   id: row?.id,
@@ -89,12 +94,13 @@ const mapProfileFromDb = (row) => normalizeDonor({
 });
 
 export const useDonorsStore = defineStore('donors', () => {
-  const donors = ref([...seedDonors].map(normalizeDonor));
+  const donors = ref(SHOULD_USE_SEED_DONORS ? [...seedDonors].map(normalizeDonor) : []);
   const lastSyncError = ref('');
 
   const saveToStorage = (value) => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+      const sanitizedValue = SHOULD_USE_SEED_DONORS ? value : value.filter((item) => !isSeedDonor(item));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizedValue));
     } catch (error) {
       console.warn('Falha ao salvar doadores:', error);
     }
@@ -106,7 +112,8 @@ export const useDonorsStore = defineStore('donors', () => {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          donors.value = parsed.map(normalizeDonor);
+          const normalized = parsed.map(normalizeDonor);
+          donors.value = SHOULD_USE_SEED_DONORS ? normalized : normalized.filter((item) => !isSeedDonor(item));
         }
       }
     } catch (error) {
