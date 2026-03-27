@@ -7,7 +7,7 @@ import { useHelpRequestsStore } from '../stores/helpRequestsStore';
 
 const appointmentsStore = useAppointmentsStore();
 const helpRequestsStore = useHelpRequestsStore();
-const { requests } = storeToRefs(helpRequestsStore);
+const { requests, lastSyncError } = storeToRefs(helpRequestsStore);
 const showToast = ref(false);
 let toastTimeoutId = null;
 
@@ -41,6 +41,10 @@ const acceptEmergency = (request) => {
 <template>
   <div class="max-w-300 mx-auto pb-10">
     <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-8 md:p-10">
+      <div v-if="lastSyncError" class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+        Nao foi possivel sincronizar os pedidos de ajuda agora. {{ lastSyncError }}
+      </div>
+
       <div class="mb-8">
         <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-3">
           <span class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center">

@@ -53,8 +53,17 @@ const aoMudarProvincia = () => {
   municipioSelecionado.value = '';
 };
 
+const normalizePhone = (value) => {
+  const digits = String(value || '').replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.startsWith('244') && digits.length === 12) {
+    return digits.slice(3);
+  }
+  return digits;
+};
+
 const telefoneInvalido = computed(() => {
-  const tel = form.value.telefone.replace(/\s/g, '');
+  const tel = normalizePhone(form.value.telefone);
   if (tel.length === 0) return false;
   return !/^9[1-59]\d{7}$/.test(tel);
 });
@@ -100,7 +109,7 @@ const handleSubmit = async () => {
       rh: form.value.rh,
       provincia: provinciaSelecionada.value,
       municipio: municipioSelecionado.value,
-      telefone: form.value.telefone.replace(/\s/g, ''),
+      telefone: normalizePhone(form.value.telefone),
       email: form.value.email.trim().toLowerCase(),
       doacao_sangue: form.value.doacao_sangue
     }
@@ -204,10 +213,9 @@ const handleSubmit = async () => {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
       <div class="form-control w-full space-y-1.5 relative">
         <label class="label font-bold text-[13px] text-gray-700 ml-1">Telemovel (WhatsApp)</label>
-        <span class="absolute left-4 top-8.75 text-gray-400 item-center pt-2 font-bold text-[14px]">+244</span>
-        <input v-model="form.telefone" @blur="touched.telefone = true" type="tel" placeholder="923000000" maxlength="9" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl pl-16 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium placeholder:text-gray-400" :class="{ 'border-red-400 focus:border-red-500 focus:ring-red-500/20 bg-red-50': telefoneInvalido }" />
+        <input v-model="form.telefone" @blur="touched.telefone = true" type="tel" placeholder="923000000 ou +244923000000" maxlength="16" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium placeholder:text-gray-400" :class="{ 'border-red-400 focus:border-red-500 focus:ring-red-500/20 bg-red-50': telefoneInvalido }" />
         <p v-if="shouldShowError('telefone') && !form.telefone" class="absolute -bottom-5 text-rose-600 text-[11px] ml-1 font-bold">Informe o telemovel.</p>
-        <p v-else-if="telefoneInvalido" class="absolute -bottom-5 text-red-500 text-[11px] ml-1 font-bold">Numero invalido.</p>
+        <p v-else-if="telefoneInvalido" class="absolute -bottom-5 text-red-500 text-[11px] ml-1 font-bold">Use 9 digitos ou o formato +244 seguido de 9 digitos.</p>
       </div>
 
       <div class="form-control w-full space-y-1.5">

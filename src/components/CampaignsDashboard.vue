@@ -13,7 +13,7 @@ const authStore = useAuthStore();
 const donorsStore = useDonorsStore();
 
 const { appointments } = storeToRefs(appointmentsStore);
-const { campaigns, autoOpenCampaign } = storeToRefs(campaignsStore);
+const { campaigns, autoOpenCampaign, lastSyncError } = storeToRefs(campaignsStore);
 const { currentDonorId } = storeToRefs(authStore);
 const { donors } = storeToRefs(donorsStore);
 
@@ -102,6 +102,10 @@ onMounted(() => {
 <template>
   <div class="max-w-300 mx-auto pb-10">
     <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-6 md:p-10">
+      <div v-if="lastSyncError" class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+        Nao foi possivel sincronizar as campanhas agora. {{ lastSyncError }}
+      </div>
+
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Campanhas Ativas</h2>

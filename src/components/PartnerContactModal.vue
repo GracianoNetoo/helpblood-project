@@ -51,7 +51,6 @@ const handleContact = () => {
         </div>
 
         <div class="flex items-center justify-center gap-4 md:gap-6">
-           <!-- Links para tentar usabilidade -->
           <button
             type="button"
             @click="selectChannel('facebook')"
@@ -63,7 +62,6 @@ const handleContact = () => {
             </svg>
           </button>
           
-           <!-- Links para tentar usabilidade -->
           <button
             type="button"
             @click="selectChannel('whatsapp')"
@@ -72,7 +70,6 @@ const handleContact = () => {
           >
             <MessageCircle class="w-7 h-7" />
           </button>
-          <!-- Link para tentar usabilidade -->
           <button
             type="button"
             @click="selectChannel('email')"
