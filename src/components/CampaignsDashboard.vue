@@ -7,22 +7,13 @@ import { useCampaignsStore } from '../stores/campaignsStore';
 import { useAuthStore } from '../stores/authStore';
 import { useDonorsStore } from '../stores/donorsStore';
 
-const props = defineProps({
-  autoOpen: {
-    type: Boolean,
-    default: false
-  }
-});
-
-const emit = defineEmits(['agendar', 'reset-auto-open']);
-
 const appointmentsStore = useAppointmentsStore();
 const campaignsStore = useCampaignsStore();
 const authStore = useAuthStore();
 const donorsStore = useDonorsStore();
 
 const { appointments } = storeToRefs(appointmentsStore);
-const { campaigns } = storeToRefs(campaignsStore);
+const { campaigns, autoOpenCampaign } = storeToRefs(campaignsStore);
 const { currentDonorId } = storeToRefs(authStore);
 const { donors } = storeToRefs(donorsStore);
 
@@ -98,12 +89,12 @@ const confirmSchedule = () => {
 };
 
 onMounted(() => {
-  if (props.autoOpen) {
+  if (autoOpenCampaign.value) {
     const firstAvailable = activeCampaigns.value.find((campaign) => {
       return !isScheduled(campaign.id) && !hasParticipated(campaign.id);
     });
     if (firstAvailable) openConfirm(firstAvailable);
-    emit('reset-auto-open');
+    campaignsStore.consumeOpenCampaign();
   }
 });
 </script>

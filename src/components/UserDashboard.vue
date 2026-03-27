@@ -6,6 +6,7 @@ import { storeToRefs } from 'pinia';
 import { useHelpRequestsStore } from '../stores/helpRequestsStore';
 import { useDonorsStore } from '../stores/donorsStore';
 import { useAuthStore } from '../stores/authStore';
+import { useCampaignsStore } from '../stores/campaignsStore';
 
 import DashboardOverview from './DashboardOverview.vue';
 import MyDonations from './MyDonations.vue';
@@ -19,6 +20,7 @@ const helpRequestsStore = useHelpRequestsStore();
 const { requests } = storeToRefs(helpRequestsStore);
 const donorsStore = useDonorsStore();
 const authStore = useAuthStore();
+const campaignsStore = useCampaignsStore();
 const { donors } = storeToRefs(donorsStore);
 const { currentDonorId } = storeToRefs(authStore);
 
@@ -32,7 +34,6 @@ const navItems = [
 
 const activeTab = ref('dashboard');
 const isMobileNavOpen = ref(false);
-const autoOpenCampaigns = ref(false);
 const approvedRequestsCount = computed(() => requests.value.filter((item) => item.status === 'approved').length);
 const currentDonorIdValue = computed(() => (currentDonorId.value ? String(currentDonorId.value) : null));
 const fallbackDonor = computed(() => donors.value[0] || null);
@@ -80,7 +81,7 @@ watch(
 const handleSelectTab = (tabId, options = {}) => {
   activeTab.value = tabId;
   if (options.autoOpenCampaign) {
-    autoOpenCampaigns.value = true;
+    campaignsStore.requestOpenCampaign();
   }
   isMobileNavOpen.value = false;
 };
@@ -161,10 +162,8 @@ const handleSelectTab = (tabId, options = {}) => {
         <!-- Render Active View Component -->
         <component
           :is="navItems.find(item => item.id === activeTab).component"
-          :auto-open="activeTab === 'campaigns' ? autoOpenCampaigns : false"
           @open-campaigns="handleSelectTab('campaigns', $event || {})"
           @open-requests="handleSelectTab('emergencies')"
-          @reset-auto-open="autoOpenCampaigns = false"
         />
       </div>
     </main>

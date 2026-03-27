@@ -78,6 +78,7 @@ export const useCampaignsStore = defineStore('campaigns', () => {
   const campaigns = ref(SHOULD_USE_SEED_CAMPAIGNS ? [...seedCampaigns].map(normalizeCampaign) : []);
   const lastSyncError = ref('');
   const syncSource = ref('local');
+  const autoOpenCampaign = ref(false);
 
   const saveToStorage = (value) => {
     try {
@@ -105,6 +106,14 @@ export const useCampaignsStore = defineStore('campaigns', () => {
 
   const replaceLocalCampaign = (targetId, nextCampaign) => {
     campaigns.value = campaigns.value.map((item) => (item.id === targetId ? normalizeCampaign(nextCampaign) : item));
+  };
+
+  const requestOpenCampaign = () => {
+    autoOpenCampaign.value = true;
+  };
+
+  const consumeOpenCampaign = () => {
+    autoOpenCampaign.value = false;
   };
 
   const refreshFromSupabase = async () => {
@@ -212,9 +221,12 @@ export const useCampaignsStore = defineStore('campaigns', () => {
     campaigns,
     lastSyncError,
     syncSource,
+    autoOpenCampaign,
     addCampaign,
     toggleStatus,
     removeCampaign,
-    refreshFromSupabase
+    refreshFromSupabase,
+    requestOpenCampaign,
+    consumeOpenCampaign
   };
 });
