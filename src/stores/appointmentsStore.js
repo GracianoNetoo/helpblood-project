@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 
 const STORAGE_KEY = 'univida_appointments';
+const SHOULD_USE_SEED_APPOINTMENTS = import.meta.env.DEV;
 
 const seedAppointments = [
   {
@@ -15,6 +16,8 @@ const seedAppointments = [
     notes: 'Doacao matinal agendada.'
   }
 ];
+
+const seedAppointmentIds = new Set(seedAppointments.map((appointment) => String(appointment.id)));
 
 const normalizeAppointment = (appointment) => ({
   id: appointment?.id ?? Date.now(),
@@ -30,8 +33,10 @@ const normalizeAppointment = (appointment) => ({
   notes: appointment?.notes ?? ''
 });
 
+const isSeedAppointment = (appointment) => seedAppointmentIds.has(String(appointment?.id));
+
 export const useAppointmentsStore = defineStore('appointments', () => {
-  const appointments = ref([...seedAppointments].map(normalizeAppointment));
+  const appointments = ref(SHOULD_USE_SEED_APPOINTMENTS ? [...seedAppointments].map(normalizeAppointment) : []);
   const autoOpenBooking = ref(false);
 
   const loadFromStorage = () => {
@@ -40,7 +45,8 @@ export const useAppointmentsStore = defineStore('appointments', () => {
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        appointments.value = parsed.map(normalizeAppointment);
+        const normalized = parsed.map(normalizeAppointment);
+        appointments.value = SHOULD_USE_SEED_APPOINTMENTS ? normalized : normalized.filter((item) => !isSeedAppointment(item));
       }
     } catch (error) {
       console.warn('Falha ao carregar agendamentos:', error);
@@ -83,7 +89,8 @@ export const useAppointmentsStore = defineStore('appointments', () => {
     appointments,
     (value) => {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+        const sanitizedValue = SHOULD_USE_SEED_APPOINTMENTS ? value : value.filter((item) => !isSeedAppointment(item));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizedValue));
       } catch (error) {
         console.warn('Falha ao salvar agendamentos:', error);
       }

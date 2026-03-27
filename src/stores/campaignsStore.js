@@ -3,6 +3,7 @@ import { ref, watch } from 'vue';
 import { isSupabaseConfigured, insertRows, selectRows, updateRows, deleteRows } from '../lib/supabaseClient';
 
 const STORAGE_KEY = 'univida_campaigns';
+const SHOULD_USE_SEED_CAMPAIGNS = import.meta.env.DEV;
 
 const seedCampaigns = [
   {
@@ -29,6 +30,8 @@ const seedCampaigns = [
   }
 ];
 
+const seedCampaignIds = new Set(seedCampaigns.map((campaign) => String(campaign.id)));
+
 const normalizeTime = (value) => {
   if (!value) return '';
   return String(value).slice(0, 5);
@@ -45,6 +48,8 @@ const normalizeCampaign = (campaign) => ({
   highlight: campaign?.highlight ?? 'Aberto',
   status: campaign?.status ?? 'ativo'
 });
+
+const isSeedCampaign = (campaign) => seedCampaignIds.has(String(campaign?.id));
 
 const mapCampaignFromDb = (row) => normalizeCampaign({
   id: row?.id,
@@ -70,13 +75,14 @@ const mapCampaignToDb = (campaign) => ({
 });
 
 export const useCampaignsStore = defineStore('campaigns', () => {
-  const campaigns = ref([...seedCampaigns].map(normalizeCampaign));
+  const campaigns = ref(SHOULD_USE_SEED_CAMPAIGNS ? [...seedCampaigns].map(normalizeCampaign) : []);
   const lastSyncError = ref('');
   const syncSource = ref('local');
 
   const saveToStorage = (value) => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+      const sanitizedValue = SHOULD_USE_SEED_CAMPAIGNS ? value : value.filter((item) => !isSeedCampaign(item));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizedValue));
     } catch (error) {
       console.warn('Falha ao salvar campanhas:', error);
     }
@@ -88,7 +94,8 @@ export const useCampaignsStore = defineStore('campaigns', () => {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          campaigns.value = parsed.map(normalizeCampaign);
+          const normalized = parsed.map(normalizeCampaign);
+          campaigns.value = SHOULD_USE_SEED_CAMPAIGNS ? normalized : normalized.filter((item) => !isSeedCampaign(item));
         }
       }
     } catch (error) {
