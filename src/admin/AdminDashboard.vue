@@ -44,9 +44,9 @@ const donorsStore = useDonorsStore();
 const campaignsStore = useCampaignsStore();
 
 const { appointments } = storeToRefs(appointmentsStore);
-const { requests } = storeToRefs(helpRequestsStore);
+const { requests, lastSyncError: helpRequestsSyncError } = storeToRefs(helpRequestsStore);
 const { donors } = storeToRefs(donorsStore);
-const { campaigns } = storeToRefs(campaignsStore);
+const { campaigns, lastSyncError: campaignsSyncError } = storeToRefs(campaignsStore);
 
 const totalAppointments = computed(() => appointments.value.length);
 const totalRequests = computed(() => requests.value.length);
@@ -428,6 +428,15 @@ const addCampaign = () => {
 
       <!-- Dashboard Scrollable Area -->
       <div class="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 scroll-smooth custom-scrollbar">
+        <div v-if="helpRequestsSyncError || campaignsSyncError" class="max-w-300 mx-auto mb-6 space-y-3">
+          <div v-if="helpRequestsSyncError" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+            Nao foi possivel sincronizar os pedidos de ajuda agora. {{ helpRequestsSyncError }}
+          </div>
+          <div v-if="campaignsSyncError" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+            Nao foi possivel sincronizar as campanhas agora. {{ campaignsSyncError }}
+          </div>
+        </div>
+
         <!-- Overview -->
         <section v-if="activeTab === 'overview'" class="max-w-300 mx-auto space-y-6 md:space-y-8 pb-10">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
