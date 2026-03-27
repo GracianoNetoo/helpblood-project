@@ -4,6 +4,7 @@ import { isSupabaseConfigured, insertRows, selectRows, updateRows, deleteRows } 
 import { useAuthStore } from './authStore';
 
 const STORAGE_KEY = 'univida_help_requests';
+const DELETED_STORAGE_KEY = 'univida_deleted_help_requests';
 
 const normalizeRequest = (request) => ({
   id: request?.id ?? `req-${Date.now()}`,
@@ -51,12 +52,21 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
   const requests = ref([]);
   const lastSyncError = ref('');
   const syncSource = ref('local');
+  const deletedRequestIds = ref([]);
 
   const saveToStorage = (value) => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
     } catch (error) {
       console.warn('Falha ao salvar pedidos:', error);
+    }
+  };
+
+  const saveDeletedIds = (value) => {
+    try {
+      localStorage.setItem(DELETED_STORAGE_KEY, JSON.stringify(value));
+    } catch (error) {
+      console.warn('Falha ao salvar pedidos removidos:', error);
     }
   };
 
@@ -74,6 +84,26 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
     }
   };
 
+  const loadDeletedIds = () => {
+    try {
+      const raw = localStorage.getItem(DELETED_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        deletedRequestIds.value = parsed.map((item) => String(item));
+      }
+    } catch (error) {
+      console.warn('Falha ao carregar pedidos removidos:', error);
+    }
+  };
+
+  const rememberDeletedRequest = (id) => {
+    const normalizedId = String(id);
+    if (deletedRequestIds.value.includes(normalizedId)) return;
+    deletedRequestIds.value = [...deletedRequestIds.value, normalizedId];
+    saveDeletedIds(deletedRequestIds.value);
+  };
+
   const replaceLocalRequest = (targetId, nextRequest) => {
     requests.value = requests.value.map((item) => (item.id === targetId ? normalizeRequest(nextRequest) : item));
   };
@@ -86,7 +116,11 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
         status: 'eq.approved',
         order: 'created_at.desc'
       });
-      const approvedRemote = Array.isArray(rows) ? rows.map(mapRequestFromDb) : [];
+      const approvedRemote = Array.isArray(rows)
+        ? rows
+            .map(mapRequestFromDb)
+            .filter((item) => !deletedRequestIds.value.includes(String(item.id)))
+        : [];
       const localNonApproved = requests.value.filter((item) => item.status !== 'approved' || item.source !== 'supabase');
       const merged = new Map(localNonApproved.map((item) => [item.id, item]));
       approvedRemote.forEach((item) => {
@@ -182,8 +216,11 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
   };
 
   const removeRequest = (id) => {
-    const snapshot = [...requests.value];
+    const normalizedId = String(id);
     requests.value = requests.value.filter((item) => item.id !== id);
+    if (!String(id).includes('-temp-')) {
+      rememberDeletedRequest(normalizedId);
+    }
 
     if (isSupabaseConfigured && !String(id).includes('-temp-')) {
       deleteRows('help_requests', { id: `eq.${id}` })
@@ -192,14 +229,15 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
           lastSyncError.value = '';
         })
         .catch((error) => {
-          requests.value = snapshot;
-          lastSyncError.value = error.message || 'Falha ao remover pedido no Supabase.';
+          syncSource.value = 'local';
+          lastSyncError.value = error.message || 'Pedido removido localmente, mas a exclusao no Supabase falhou.';
           console.warn('Falha ao remover pedido no Supabase:', error);
         });
     }
   };
 
   loadFromStorage();
+  loadDeletedIds();
   refreshApprovedFromSupabase();
 
   watch(
@@ -214,6 +252,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
     requests,
     lastSyncError,
     syncSource,
+    deletedRequestIds,
     addRequest,
     removeRequest,
     approveRequest,

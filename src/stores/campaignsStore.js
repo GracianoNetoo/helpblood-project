@@ -3,6 +3,7 @@ import { ref, watch } from 'vue';
 import { isSupabaseConfigured, insertRows, selectRows, updateRows, deleteRows } from '../lib/supabaseClient';
 
 const STORAGE_KEY = 'univida_campaigns';
+const DELETED_STORAGE_KEY = 'univida_deleted_campaigns';
 const SHOULD_USE_SEED_CAMPAIGNS = import.meta.env.DEV;
 
 const seedCampaigns = [
@@ -79,6 +80,7 @@ export const useCampaignsStore = defineStore('campaigns', () => {
   const lastSyncError = ref('');
   const syncSource = ref('local');
   const autoOpenCampaign = ref(false);
+  const deletedCampaignIds = ref([]);
 
   const saveToStorage = (value) => {
     try {
@@ -86,6 +88,14 @@ export const useCampaignsStore = defineStore('campaigns', () => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizedValue));
     } catch (error) {
       console.warn('Falha ao salvar campanhas:', error);
+    }
+  };
+
+  const saveDeletedIds = (value) => {
+    try {
+      localStorage.setItem(DELETED_STORAGE_KEY, JSON.stringify(value));
+    } catch (error) {
+      console.warn('Falha ao salvar campanhas removidas:', error);
     }
   };
 
@@ -102,6 +112,26 @@ export const useCampaignsStore = defineStore('campaigns', () => {
     } catch (error) {
       console.warn('Falha ao carregar campanhas:', error);
     }
+  };
+
+  const loadDeletedIds = () => {
+    try {
+      const raw = localStorage.getItem(DELETED_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        deletedCampaignIds.value = parsed.map((item) => String(item));
+      }
+    } catch (error) {
+      console.warn('Falha ao carregar campanhas removidas:', error);
+    }
+  };
+
+  const rememberDeletedCampaign = (id) => {
+    const normalizedId = String(id);
+    if (deletedCampaignIds.value.includes(normalizedId)) return;
+    deletedCampaignIds.value = [...deletedCampaignIds.value, normalizedId];
+    saveDeletedIds(deletedCampaignIds.value);
   };
 
   const replaceLocalCampaign = (targetId, nextCampaign) => {
@@ -123,7 +153,11 @@ export const useCampaignsStore = defineStore('campaigns', () => {
         select: '*',
         order: 'date_iso.asc'
       });
-      const remoteCampaigns = Array.isArray(rows) ? rows.map(mapCampaignFromDb) : [];
+      const remoteCampaigns = Array.isArray(rows)
+        ? rows
+            .map(mapCampaignFromDb)
+            .filter((item) => !deletedCampaignIds.value.includes(String(item.id)))
+        : [];
       const localInactive = campaigns.value.filter((item) => item.status === 'inativo' && !String(item.id).includes('-temp-'));
       const localMap = new Map(localInactive.map((item) => [item.id, item]));
       remoteCampaigns.forEach((item) => {
@@ -189,8 +223,11 @@ export const useCampaignsStore = defineStore('campaigns', () => {
   };
 
   const removeCampaign = (id) => {
-    const snapshot = [...campaigns.value];
+    const normalizedId = String(id);
     campaigns.value = campaigns.value.filter((item) => item.id !== id);
+    if (!String(id).includes('-temp-')) {
+      rememberDeletedCampaign(normalizedId);
+    }
 
     if (isSupabaseConfigured && !String(id).includes('-temp-')) {
       deleteRows('campaigns', { id: `eq.${id}` })
@@ -199,14 +236,15 @@ export const useCampaignsStore = defineStore('campaigns', () => {
           lastSyncError.value = '';
         })
         .catch((error) => {
-          campaigns.value = snapshot;
-          lastSyncError.value = error.message || 'Falha ao remover campanha no Supabase.';
+          syncSource.value = 'local';
+          lastSyncError.value = error.message || 'Campanha removida localmente, mas a exclusao no Supabase falhou.';
           console.warn('Falha ao remover campanha no Supabase:', error);
         });
     }
   };
 
   loadFromStorage();
+  loadDeletedIds();
   refreshFromSupabase();
 
   watch(
@@ -222,6 +260,7 @@ export const useCampaignsStore = defineStore('campaigns', () => {
     lastSyncError,
     syncSource,
     autoOpenCampaign,
+    deletedCampaignIds,
     addCampaign,
     toggleStatus,
     removeCampaign,
