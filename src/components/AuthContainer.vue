@@ -190,7 +190,7 @@ watch(
 
       <div class="relative z-10 mt-auto pt-8 border-t border-white/10 hidden md:flex items-start gap-3 text-[13px] text-gray-400 font-medium">
         <ShieldCheck class="w-5 h-5 shrink-0 text-emerald-400" stroke-width="2" />
-        <p>Os seus dados medicos são encriptados ponto-a-ponto e partilhados apenas com hospitais autorizados caso necessario.</p>
+        <p>Os seus dados medicos são encriptados ponto-a-ponto e partilhados apenas com hospitais autorizados caso necessário.</p>
       </div>
     </div>
 
