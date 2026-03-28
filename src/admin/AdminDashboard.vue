@@ -796,7 +796,7 @@ const addCampaign = async () => {
               <div class="relative flex flex-col gap-6">
                 <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                   <div>
-                    <div class="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/6 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-emerald-100">
+                    <div class="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/6 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-white-100">
                       <Sparkles class="w-3.5 h-3.5" />
                       Centro de doadores
                     </div>
