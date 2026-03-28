@@ -190,7 +190,7 @@ watch(
 
       <div class="relative z-10 mt-auto pt-8 border-t border-white/10 hidden md:flex items-start gap-3 text-[13px] text-gray-400 font-medium">
         <ShieldCheck class="w-5 h-5 shrink-0 text-emerald-400" stroke-width="2" />
-        <p>Os seus dados medicos sao encriptados ponto-a-ponto e partilhados apenas com hospitais autorizados.</p>
+        <p>Os seus dados medicos são encriptados ponto-a-ponto e partilhados apenas com hospitais autorizados caso necessario.</p>
       </div>
     </div>
 
@@ -202,7 +202,7 @@ watch(
           <div v-if="abaAtiva === 'cadastro'" class="w-full max-w-2xl mx-auto animation-slide-up">
             <div class="mb-8">
               <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Junte-se a Rede</h2>
-              <p class="text-[15px] text-gray-500 font-medium">Complete os seus dados basicos para integrar o banco nacional de doadores.</p>
+              <p class="text-[15px] text-gray-500 font-medium">Complete os seus dados basicos para integrar com a rede de doadores.</p>
             </div>
             <RegisterForm @sucesso="$emit('sucesso')" />
           </div>

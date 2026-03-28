@@ -149,7 +149,7 @@ const handleSubmit = async () => {
   });
 
   if (!result.ok) {
-    formError.value = authStore.authError || 'Nao foi possivel concluir o cadastro.';
+    formError.value = authStore.authError || 'Não foi possível concluir o cadastro.';
     isSubmitting.value = false;
     return;
   }
@@ -157,7 +157,7 @@ const handleSubmit = async () => {
   resetForm();
 
   if (result.needsEmailConfirmation) {
-    signupNotice.value = 'Conta criada com sucesso. Verifique o seu email e confirme o registo antes de iniciar sessao.';
+    signupNotice.value = 'Conta criada com sucesso. Verifique o seu email e confirme o registo antes de iniciar sessão.';
     isSubmitting.value = false;
     return;
   }
@@ -174,7 +174,7 @@ const handleSubmit = async () => {
         <span class="w-5 h-5 border-2 border-rose-300 border-t-rose-600 rounded-full animate-spin"></span>
         <div>
           <p class="text-sm font-bold text-gray-900">A processar cadastro</p>
-          <p class="text-[12px] text-gray-500">Estamos a finalizar a sua inscricao.</p>
+          <p class="text-[12px] text-gray-500">Estamos a finalizar a sua inscrição.</p>
         </div>
       </div>
     </div>
@@ -187,7 +187,7 @@ const handleSubmit = async () => {
       </div>
 
       <div class="form-control w-full space-y-1.5">
-        <label class="label font-bold text-[13px] text-gray-700 ml-1">Tipo Sanguineo</label>
+        <label class="label font-bold text-[13px] text-gray-700 ml-1">Tipo Sanguíneo</label>
         <select v-model="form.tipo_sanguineo" @blur="touched.tipo_sanguineo = true" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium appearance-none select-arrow">
           <option value="" disabled>Selecione</option>
           <option>O+</option>
@@ -199,7 +199,7 @@ const handleSubmit = async () => {
           <option>AB+</option>
           <option>AB-</option>
         </select>
-        <p v-if="shouldShowError('tipo_sanguineo') && !form.tipo_sanguineo" class="text-[11px] text-rose-600 font-bold">Selecione o tipo sanguineo.</p>
+        <p v-if="shouldShowError('tipo_sanguineo') && !form.tipo_sanguineo" class="text-[11px] text-rose-600 font-bold">Selecione o tipo sanguíneo.</p>
       </div>
     </div>
 
@@ -221,7 +221,7 @@ const handleSubmit = async () => {
           <option>Sim, já doei</option>
           <option>Não, será a 1ª vez</option>
         </select>
-        <p v-if="shouldShowError('doacao_sangue') && !form.doacao_sangue" class="text-[11px] text-rose-600 font-bold">Indique se ja doou sangue.</p>
+        <p v-if="shouldShowError('doacao_sangue') && !form.doacao_sangue" class="text-[11px] text-rose-600 font-bold">Indique se já doou sangue.</p>
       </div>
     </div>
 
@@ -229,28 +229,28 @@ const handleSubmit = async () => {
       <div class="form-control w-full space-y-1.5">
         <label class="label font-bold text-[13px] text-gray-700 ml-1">Provincia</label>
         <select v-model="provinciaSelecionada" @change="aoMudarProvincia" @blur="touched.provincia = true" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium appearance-none select-arrow">
-          <option value="" disabled>Selecione a regiao</option>
+          <option value="" disabled>Selecione a província</option>
           <option v-for="prov in Object.keys(localizacaoAngola)" :key="prov">{{ prov }}</option>
         </select>
-        <p v-if="shouldShowError('provincia') && !provinciaSelecionada" class="text-[11px] text-rose-600 font-bold">Selecione a provincia.</p>
+        <p v-if="shouldShowError('provincia') && !provinciaSelecionada" class="text-[11px] text-rose-600 font-bold">Selecione a província.</p>
       </div>
 
       <div class="form-control w-full space-y-1.5">
         <label class="label font-bold text-[13px] text-gray-700 ml-1">Municipio</label>
         <select v-model="municipioSelecionado" @blur="touched.municipio = true" :disabled="!provinciaSelecionada" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium appearance-none select-arrow disabled:opacity-50 disabled:cursor-not-allowed">
-          <option value="" disabled>Defina a provincia antes</option>
+          <option value="" disabled>Defina a província antes</option>
           <option v-for="mun in municipiosDisponiveis" :key="mun">{{ mun }}</option>
         </select>
-        <p v-if="shouldShowError('municipio') && !municipioSelecionado" class="text-[11px] text-rose-600 font-bold">Selecione o municipio.</p>
+        <p v-if="shouldShowError('municipio') && !municipioSelecionado" class="text-[11px] text-rose-600 font-bold">Selecione o município.</p>
       </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
       <div class="form-control w-full space-y-1.5 relative">
-        <label class="label font-bold text-[13px] text-gray-700 ml-1">Telemovel (WhatsApp)</label>
-        <input v-model="form.telefone" @blur="touched.telefone = true" type="tel" placeholder="923000000 ou +244923000000" maxlength="16" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium placeholder:text-gray-400" :class="{ 'border-red-400 focus:border-red-500 focus:ring-red-500/20 bg-red-50': telefoneInvalido }" />
-        <p v-if="shouldShowError('telefone') && !form.telefone" class="absolute -bottom-5 text-rose-600 text-[11px] ml-1 font-bold">Informe o telemovel.</p>
-        <p v-else-if="telefoneInvalido" class="absolute -bottom-5 text-red-500 text-[11px] ml-1 font-bold">Use 9 digitos ou o formato +244 seguido de 9 digitos.</p>
+        <label class="label font-bold text-[13px] text-gray-700 ml-1">Telemóvel (WhatsApp)</label>
+        <input v-model="form.telefone" @blur="touched.telefone = true" type="tel" placeholder="+2449XXXXXXXX" maxlength="16" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium placeholder:text-gray-400" :class="{ 'border-red-400 focus:border-red-500 focus:ring-red-500/20 bg-red-50': telefoneInvalido }" />
+        <p v-if="shouldShowError('telefone') && !form.telefone" class="absolute -bottom-5 text-rose-600 text-[11px] ml-1 font-bold">Informe o telemóvel.</p>
+        <p v-else-if="telefoneInvalido" class="absolute -bottom-5 text-red-500 text-[11px] ml-1 font-bold">Use 9 digítos ou o formato +244 seguido de 9 digítos.</p>
       </div>
 
       <div class="form-control w-full space-y-1.5">
@@ -269,7 +269,7 @@ const handleSubmit = async () => {
           <component :is="mostrarSenha ? EyeOff : Eye" class="w-5 h-5" />
         </button>
         <p v-if="shouldShowError('senha') && !form.senha" class="text-[11px] text-rose-600 font-bold">Informe a palavra-passe.</p>
-        <p v-else-if="senhaCurta" class="text-[11px] text-rose-600 font-bold">Minimo 8 caracteres.</p>
+        <p v-else-if="senhaCurta" class="text-[11px] text-rose-600 font-bold">Minímo 8 caracteres.</p>
       </div>
 
       <div class="form-control w-full space-y-1.5 relative">
@@ -279,31 +279,31 @@ const handleSubmit = async () => {
           <component :is="mostrarSenhaConfirmacao ? EyeOff : Eye" class="w-5 h-5" />
         </button>
         <p v-if="shouldShowError('confirmar_senha') && !form.confirmar_senha" class="text-[11px] text-rose-600 font-bold">Confirme a palavra-passe.</p>
-        <p v-else-if="senhaNaoCoincide" class="text-[11px] text-rose-600 font-bold">As palavras-passe nao coincidem.</p>
+        <p v-else-if="senhaNaoCoincide" class="text-[11px] text-rose-600 font-bold">As palavras-passe não coincidem.</p>
       </div>
     </div>
 
     <div
       v-if="signupNotice"
-      class="rounded-[28px] border border-sky-200 bg-linear-to-r from-sky-50 via-white to-emerald-50 px-5 py-5 shadow-[0_12px_30px_rgba(14,165,233,0.08)]"
+      class="rounded-[28px] border border-rose-200 bg-linear-to-r from-rose-50 via-white to-rose-50 px-5 py-5 shadow-[0_12px_30px_rgba(14,165,233,0.08)]"
     >
       <div class="flex items-start gap-3">
-        <div class="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-sky-600 text-white shadow-[0_10px_20px_rgba(2,132,199,0.25)]">
+        <div class="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-600 text-white shadow-[0_10px_20px_rgba(225,29,72,0.25)]">
           <span class="text-lg font-black">!</span>
         </div>
         <div>
-          <p class="text-[12px] font-black uppercase tracking-[0.18em] text-sky-700">Verificacao necessaria</p>
+          <p class="text-[12px] font-black uppercase tracking-[0.18em] text-rose-700">Verificação necessária</p>
           <p class="mt-2 text-[14px] font-semibold leading-relaxed text-slate-700">
             {{ signupNotice }}
           </p>
           <p class="mt-2 text-[12px] text-slate-500">
-            Se não encontrar a mensagem, veja também a pasta de spam ou promoções.
+            Se não encontrar a mensagem, veja tambem a pasta de spam ou promoções.
           </p>
         </div>
       </div>
     </div>
 
-    <p v-if="formError" class="text-[12px] font-bold" :class="formError.includes('Conta criada') ? 'text-blue-600' : 'text-rose-600'">
+    <p v-if="formError" class="text-[12px] font-bold" :class="formError.includes('Conta criada') ? 'text-rose-600' : 'text-rose-600'">
       {{ formError }}
     </p>
 
@@ -313,10 +313,10 @@ const handleSubmit = async () => {
           <span class="w-4 h-4 border-2 border-white/60 border-t-white rounded-full animate-spin"></span>
           A processar...
         </span>
-        <span v-else>Finalizar Registo Seguro</span>
+        <span v-else>Finalizar Registo</span>
       </button>
       <p class="text-center text-[12px] text-gray-500 font-medium mt-4">
-        Ao registrar-se, concorda com as <a href="#" class="text-rose-600 hover:underline">Politicas de Privacidade Medica.</a>
+        Ao registrar-se, concorda com as <a href="#" class="text-rose-600 hover:underline">Políticas de Privacidade.</a>
       </p>
     </div>
   </form>
