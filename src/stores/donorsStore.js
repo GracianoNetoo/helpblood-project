@@ -1,52 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { isSupabaseConfigured, selectRows } from '../lib/supabaseClient';
+import { resetPersistedStoreData } from './resetPersistedStoreData';
 
 const STORAGE_KEY = 'univida_donors';
 const SHOULD_USE_SEED_DONORS = import.meta.env.DEV;
 
-const seedDonors = [
-  {
-    id: '1',
-    nome: 'Manuel Francisco',
-    tipo_sanguineo: 'O+',
-    rh: 'Positivo (+)',
-    provincia: 'Luanda',
-    municipio: 'Talatona',
-    telefone: '923000000',
-    email: 'manuel@example.com',
-    doacao_sangue: 'Sim, ja doei',
-    lastDonationLiters: null,
-    lastDonationDate: null,
-    lastDonationCampaignId: null,
-    lastDonationCampaignTitle: null,
-    lastDonationCampaignLocation: null,
-    donationHistory: [],
-    totalDonationLiters: 0,
-    status: 'ativo',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: '2',
-    nome: 'Helena Sousa',
-    tipo_sanguineo: 'A+',
-    rh: 'Positivo (+)',
-    provincia: 'Benguela',
-    municipio: 'Lobito',
-    telefone: '912000000',
-    email: 'helena@example.com',
-    doacao_sangue: 'Nao, sera a 1a vez',
-    lastDonationLiters: null,
-    lastDonationDate: null,
-    lastDonationCampaignId: null,
-    lastDonationCampaignTitle: null,
-    lastDonationCampaignLocation: null,
-    donationHistory: [],
-    totalDonationLiters: 0,
-    status: 'ativo',
-    createdAt: new Date().toISOString()
-  }
-];
+const seedDonors = [];
 
 const seedDonorIds = new Set(seedDonors.map((donor) => String(donor.id)));
 
@@ -94,6 +54,7 @@ const mapProfileFromDb = (row) => normalizeDonor({
 });
 
 export const useDonorsStore = defineStore('donors', () => {
+  resetPersistedStoreData();
   const donors = ref(SHOULD_USE_SEED_DONORS ? [...seedDonors].map(normalizeDonor) : []);
   const lastSyncError = ref('');
 

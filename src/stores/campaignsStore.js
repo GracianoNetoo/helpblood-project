@@ -1,35 +1,13 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { isSupabaseConfigured, insertRows, selectRows, updateRows, deleteRows } from '../lib/supabaseClient';
+import { resetPersistedStoreData } from './resetPersistedStoreData';
 
 const STORAGE_KEY = 'univida_campaigns';
 const DELETED_STORAGE_KEY = 'univida_deleted_campaigns';
 const SHOULD_USE_SEED_CAMPAIGNS = import.meta.env.DEV;
 
-const seedCampaigns = [
-  {
-    id: 'camp-1',
-    title: 'Mutirao Nacional: Universidade Agostinho Neto',
-    location: 'Luanda',
-    dateISO: new Date().toISOString().split('T')[0],
-    time: '10:00',
-    description: 'Unidade movel em frente a reitoria, com foco na reposicao urgente do banco de sangue central.',
-    tags: ['O-', 'A+'],
-    highlight: 'Critico',
-    status: 'ativo'
-  },
-  {
-    id: 'camp-2',
-    title: 'Acao Comunitaria Praia Morena',
-    location: 'Benguela',
-    dateISO: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    time: '08:00',
-    description: 'Postos de triagem e coleta com apoio de voluntarios locais e parceiros comunitarios.',
-    tags: ['Todos'],
-    highlight: 'Aberto',
-    status: 'ativo'
-  }
-];
+const seedCampaigns = [];
 
 const seedCampaignIds = new Set(seedCampaigns.map((campaign) => String(campaign.id)));
 
@@ -76,6 +54,7 @@ const mapCampaignToDb = (campaign) => ({
 });
 
 export const useCampaignsStore = defineStore('campaigns', () => {
+  resetPersistedStoreData();
   const campaigns = ref(SHOULD_USE_SEED_CAMPAIGNS ? [...seedCampaigns].map(normalizeCampaign) : []);
   const lastSyncError = ref('');
   const syncSource = ref('local');

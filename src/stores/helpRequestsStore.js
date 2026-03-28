@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { isSupabaseConfigured, insertRows, selectRows, updateRows, deleteRows } from '../lib/supabaseClient';
 import { useAuthStore } from './authStore';
+import { resetPersistedStoreData } from './resetPersistedStoreData';
 
 const STORAGE_KEY = 'univida_help_requests';
 const DELETED_STORAGE_KEY = 'univida_deleted_help_requests';
@@ -49,6 +50,7 @@ const mapRequestToDb = (request, requesterId = null) => ({
 });
 
 export const useHelpRequestsStore = defineStore('helpRequests', () => {
+  resetPersistedStoreData();
   const requests = ref([]);
   const lastSyncError = ref('');
   const syncSource = ref('local');

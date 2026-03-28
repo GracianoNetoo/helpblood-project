@@ -2,10 +2,12 @@ import { defineStore } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { authGetUser, authRefreshSession, authResetPasswordForEmail, authSignInWithPassword, authSignOut, authSignUp, authUpdateUser, isSupabaseConfigured } from '../lib/supabaseClient';
 import { useDonorsStore } from './donorsStore';
+import { resetPersistedStoreData } from './resetPersistedStoreData';
 
 const SESSION_STORAGE_KEY = 'univida_supabase_session';
 
 export const useAuthStore = defineStore('auth', () => {
+  resetPersistedStoreData();
   const session = ref(null);
   const currentUser = ref(null);
   const currentDonorId = ref(null);

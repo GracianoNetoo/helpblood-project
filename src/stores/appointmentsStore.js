@@ -1,21 +1,11 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
+import { resetPersistedStoreData } from './resetPersistedStoreData';
 
 const STORAGE_KEY = 'univida_appointments';
 const SHOULD_USE_SEED_APPOINTMENTS = import.meta.env.DEV;
 
-const seedAppointments = [
-  {
-    id: 1,
-    donorId: 1,
-    campaignId: 'camp-1',
-    hospital: 'Instituto Nacional de Sangue',
-    date: '2026-03-15',
-    time: '09:00',
-    status: 'confirmado',
-    notes: 'Doacao matinal agendada.'
-  }
-];
+const seedAppointments = [];
 
 const seedAppointmentIds = new Set(seedAppointments.map((appointment) => String(appointment.id)));
 
@@ -36,6 +26,7 @@ const normalizeAppointment = (appointment) => ({
 const isSeedAppointment = (appointment) => seedAppointmentIds.has(String(appointment?.id));
 
 export const useAppointmentsStore = defineStore('appointments', () => {
+  resetPersistedStoreData();
   const appointments = ref(SHOULD_USE_SEED_APPOINTMENTS ? [...seedAppointments].map(normalizeAppointment) : []);
   const autoOpenBooking = ref(false);
 
