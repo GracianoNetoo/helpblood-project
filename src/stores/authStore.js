@@ -14,6 +14,7 @@ export const useAuthStore = defineStore('auth', () => {
   const authError = ref('');
   const isLoading = ref(false);
   const isInitialized = ref(false);
+  let initializePromise = null;
 
   const accessToken = computed(() => session.value?.access_token || null);
   const isAuthenticated = computed(() => Boolean(currentUser.value?.id && accessToken.value));
@@ -181,42 +182,52 @@ export const useAuthStore = defineStore('auth', () => {
 
   const initialize = async () => {
     if (isInitialized.value) return;
-    isInitialized.value = true;
+    if (initializePromise) return initializePromise;
 
-    if (!isSupabaseConfigured) {
-      return;
-    }
+    initializePromise = (async () => {
+      if (!isSupabaseConfigured) {
+        clearSession();
+        return;
+      }
 
-    const storedSession = loadStoredSession();
-    if (!storedSession?.access_token && !storedSession?.refresh_token) {
-      clearSession();
-      return;
-    }
+      const storedSession = loadStoredSession();
+      if (!storedSession?.access_token && !storedSession?.refresh_token) {
+        clearSession();
+        return;
+      }
 
-    isLoading.value = true;
-    try {
-      if (sessionNeedsRefresh(storedSession)) {
-        await refreshSession(storedSession.refresh_token);
-      } else {
-        try {
-          const user = await authGetUser(storedSession.access_token);
-          await setSessionState({
-            nextSession: storedSession,
-            nextUser: user
-          });
-        } catch (error) {
-          if (storedSession.refresh_token) {
-            await refreshSession(storedSession.refresh_token);
-          } else {
-            throw error;
+      isLoading.value = true;
+      try {
+        if (sessionNeedsRefresh(storedSession)) {
+          await refreshSession(storedSession.refresh_token);
+        } else {
+          try {
+            const user = await authGetUser(storedSession.access_token);
+            await setSessionState({
+              nextSession: storedSession,
+              nextUser: user
+            });
+          } catch (error) {
+            if (storedSession.refresh_token) {
+              await refreshSession(storedSession.refresh_token);
+            } else {
+              throw error;
+            }
           }
         }
+      } catch (error) {
+        clearSession();
+        authError.value = 'A sua sessao expirou. Faca login novamente.';
+      } finally {
+        isLoading.value = false;
       }
-    } catch (error) {
-      clearSession();
-      authError.value = 'A sua sessao expirou. Faca login novamente.';
+    })();
+
+    try {
+      await initializePromise;
+      isInitialized.value = true;
     } finally {
-      isLoading.value = false;
+      initializePromise = null;
     }
   };
 

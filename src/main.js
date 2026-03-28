@@ -5,13 +5,18 @@ import './style.css';
 import App from './App.vue';
 import { useAuthStore } from './stores/authStore';
 
-const app = createApp(App);
-const pinia = createPinia();
+const bootstrap = async () => {
+  const app = createApp(App);
+  const pinia = createPinia();
 
-app.use(pinia);
-app.use(router);
+  app.use(pinia);
 
-const authStore = useAuthStore(pinia);
-authStore.initialize();
+  const authStore = useAuthStore(pinia);
+  await authStore.initialize();
 
-app.mount('#app');
+  app.use(router);
+  await router.isReady();
+  app.mount('#app');
+};
+
+bootstrap();

@@ -31,9 +31,7 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const authStore = useAuthStore();
-  if (!authStore.isInitialized) {
-    await authStore.initialize();
-  }
+  await authStore.initialize();
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return { path: '/', query: { auth: 'login' } };
