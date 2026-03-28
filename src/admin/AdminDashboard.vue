@@ -350,14 +350,14 @@ const resetCampaignForm = () => {
   };
 };
 
-const addCampaign = () => {
+const addCampaign = async () => {
   campaignSubmitted.value = true;
   if (isCampaignInvalid.value) return;
   const tagsArray = newCampaign.value.tags
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean);
-  campaignsStore.addCampaign({
+  await campaignsStore.addCampaign({
     title: newCampaign.value.title,
     location: newCampaign.value.location,
     dateISO: newCampaign.value.dateISO,

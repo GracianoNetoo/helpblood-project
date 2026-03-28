@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { isSupabaseConfigured, insertRows, selectRows, updateRows, deleteRows } from '../lib/supabaseClient';
+import { useAuthStore } from './authStore';
 import { resetPersistedStoreData } from './resetPersistedStoreData';
 
 const STORAGE_KEY = 'univida_campaigns';
@@ -52,6 +53,20 @@ const mapCampaignToDb = (campaign) => ({
   highlight: String(campaign.highlight || 'Aberto').toLowerCase(),
   status: campaign.status || 'ativo'
 });
+
+const getCampaignSyncErrorMessage = (error, fallbackMessage) => {
+  const message = String(error?.message || '').toLowerCase();
+
+  if (message.includes('row-level security') || message.includes('permission denied')) {
+    return 'A campanha foi guardada apenas neste dispositivo. Entre com uma conta admin do Supabase para sincronizar.';
+  }
+
+  if (message.includes('jwt') || message.includes('token')) {
+    return 'A sessao atual nao conseguiu autorizar a sincronizacao da campanha no Supabase.';
+  }
+
+  return fallbackMessage;
+};
 
 export const useCampaignsStore = defineStore('campaigns', () => {
   resetPersistedStoreData();
@@ -117,6 +132,11 @@ export const useCampaignsStore = defineStore('campaigns', () => {
     campaigns.value = campaigns.value.map((item) => (item.id === targetId ? normalizeCampaign(nextCampaign) : item));
   };
 
+  const getSupabaseAuthOptions = () => {
+    const authStore = useAuthStore();
+    return authStore.accessToken ? { accessToken: authStore.accessToken } : null;
+  };
+
   const requestOpenCampaign = () => {
     autoOpenCampaign.value = true;
   };
@@ -128,17 +148,24 @@ export const useCampaignsStore = defineStore('campaigns', () => {
   const refreshFromSupabase = async () => {
     if (!isSupabaseConfigured) return false;
     try {
+      const authOptions = getSupabaseAuthOptions() || {};
       const rows = await selectRows('campaigns', {
         select: '*',
         order: 'date_iso.asc'
-      });
+      }, authOptions);
       const remoteCampaigns = Array.isArray(rows)
         ? rows
             .map(mapCampaignFromDb)
             .filter((item) => !deletedCampaignIds.value.includes(String(item.id)))
         : [];
-      const localInactive = campaigns.value.filter((item) => item.status === 'inativo' && !String(item.id).includes('-temp-'));
-      const localMap = new Map(localInactive.map((item) => [item.id, item]));
+      const remoteIds = new Set(remoteCampaigns.map((item) => String(item.id)));
+      const localFallback = campaigns.value.filter((item) => {
+        const normalizedId = String(item.id);
+        if (deletedCampaignIds.value.includes(normalizedId)) return false;
+        if (normalizedId.includes('-temp-')) return true;
+        return item.status === 'inativo' && !remoteIds.has(normalizedId);
+      });
+      const localMap = new Map(localFallback.map((item) => [item.id, item]));
       remoteCampaigns.forEach((item) => {
         localMap.set(item.id, item);
       });
@@ -154,30 +181,45 @@ export const useCampaignsStore = defineStore('campaigns', () => {
     }
   };
 
-  const addCampaign = (campaign) => {
+  const addCampaign = async (campaign) => {
     const localRecord = normalizeCampaign({
       id: `camp-temp-${Date.now()}`,
       status: 'ativo',
       ...campaign
     });
     campaigns.value.unshift(localRecord);
+    lastSyncError.value = '';
 
-    if (isSupabaseConfigured) {
-      insertRows('campaigns', mapCampaignToDb(localRecord))
-        .then((rows) => {
-          const created = Array.isArray(rows) ? rows[0] : null;
-          if (!created) return;
-          replaceLocalCampaign(localRecord.id, mapCampaignFromDb(created));
-          syncSource.value = 'supabase';
-          lastSyncError.value = '';
-        })
-        .catch((error) => {
-          lastSyncError.value = error.message || 'Falha ao enviar campanha para o Supabase.';
-          console.warn('Falha ao criar campanha no Supabase:', error);
-        });
+    if (!isSupabaseConfigured) {
+      syncSource.value = 'local';
+      return { ok: true, source: 'local', campaign: localRecord };
     }
 
-    return localRecord;
+    const authOptions = getSupabaseAuthOptions();
+    if (!authOptions?.accessToken) {
+      syncSource.value = 'local';
+      return { ok: true, source: 'local', campaign: localRecord };
+    }
+
+    try {
+      const rows = await insertRows('campaigns', mapCampaignToDb(localRecord), authOptions);
+      const created = Array.isArray(rows) ? rows[0] : null;
+      if (created) {
+        replaceLocalCampaign(localRecord.id, mapCampaignFromDb(created));
+      }
+      syncSource.value = 'supabase';
+      lastSyncError.value = '';
+      return {
+        ok: true,
+        source: 'supabase',
+        campaign: created ? mapCampaignFromDb(created) : localRecord
+      };
+    } catch (error) {
+      syncSource.value = 'local';
+      lastSyncError.value = getCampaignSyncErrorMessage(error, 'Falha ao enviar campanha para o Supabase.');
+      console.warn('Falha ao criar campanha no Supabase:', error);
+      return { ok: false, source: 'local', campaign: localRecord, error };
+    }
   };
 
   const toggleStatus = (id) => {
@@ -186,16 +228,18 @@ export const useCampaignsStore = defineStore('campaigns', () => {
     const previousStatus = target.status;
     const nextStatus = target.status === 'ativo' ? 'inativo' : 'ativo';
     target.status = nextStatus;
+    lastSyncError.value = '';
 
-    if (isSupabaseConfigured && !String(id).includes('-temp-')) {
-      updateRows('campaigns', { id: `eq.${id}` }, { status: nextStatus })
+    const authOptions = getSupabaseAuthOptions();
+    if (isSupabaseConfigured && authOptions?.accessToken && !String(id).includes('-temp-')) {
+      updateRows('campaigns', { id: `eq.${id}` }, { status: nextStatus }, authOptions)
         .then(() => {
           syncSource.value = 'supabase';
           lastSyncError.value = '';
         })
         .catch((error) => {
           target.status = previousStatus;
-          lastSyncError.value = error.message || 'Falha ao atualizar campanha no Supabase.';
+          lastSyncError.value = getCampaignSyncErrorMessage(error, 'Falha ao atualizar campanha no Supabase.');
           console.warn('Falha ao atualizar status da campanha no Supabase:', error);
         });
     }
@@ -204,19 +248,21 @@ export const useCampaignsStore = defineStore('campaigns', () => {
   const removeCampaign = (id) => {
     const normalizedId = String(id);
     campaigns.value = campaigns.value.filter((item) => item.id !== id);
+    lastSyncError.value = '';
     if (!String(id).includes('-temp-')) {
       rememberDeletedCampaign(normalizedId);
     }
 
-    if (isSupabaseConfigured && !String(id).includes('-temp-')) {
-      deleteRows('campaigns', { id: `eq.${id}` })
+    const authOptions = getSupabaseAuthOptions();
+    if (isSupabaseConfigured && authOptions?.accessToken && !String(id).includes('-temp-')) {
+      deleteRows('campaigns', { id: `eq.${id}` }, authOptions)
         .then(() => {
           syncSource.value = 'supabase';
           lastSyncError.value = '';
         })
         .catch((error) => {
           syncSource.value = 'local';
-          lastSyncError.value = error.message || 'Campanha removida localmente, mas a exclusao no Supabase falhou.';
+          lastSyncError.value = getCampaignSyncErrorMessage(error, 'Campanha removida localmente, mas a exclusao no Supabase falhou.');
           console.warn('Falha ao remover campanha no Supabase:', error);
         });
     }
