@@ -395,7 +395,7 @@ const addCampaign = async () => {
       <div class="p-6 border-t border-gray-100/50">
         <button @click="emit('logout')" class="w-full flex items-center lg:justify-start justify-center gap-3.5 p-3 text-gray-400 hover:text-slate-700 hover:bg-slate-50 rounded-[14px] transition-all group font-medium">
           <LogOut class="w-5.5 h-5.5 transition-transform group-hover:-translate-x-1" stroke-width="2" />
-          <span class="hidden lg:block">Terminar Sessao</span>
+          <span class="hidden lg:block">Terminar Sessão</span>
         </button>
       </div>
     </aside>
@@ -405,7 +405,7 @@ const addCampaign = async () => {
       <!-- Topbar -->
       <header class="h-20 md:h-24 px-4 md:px-10 flex justify-between items-center bg-white/40 backdrop-blur-2xl border-b border-gray-200/50 sticky top-0 z-20 w-full">
         <div>
-          <h1 class="text-xl md:text-2xl font-semibold text-gray-900 tracking-tight">Administracao</h1>
+          <h1 class="text-xl md:text-2xl font-semibold text-gray-900 tracking-tight">Administração</h1>
           <p class="text-[13px] md:text-sm text-gray-500 mt-0.5 hidden sm:block">Central de controle da plataforma.</p>
         </div>
 
@@ -562,7 +562,7 @@ const addCampaign = async () => {
               <div class="p-6 md:p-8 flex items-center justify-between">
                 <div>
                   <h3 class="text-lg font-bold text-gray-900">Campanhas recentes</h3>
-                  <p class="text-sm text-gray-500 mt-1">Ultimas campanhas criadas.</p>
+                  <p class="text-sm text-gray-500 mt-1">Últimas campanhas criadas.</p>
                 </div>
                 <button @click="setTab('campaigns')" class="text-[13px] font-semibold text-gray-900 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full transition-colors">Ver todas</button>
               </div>
@@ -640,7 +640,7 @@ const addCampaign = async () => {
                         <div class="text-[12px] text-gray-500 mt-1">Sangue: {{ request.tipo_sanguineo || 'N/A' }} • Urgencia: {{ request.urgencia || 'Normal' }}</div>
                         <div class="text-[12px] text-gray-500 mt-1">Contacto: {{ request.contacto || 'Nao informado' }}</div>
                       </div>
-                      <button @click="removeRequest(request.id)" class="self-start px-4 py-2 rounded-2xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-colors">Arquivar</button>
+                      <button @click="removeRequest(request.id)" class="self-start px-4 py-2 rounded-2xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-colors">Remover</button>
                     </div>
                   </div>
                 </div>
@@ -790,9 +790,9 @@ const addCampaign = async () => {
         <!-- Donors Tab -->
         <section v-else-if="activeTab === 'donors'" class="max-w-300 mx-auto pb-10">
           <div class="space-y-6">
-            <div class="relative overflow-hidden rounded-[32px] border border-emerald-100/70 bg-linear-to-br from-[#0F172A] via-[#10243A] to-[#123B3A] p-6 md:p-8 text-white shadow-[0_24px_70px_rgba(15,23,42,0.18)]">
-              <div class="absolute -top-18 right-0 h-48 w-48 rounded-full bg-emerald-400/12 blur-3xl"></div>
-              <div class="absolute -bottom-18 left-0 h-44 w-44 rounded-full bg-sky-400/10 blur-3xl"></div>
+            <div class="relative overflow-hidden rounded-4xl border border-rose-100/70 bg-linear-to-br from-[#2a0f0f] via-[#971818] to-[#4b3232] p-6 md:p-8 text-white shadow-[0_24px_70px_rgba(15,23,42,0.18)]">
+              <div class="absolute -top-18 right-0 h-48 w-48 rounded-full bg-rose-400/12 blur-3xl"></div>
+              <div class="absolute -bottom-18 left-0 h-44 w-44 rounded-full bg-rose-400/10 blur-3xl"></div>
               <div class="relative flex flex-col gap-6">
                 <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                   <div>
@@ -800,12 +800,12 @@ const addCampaign = async () => {
                       <Sparkles class="w-3.5 h-3.5" />
                       Centro de doadores
                     </div>
-                    <h2 class="mt-4 text-2xl md:text-3xl font-extrabold tracking-tight">Gestao visual da base de doadores</h2>
+                    <h2 class="mt-4 text-2xl md:text-3xl font-extrabold tracking-tight">Gestão visual da base de doadores</h2>
                     <p class="mt-2 max-w-2xl text-sm md:text-[15px] text-slate-300">
-                      Organize a operacao com melhor leitura de status, historico de doacao e contactos essenciais numa unica area.
+                      Organize a operação com melhor leitura de status, historico de doação e contactos essenciais numa única area.
                     </p>
                   </div>
-                  <div class="inline-flex items-center gap-2 self-start rounded-full border border-emerald-300/20 bg-emerald-400/10 px-4 py-2 text-[12px] font-bold text-emerald-100">
+                  <div class="inline-flex items-center gap-2 self-start rounded-full border border-white-300/20 bg-white-400/10 px-4 py-2 text-[12px] font-bold text-white-100">
                     <Users class="w-4 h-4" />
                     {{ totalDonors }} doadores registados
                   </div>
@@ -818,7 +818,7 @@ const addCampaign = async () => {
                       <UserRound class="w-4 h-4 text-emerald-200" />
                     </div>
                     <div class="mt-3 text-3xl font-black tracking-tight">{{ activeDonors }}</div>
-                    <p class="mt-1 text-[12px] text-slate-300">Disponiveis para novas campanhas e convocatorias.</p>
+                    <p class="mt-1 text-[12px] text-slate-300">Disponíveis para novas campanhas e convocatorias.</p>
                   </div>
 
                   <div class="rounded-3xl border border-white/10 bg-white/8 backdrop-blur-xl p-4">
@@ -827,7 +827,7 @@ const addCampaign = async () => {
                       <AlertTriangle class="w-4 h-4 text-amber-200" />
                     </div>
                     <div class="mt-3 text-3xl font-black tracking-tight">{{ suspendedDonorsCount }}</div>
-                    <p class="mt-1 text-[12px] text-slate-300">Perfis fora de circulacao no momento.</p>
+                    <p class="mt-1 text-[12px] text-slate-300">Perfis fora de circulação no momento.</p>
                   </div>
 
                   <div class="rounded-3xl border border-white/10 bg-white/8 backdrop-blur-xl p-4">
@@ -836,7 +836,7 @@ const addCampaign = async () => {
                       <Activity class="w-4 h-4 text-sky-200" />
                     </div>
                     <div class="mt-3 text-3xl font-black tracking-tight">{{ donorsWithHistoryCount }}</div>
-                    <p class="mt-1 text-[12px] text-slate-300">Doadores com pelo menos uma doacao registada.</p>
+                    <p class="mt-1 text-[12px] text-slate-300">Doadores com pelo menos uma doação registada.</p>
                   </div>
 
                   <div class="rounded-3xl border border-white/10 bg-white/8 backdrop-blur-xl p-4">
@@ -917,12 +917,11 @@ const addCampaign = async () => {
                   :key="donor.id"
                   class="group relative overflow-hidden rounded-[30px] border border-gray-200/80 bg-linear-to-br from-white to-gray-50/60 p-5 md:p-6 shadow-[0_10px_30px_rgba(15,23,42,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_34px_rgba(15,23,42,0.08)]"
                 >
-                  <div class="absolute inset-y-0 left-0 w-1.5 rounded-r-full" :class="donor.status === 'ativo' ? 'bg-emerald-500' : 'bg-amber-400'"></div>
                   <div class="relative flex flex-col xl:flex-row gap-5 xl:gap-6">
                     <div class="flex-1 min-w-0">
                       <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                         <div class="flex items-start gap-4">
-                          <div class="w-14 h-14 rounded-3xl bg-linear-to-br from-emerald-500 via-emerald-500 to-sky-500 text-white flex items-center justify-center font-black text-lg shadow-[0_12px_24px_rgba(16,185,129,0.22)]">
+                          <div class="w-14 h-14 rounded-3xl bg-linear-to-br from-rose-500 via-rose-600 to-red-700 text-white flex items-center justify-center font-black text-lg shadow-[0_12px_24px_rgba(222,18,22,0.20)]">
                             {{ getDonorInitials(donor.nome) }}
                           </div>
                           <div class="min-w-0">
@@ -936,7 +935,7 @@ const addCampaign = async () => {
                               </span>
                             </div>
                             <p class="mt-1 text-[13px] text-gray-500">
-                              {{ donor.doacao_sangue || 'Historico de doacao nao informado' }}
+                              {{ donor.doacao_sangue || 'Historico de doação não informado' }}
                             </p>
                           </div>
                         </div>
@@ -947,7 +946,7 @@ const addCampaign = async () => {
                             <div class="mt-1 text-lg font-extrabold text-gray-900">{{ formatTotalDonated(donor.totalDonationLiters) }} <span class="text-[11px] font-bold text-gray-400">L</span></div>
                           </div>
                           <div class="rounded-2xl border border-gray-100 bg-white/90 px-4 py-3 min-w-28">
-                            <div class="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-400">Ultima</div>
+                            <div class="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-400">Última</div>
                             <div class="mt-1 text-sm font-extrabold text-gray-900">
                               {{ donor.lastDonationLiters !== null && typeof donor.lastDonationLiters !== 'undefined' ? `${donor.lastDonationLiters} L` : 'Sem registo' }}
                             </div>
@@ -963,7 +962,7 @@ const addCampaign = async () => {
                         <div class="rounded-2xl border border-gray-100 bg-white/85 px-4 py-3">
                           <div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-gray-400">
                             <MapPin class="w-3.5 h-3.5" />
-                            Localizacao
+                            Localização
                           </div>
                           <div class="mt-2 text-[13px] font-semibold text-gray-700">
                             {{ donor.provincia || 'Provincia' }} • {{ donor.municipio || 'Municipio' }}
@@ -975,7 +974,7 @@ const addCampaign = async () => {
                             <Phone class="w-3.5 h-3.5" />
                             Telefone
                           </div>
-                          <div class="mt-2 text-[13px] font-semibold text-gray-700">{{ donor.telefone || 'Nao informado' }}</div>
+                          <div class="mt-2 text-[13px] font-semibold text-gray-700">{{ donor.telefone || 'Não informado' }}</div>
                         </div>
 
                         <div class="rounded-2xl border border-gray-100 bg-white/85 px-4 py-3">
@@ -989,10 +988,10 @@ const addCampaign = async () => {
 
                       <div class="mt-4 rounded-2xl border border-gray-100 bg-white/85 px-4 py-3 text-[12px] text-gray-600">
                         <span v-if="donor.lastDonationCampaignTitle">
-                          Ultima campanha registada: <span class="font-bold text-gray-900">{{ donor.lastDonationCampaignTitle }}</span>
+                          Última campanha registada: <span class="font-bold text-gray-900">{{ donor.lastDonationCampaignTitle }}</span>
                         </span>
                         <span v-else>
-                          Ultima campanha registada: <span class="font-bold text-gray-900">Nao informado</span>
+                          Última campanha registada: <span class="font-bold text-gray-900">Não informado</span>
                         </span>
                       </div>
                     </div>
@@ -1001,10 +1000,10 @@ const addCampaign = async () => {
                       <div class="rounded-[26px] border border-emerald-100 bg-linear-to-br from-emerald-50 to-white p-4 shadow-[0_10px_24px_rgba(16,185,129,0.06)]">
                         <div class="flex items-center justify-between gap-3">
                           <div>
-                            <label class="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700">Litros na ultima campanha</label>
-                            <p class="text-[11px] text-emerald-800/80 mt-1">Referencia: 0.45 L e o volume padrao.</p>
+                            <label class="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700">Litros na última campanha</label>
+                            <p class="text-[11px] text-emerald-800/80 mt-1">Referência: 0.45 L e o volume padrão.</p>
                           </div>
-                          <Droplets class="w-5 h-5 text-emerald-600" />
+                          <Droplets class="w-5 h-5 text-rose-600" />
                         </div>
 
                         <div class="relative mt-3">
@@ -1017,7 +1016,7 @@ const addCampaign = async () => {
                             :max="donationMax"
                             :step="donationStep"
                             placeholder="0.45"
-                            class="w-full bg-white border border-emerald-100 text-gray-900 text-[13px] rounded-2xl pl-4 pr-11 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium shadow-sm"
+                            class="w-full bg-white border border-rose-100 text-gray-900 text-[13px] rounded-2xl pl-4 pr-11 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium shadow-sm"
                           />
                           <button
                             type="button"
@@ -1044,7 +1043,7 @@ const addCampaign = async () => {
                           :disabled="!canSaveDonation(donor.id, formatLiters(donor.lastDonationLiters))"
                           class="mt-3 w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl px-4 py-3 text-[12px] font-bold transition-all shadow-[0_10px_20px_rgba(16,185,129,0.18)] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-emerald-600"
                         >
-                          Guardar doacao
+                          Guardar doação
                         </button>
                       </div>
 
@@ -1153,7 +1152,7 @@ const addCampaign = async () => {
             :disabled="activeCampaignOptions.length === 0"
             class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Confirmar doacao
+            Confirmar doação
           </button>
         </div>
       </div>
@@ -1187,7 +1186,7 @@ const addCampaign = async () => {
         <div class="p-4 border-t border-gray-100">
           <button @click="emit('logout')" class="w-full flex items-center gap-3 p-3 text-gray-500 hover:text-slate-700 hover:bg-slate-50 rounded-[14px] transition-all">
             <LogOut class="w-5 h-5" />
-            <span>Terminar Sessao</span>
+            <span>Terminar Sessão</span>
           </button>
         </div>
       </div>
