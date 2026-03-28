@@ -11,6 +11,7 @@ const mostrarSenhaConfirmacao = ref(false);
 const submitted = ref(false);
 const isSubmitting = ref(false);
 const formError = ref('');
+const signupNotice = ref('');
 const touched = ref({
   nome: false,
   tipo_sanguineo: false,
@@ -93,9 +94,41 @@ const isFormInvalid = computed(() => {
 
 const shouldShowError = (field) => submitted.value || touched.value[field];
 
+const resetForm = () => {
+  form.value = {
+    nome: '',
+    tipo_sanguineo: '',
+    rh: '',
+    provincia: '',
+    telefone: '',
+    email: '',
+    doacao_sangue: '',
+    senha: '',
+    confirmar_senha: ''
+  };
+  provinciaSelecionada.value = '';
+  municipioSelecionado.value = '';
+  submitted.value = false;
+  touched.value = {
+    nome: false,
+    tipo_sanguineo: false,
+    rh: false,
+    doacao_sangue: false,
+    provincia: false,
+    municipio: false,
+    telefone: false,
+    email: false,
+    senha: false,
+    confirmar_senha: false
+  };
+  mostrarSenha.value = false;
+  mostrarSenhaConfirmacao.value = false;
+};
+
 const handleSubmit = async () => {
   submitted.value = true;
   formError.value = '';
+  signupNotice.value = '';
   if (isFormInvalid.value || isSubmitting.value) return;
 
   isSubmitting.value = true;
@@ -121,8 +154,10 @@ const handleSubmit = async () => {
     return;
   }
 
+  resetForm();
+
   if (result.needsEmailConfirmation) {
-    formError.value = 'Conta criada. Confirme o email antes de entrar no painel.';
+    signupNotice.value = 'Conta criada com sucesso. Verifique o seu email e confirme o registo antes de iniciar sessao.';
     isSubmitting.value = false;
     return;
   }
@@ -148,7 +183,7 @@ const handleSubmit = async () => {
       <div class="form-control w-full space-y-1.5">
         <label class="label font-bold text-[13px] text-gray-700 ml-1">Nome Completo</label>
         <input v-model="form.nome" @blur="touched.nome = true" type="text" placeholder="Antonio Joao Silva" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium placeholder:text-gray-400" />
-        <p v-if="shouldShowError('nome') && !form.nome" class="text-[11px] text-rose-600 font-bold">Nome e obrigatorio.</p>
+        <p v-if="shouldShowError('nome') && !form.nome" class="text-[11px] text-rose-600 font-bold">Nome é obrigatório.</p>
       </div>
 
       <div class="form-control w-full space-y-1.5">
@@ -180,11 +215,11 @@ const handleSubmit = async () => {
       </div>
 
       <div class="form-control w-full space-y-1.5">
-        <label class="label font-bold text-[13px] text-gray-700 ml-1">Ja doou sangue?</label>
+        <label class="label font-bold text-[13px] text-gray-700 ml-1">Já doou sangue?</label>
         <select v-model="form.doacao_sangue" @blur="touched.doacao_sangue = true" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium appearance-none select-arrow">
           <option value="" disabled>Selecione</option>
-          <option>Sim, ja doei</option>
-          <option>Nao, sera a 1a vez</option>
+          <option>Sim, já doei</option>
+          <option>Não, será a 1ª vez</option>
         </select>
         <p v-if="shouldShowError('doacao_sangue') && !form.doacao_sangue" class="text-[11px] text-rose-600 font-bold">Indique se ja doou sangue.</p>
       </div>
@@ -245,6 +280,26 @@ const handleSubmit = async () => {
         </button>
         <p v-if="shouldShowError('confirmar_senha') && !form.confirmar_senha" class="text-[11px] text-rose-600 font-bold">Confirme a palavra-passe.</p>
         <p v-else-if="senhaNaoCoincide" class="text-[11px] text-rose-600 font-bold">As palavras-passe nao coincidem.</p>
+      </div>
+    </div>
+
+    <div
+      v-if="signupNotice"
+      class="rounded-[28px] border border-sky-200 bg-linear-to-r from-sky-50 via-white to-emerald-50 px-5 py-5 shadow-[0_12px_30px_rgba(14,165,233,0.08)]"
+    >
+      <div class="flex items-start gap-3">
+        <div class="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-sky-600 text-white shadow-[0_10px_20px_rgba(2,132,199,0.25)]">
+          <span class="text-lg font-black">!</span>
+        </div>
+        <div>
+          <p class="text-[12px] font-black uppercase tracking-[0.18em] text-sky-700">Verificacao necessaria</p>
+          <p class="mt-2 text-[14px] font-semibold leading-relaxed text-slate-700">
+            {{ signupNotice }}
+          </p>
+          <p class="mt-2 text-[12px] text-slate-500">
+            Se não encontrar a mensagem, veja também a pasta de spam ou promoções.
+          </p>
+        </div>
       </div>
     </div>
 
