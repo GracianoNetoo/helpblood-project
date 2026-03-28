@@ -253,7 +253,7 @@ const getDonorInitials = (name) => {
   return `${first}${last}`.toUpperCase() || 'DV';
 };
 
-const getDonorStatusLabel = (status) => (status === 'ativo' ? 'Ativo' : 'Suspenso');
+const getDonorStatusLabel = (status) => (status === 'ativo' ? 'Ativo' : 'Em repouso');
 
 const getDonorStatusClasses = (status) => (
   status === 'ativo'
@@ -284,10 +284,6 @@ const filteredDonors = computed(() => {
     return haystack.includes(searchTerm);
   });
 });
-
-const toggleCampaignStatus = (id) => {
-  campaignsStore.toggleStatus(id);
-};
 
 const removeCampaign = (id) => {
   campaignsStore.removeCampaign(id);
@@ -555,9 +551,9 @@ const addCampaign = async () => {
                     <div class="text-[12px] text-gray-500 mt-1">{{ donor.tipo_sanguineo || 'N/A' }} • {{ donor.provincia || 'Provincia' }}</div>
                     <div class="text-[11px] text-gray-400 mt-1">Status: {{ donor.status || 'ativo' }}</div>
                   </div>
-                  <button @click="toggleDonorStatus(donor.id)" class="text-[12px] font-semibold text-emerald-600 hover:text-emerald-700">
-                    {{ donor.status === 'ativo' ? 'Suspender' : 'Reativar' }}
-                  </button>
+                    <button @click="toggleDonorStatus(donor.id)" class="text-[12px] font-semibold text-emerald-600 hover:text-emerald-700">
+                    {{ donor.status === 'ativo' ? 'Colocar em repouso' : 'Ativar' }}
+                    </button>
                 </div>
               </div>
             </div>
@@ -581,9 +577,9 @@ const addCampaign = async () => {
                     <div class="text-[12px] text-gray-500 mt-1">{{ camp.location || 'Local' }} • {{ camp.dateISO || 'Data' }}</div>
                     <div class="text-[11px] text-gray-400 mt-1">Status: {{ camp.status || 'ativo' }}</div>
                   </div>
-                  <button @click="toggleCampaignStatus(camp.id)" class="text-[12px] font-semibold text-sky-600 hover:text-sky-700">
-                    {{ camp.status === 'ativo' ? 'Desativar' : 'Ativar' }}
-                  </button>
+                    <button @click="removeCampaign(camp.id)" class="text-[12px] font-semibold text-rose-600 hover:text-rose-700">
+                      Remover
+                    </button>
                 </div>
               </div>
             </div>
@@ -780,13 +776,10 @@ const addCampaign = async () => {
                     <div class="text-[12px] text-gray-500 mt-1">Tags: {{ (camp.tags || []).join(', ') }}</div>
                     <div class="text-[12px] text-gray-400 mt-2">Status: {{ camp.status || 'ativo' }}</div>
                   </div>
-                  <div class="flex flex-col gap-2">
-                    <button @click="toggleCampaignStatus(camp.id)" class="px-4 py-2 rounded-2xl bg-sky-50 text-sky-700 font-semibold hover:bg-sky-100 transition-colors">
-                      {{ camp.status === 'ativo' ? 'Desativar' : 'Ativar' }}
-                    </button>
-                    <button @click="removeCampaign(camp.id)" class="px-4 py-2 rounded-2xl bg-rose-50 text-rose-600 font-semibold hover:bg-rose-100 transition-colors">
-                      Remover
-                    </button>
+                    <div class="flex flex-col gap-2">
+                      <button @click="removeCampaign(camp.id)" class="px-4 py-2 rounded-2xl bg-rose-50 text-rose-600 font-semibold hover:bg-rose-100 transition-colors">
+                        Remover
+                      </button>
                   </div>
                 </div>
               </div>
@@ -830,7 +823,7 @@ const addCampaign = async () => {
 
                   <div class="rounded-3xl border border-white/10 bg-white/8 backdrop-blur-xl p-4">
                     <div class="flex items-center justify-between">
-                      <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-300">Suspensos</span>
+                      <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-300">Em repouso</span>
                       <AlertTriangle class="w-4 h-4 text-amber-200" />
                     </div>
                     <div class="mt-3 text-3xl font-black tracking-tight">{{ suspendedDonorsCount }}</div>
@@ -905,7 +898,7 @@ const addCampaign = async () => {
                     class="px-4 py-3 rounded-2xl text-[12px] font-bold border transition-all"
                     :class="donorStatusFilter === 'suspenso' ? 'bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/15' : 'bg-white text-amber-700 border-amber-100 hover:bg-amber-50'"
                   >
-                    Suspensos
+                    Em repouso
                   </button>
                 </div>
               </div>
@@ -1057,7 +1050,7 @@ const addCampaign = async () => {
 
                       <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-2">
                         <button @click="toggleDonorStatus(donor.id)" class="px-4 py-3 rounded-2xl bg-white border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
-                          {{ donor.status === 'ativo' ? 'Suspender' : 'Reativar' }}
+                          {{ donor.status === 'ativo' ? 'Colocar em repouso' : 'Ativar' }}
                         </button>
                         <button @click="removeDonor(donor.id)" class="px-4 py-3 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 font-semibold hover:bg-rose-100 transition-colors">
                           Remover
