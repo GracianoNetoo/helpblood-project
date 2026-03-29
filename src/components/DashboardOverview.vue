@@ -115,7 +115,7 @@ const downloadCard = () => {
       <div class="lg:col-span-8 bg-linear-to-br from-[#0F172A] to-[#1E293B] rounded-4xl p-8 md:p-10 text-white relative overflow-hidden shadow-2xl shadow-gray-900/10 border border-gray-700/50 flex flex-col justify-between group h-full">
         <!-- Glow Effects -->
         <div class="absolute top-0 right-0 w-125 h-125 bg-rose-600/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/4 group-hover:bg-rose-500/20 transition-all duration-700 pointer-events-none"></div>
-        <div class="absolute bottom-0 left-0 w-75 h-75 bg-orange-500/10 rounded-full blur-[60px] translate-y-1/2 -translate-x-1/4 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-75 h-75 bg-rose-400/10 rounded-full blur-[60px] translate-y-1/2 -translate-x-1/4 pointer-events-none"></div>
         
         <div class="relative z-10 flex flex-col h-full justify-between">
           <div>
@@ -209,8 +209,8 @@ const downloadCard = () => {
       </div>
 
       <!-- Help Requests Bento -->
-      <div class="lg:col-span-7 relative bg-linear-to-br from-white via-rose-50/50 to-orange-50/40 rounded-4xl border border-rose-100/70 shadow-[0_18px_50px_rgba(244,63,94,0.08)] flex flex-col h-full overflow-hidden">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,113,133,0.12),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(251,146,60,0.10),transparent_34%)] pointer-events-none"></div>
+      <div class="lg:col-span-7 relative bg-linear-to-br from-white via-rose-50/50 to-rose-50/40 rounded-4xl border border-rose-100/70 shadow-[0_18px_50px_rgba(244,63,94,0.08)] flex flex-col h-full overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,43,133,0.12),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(251,46,60,0.10),transparent_34%)] pointer-events-none"></div>
         <div class="relative p-6 md:p-8 pb-4 flex justify-between items-end gap-4">
           <div>
             <h3 class="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">

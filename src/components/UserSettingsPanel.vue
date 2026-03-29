@@ -103,12 +103,12 @@ const saveProfile = async () => {
   }
 
   if (phoneInvalid.value) {
-    profileError.value = 'Use um numero valido com 9 digitos ou +244 seguido de 9 digitos.';
+    profileError.value = 'Use um número válido com 9 digitos ou +244 seguido de 9 digitos.';
     return;
   }
 
   if (!profileForm.value.provincia || !profileForm.value.municipio) {
-    profileError.value = 'Selecione a provincia e o municipio.';
+    profileError.value = 'Selecione a província e o munícipio.';
     return;
   }
 
@@ -125,14 +125,14 @@ const saveProfile = async () => {
   });
 
   if (!result.ok) {
-    profileError.value = authStore.authError || 'Nao foi possivel atualizar os dados da conta.';
+    profileError.value = authStore.authError || 'Não foi possível atualizar os dados da conta.';
     isSavingProfile.value = false;
     return;
   }
 
   profileSuccess.value = result.emailChanged
-    ? 'Alteracoes guardadas. O Supabase enviou um email de confirmacao para validar a mudanca de endereco.'
-    : 'Informacoes atualizadas com sucesso.';
+    ? 'Alterações guardadas. Receberá um email de confirmação para validar a mudança de endereço.'
+    : 'Informações atualizadas com sucesso.';
   isSavingProfile.value = false;
 };
 
@@ -145,7 +145,7 @@ const sendPasswordNonce = async () => {
   const result = await authStore.requestPasswordChangeNonce();
 
   if (!result.ok) {
-    securityError.value = authStore.authError || 'Nao foi possivel enviar o codigo de confirmacao.';
+    securityError.value = authStore.authError || 'Não foi possivel enviar o codigo de confirmação.';
     isSendingNonce.value = false;
     return;
   }
@@ -185,7 +185,7 @@ const savePassword = async () => {
   });
 
   if (!result.ok) {
-    securityError.value = authStore.authError || 'Nao foi possivel alterar a palavra-passe.';
+    securityError.value = authStore.authError || 'Não foi possivel alterar a palavra-passe.';
     isSavingPassword.value = false;
     return;
   }
@@ -210,7 +210,7 @@ const deleteAccount = async () => {
   const result = await authStore.deleteAccount();
 
   if (!result.ok) {
-    deleteError.value = authStore.authError || 'Nao foi possivel eliminar a conta agora.';
+    deleteError.value = authStore.authError || 'Não foi possivel eliminar a conta agora.';
     isDeletingAccount.value = false;
     return;
   }
@@ -222,10 +222,10 @@ const deleteAccount = async () => {
 
 <template>
   <div class="fixed inset-0 z-40 flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-slate-950/45 backdrop-blur-sm" @click="emit('close')"></div>
+    <div class="absolute inset-0 bg-slate-400/45 backdrop-blur-sm" @click="emit('close')"></div>
 
-    <div class="relative z-10 w-full max-w-3xl overflow-hidden rounded-[32px] border border-white/50 bg-white shadow-[0_30px_80px_rgba(15,23,42,0.18)]">
-      <div class="border-b border-gray-100 bg-linear-to-r from-slate-900 via-slate-800 to-slate-900 px-6 py-5 text-white md:px-8">
+    <div class="relative z-10 w-full max-w-3xl overflow-hidden rounded-[32px] border border-white/50 bg-white shadow-[0_30px_80px_rgba(50,50,50,50.18)]">
+      <div class="border-b border-slate-900 bg-linear-to-r from-slate-900 via-slate-800 to-slate-900 px-6 py-5 text-white md:px-8">
         <div class="flex items-start justify-between gap-4">
           <div>
             <p class="text-[11px] font-black uppercase tracking-[0.2em] text-rose-200">Configurações</p>
@@ -293,7 +293,7 @@ const deleteAccount = async () => {
               </div>
 
               <div class="md:col-span-2">
-                <label class="mb-1.5 ml-1 block text-[13px] font-bold text-gray-700">Municipio</label>
+                <label class="mb-1.5 ml-1 block text-[13px] font-bold text-gray-700">Munícipio</label>
                 <div class="relative">
                   <MapPin class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <select
@@ -301,7 +301,7 @@ const deleteAccount = async () => {
                     :disabled="!profileForm.provincia"
                     class="w-full appearance-none rounded-2xl border border-gray-200 bg-gray-50 py-3.5 pl-11 pr-4 text-[14px] font-medium text-gray-900 transition-all focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    <option value="" disabled>Selecione o municipio</option>
+                    <option value="" disabled>Selecione o munícipio</option>
                     <option v-for="municipio in municipiosDisponiveis" :key="municipio" :value="municipio">{{ municipio }}</option>
                   </select>
                 </div>
@@ -318,7 +318,7 @@ const deleteAccount = async () => {
               :disabled="isSavingProfile"
               class="mt-5 inline-flex items-center justify-center rounded-2xl bg-sky-600 px-5 py-3 text-[14px] font-extrabold text-white shadow-[0_10px_24px_rgba(2,132,199,0.24)] transition-all hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {{ isSavingProfile ? 'A guardar...' : 'Guardar alteracoes' }}
+              {{ isSavingProfile ? 'A guardar...' : 'Guardar alterações' }}
             </button>
           </section>
 
@@ -336,7 +336,7 @@ const deleteAccount = async () => {
 
               <div class="mt-6 space-y-4">
                 <div class="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
-                  <p class="text-[13px] font-semibold text-emerald-900">Passo 1: receber codigo de confirmacao</p>
+                  <p class="text-[13px] font-semibold text-emerald-900">Passo 1: receber codigo de confirmação</p>
                   <p class="mt-1 text-[12px] text-emerald-800">Receberá um codigo por email para autenticar a alteração da palavra-passe.</p>
                   <button
                     type="button"
@@ -344,7 +344,7 @@ const deleteAccount = async () => {
                     :disabled="isSendingNonce"
                     class="mt-3 inline-flex items-center justify-center rounded-2xl bg-white px-4 py-3 text-[13px] font-extrabold text-emerald-700 shadow-sm transition-all hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {{ isSendingNonce ? 'A enviar codigo...' : 'Enviar codigo de confirmacao' }}
+                    {{ isSendingNonce ? 'A enviar codigo...' : 'Enviar codigo de confirmação' }}
                   </button>
                 </div>
 
@@ -398,7 +398,7 @@ const deleteAccount = async () => {
 
             <section class="rounded-[28px] border border-rose-200 bg-rose-50/70 p-5 shadow-[0_10px_25px_rgba(225,29,72,0.06)] md:p-6">
               <div class="flex items-center gap-3">
-                <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-white text-rose-600 shadow-sm">
+                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 shadow-sm">
                   <AlertTriangle class="h-5 w-5" />
                 </div>
                 <div>
