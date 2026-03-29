@@ -34,7 +34,7 @@ const emit = defineEmits(['click-pedir-doacao', 'click-quero-doar']);
         </h1>
 
         <p class="text-[17px] md:text-[20px] text-gray-500 mb-10 max-w-150 mx-auto leading-relaxed font-medium">
-          A UniVida é a plataforma mais rápida e segura que liga dadores voluntários aos hospitais com maior necessidade em Angola. Torne-se um herói da vida real.
+          A UniVida é a plataforma mais rápida e segura que liga doadores voluntários aos hospitais com maior necessidade em Angola. Torne-se um herói da vida real.
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">

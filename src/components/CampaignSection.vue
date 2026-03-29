@@ -116,7 +116,7 @@ const emit = defineEmits(['click-agendar-horario', 'click-solicitar-parceria', '
         <!-- Call to Action Banner (Bento Integration) -->
         <div class="bg-linear-to-br from-[#0F172A] to-[#1E293B] rounded-4xl p-8 md:p-10 flex flex-col justify-between text-white relative overflow-hidden group shadow-2xl h-full">
             <!-- Glow Effects -->
-            <div class="absolute -right-37.5 -bottom-37.5 w-87.5 h-87.5 bg-rose-500/30 rounded-full blur-[100px] group-hover:bg-orange-500/30 transition-all duration-1000 pointer-events-none"></div>
+            <div class="absolute -right-37.5 -bottom-37.5 w-87.5 h-87.5 bg-rose-500/30 rounded-full blur-[100px] group-hover:bg-red-800/50 transition-all duration-1000 pointer-events-none"></div>
             <div class="absolute top-0 right-0 w-125 h-125 bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-size-[16px_16px] opacity-10 mix-blend-overlay pointer-events-none"></div>
             
             <div class="relative z-10 h-full flex flex-col justify-start">

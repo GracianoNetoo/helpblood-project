@@ -26,5 +26,4 @@ dist-ssr
 SUPABASE_SETUP.md
 .env
 .env.example
-supabase/migrations/202603250001_initial_schema.sql
 supabase/seed.sql

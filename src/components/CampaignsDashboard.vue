@@ -103,17 +103,14 @@ onMounted(() => {
   <div class="max-w-300 mx-auto pb-10">
     <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-6 md:p-10">
       <div v-if="lastSyncError" class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
-        Nao foi possivel sincronizar as campanhas agora. {{ lastSyncError }}
+        Não foi possivel sincronizar as campanhas agora. {{ lastSyncError }}
       </div>
 
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Campanhas Ativas</h2>
-          <p class="text-sm text-gray-500 mt-1">Escolha um local e agende a sua proxima doacao.</p>
+          <p class="text-sm text-gray-500 mt-1">Escolha um local e agende a sua proxima doação.</p>
         </div>
-        <button class="bg-gray-900 hover:bg-black text-white px-5 py-3 md:py-2.5 rounded-2xl font-bold shadow-md transition-all text-sm">
-          Ver Mapa
-        </button>
       </div>
 
       <div v-if="activeCampaigns.length === 0" class="py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl text-sm text-gray-500">
