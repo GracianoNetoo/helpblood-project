@@ -114,12 +114,12 @@ export const invokeRpc = (fn, args = {}, options = {}) => {
   });
 };
 
-async function authRequest(path, { method = 'GET', body, accessToken } = {}) {
+async function authRequest(path, { method = 'GET', body, accessToken, query } = {}) {
   if (!isSupabaseConfigured) {
     throw new Error('Supabase nao configurado.');
   }
 
-  const response = await fetch(`${supabaseUrl}/auth/v1/${path}`, {
+  const response = await fetch(`${supabaseUrl}/auth/v1/${path}${buildQueryString(query)}`, {
     method,
     headers: buildHeaders({ accessToken }),
     body: typeof body === 'undefined' ? undefined : JSON.stringify(body)
@@ -175,16 +175,24 @@ export const authGetUser = (accessToken) => {
   });
 };
 
-export const authUpdateUser = (accessToken, attributes) => {
+export const authUpdateUser = (accessToken, attributes, options = {}) => {
   return authRequest('user', {
     method: 'PUT',
     accessToken,
-    body: attributes
+    body: attributes,
+    query: options.emailRedirectTo ? { redirect_to: options.emailRedirectTo } : undefined
   });
 };
 
 export const authSignOut = (accessToken) => {
   return authRequest('logout', {
+    method: 'POST',
+    accessToken
+  });
+};
+
+export const authReauthenticate = (accessToken) => {
+  return authRequest('reauthenticate', {
     method: 'POST',
     accessToken
   });

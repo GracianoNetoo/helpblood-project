@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref, watch } from 'vue';
-import { authGetUser, authRefreshSession, authResetPasswordForEmail, authSignInWithPassword, authSignOut, authSignUp, authUpdateUser, invokeRpc, isSupabaseConfigured } from '../lib/supabaseClient';
+import { authGetUser, authReauthenticate, authRefreshSession, authResetPasswordForEmail, authSignInWithPassword, authSignOut, authSignUp, authUpdateUser, invokeRpc, isSupabaseConfigured } from '../lib/supabaseClient';
 import { useDonorsStore } from './donorsStore';
 import { resetPersistedStoreData } from './resetPersistedStoreData';
 
@@ -148,7 +148,16 @@ export const useAuthStore = defineStore('auth', () => {
   const refreshCurrentProfile = async () => {
     if (!currentDonorId.value) return;
     const donorsStore = useDonorsStore();
-    await donorsStore.refreshDonorProfile(currentDonorId.value, accessToken.value);
+    const profile = await donorsStore.refreshDonorProfile(currentDonorId.value, accessToken.value);
+    const confirmedEmail = String(currentUser.value?.email || '').trim().toLowerCase();
+
+    if (profile && confirmedEmail && String(profile.email || '').trim().toLowerCase() !== confirmedEmail) {
+      await donorsStore.updateDonorProfile(
+        currentDonorId.value,
+        { email: confirmedEmail },
+        accessToken.value
+      );
+    }
   };
 
   const setSessionState = async ({ nextSession, nextUser }) => {
@@ -310,7 +319,26 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  const updatePassword = async ({ password }) => {
+  const requestPasswordChangeNonce = async () => {
+    authError.value = '';
+    isLoading.value = true;
+
+    try {
+      if (!accessToken.value) {
+        throw new Error('Sessao invalida para confirmar a palavra-passe.');
+      }
+
+      await authReauthenticate(accessToken.value);
+      return { ok: true };
+    } catch (error) {
+      authError.value = translateAuthError(error, 'Nao foi possivel enviar o codigo de confirmacao.');
+      return { ok: false, error };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  const updatePassword = async ({ password, nonce = null }) => {
     authError.value = '';
     isLoading.value = true;
 
@@ -319,7 +347,10 @@ export const useAuthStore = defineStore('auth', () => {
         throw new Error('Sessao de recuperacao invalida.');
       }
 
-      const response = await authUpdateUser(accessToken.value, { password });
+      const response = await authUpdateUser(accessToken.value, {
+        password,
+        ...(nonce ? { nonce } : {})
+      });
       currentUser.value = response?.user || response || currentUser.value;
       syncDerivedState();
       persistSession();
@@ -333,7 +364,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  const updateAccountProfile = async ({ email, telefone, provincia, municipio }) => {
+  const updateAccountProfile = async ({ email, telefone, provincia, municipio, emailRedirectTo = null }) => {
     authError.value = '';
     isLoading.value = true;
 
@@ -344,9 +375,14 @@ export const useAuthStore = defineStore('auth', () => {
 
       const normalizedEmail = String(email || '').trim().toLowerCase();
       const previousEmail = String(currentUser.value?.email || '').trim().toLowerCase();
+      const emailChanged = Boolean(normalizedEmail && normalizedEmail !== previousEmail);
 
-      if (normalizedEmail && normalizedEmail !== previousEmail) {
-        const response = await authUpdateUser(accessToken.value, { email: normalizedEmail });
+      if (emailChanged) {
+        const response = await authUpdateUser(
+          accessToken.value,
+          { email: normalizedEmail },
+          emailRedirectTo ? { emailRedirectTo } : {}
+        );
         currentUser.value = response?.user || response || currentUser.value;
         syncDerivedState();
         persistSession();
@@ -356,7 +392,6 @@ export const useAuthStore = defineStore('auth', () => {
       await donorsStore.updateDonorProfile(
         currentUser.value.id,
         {
-          email: normalizedEmail || previousEmail || null,
           telefone: telefone || null,
           provincia: provincia || null,
           municipio: municipio || null
@@ -365,7 +400,7 @@ export const useAuthStore = defineStore('auth', () => {
       );
 
       await refreshCurrentProfile();
-      return { ok: true };
+      return { ok: true, emailChanged };
     } catch (error) {
       authError.value = translateAuthError(error, 'Nao foi possivel atualizar os dados da conta.');
       return { ok: false, error };
@@ -431,6 +466,7 @@ export const useAuthStore = defineStore('auth', () => {
     signIn,
     signUpDonor,
     requestPasswordRecovery,
+    requestPasswordChangeNonce,
     refreshSession,
     setRecoverySessionFromUrl,
     updateAccountProfile,
