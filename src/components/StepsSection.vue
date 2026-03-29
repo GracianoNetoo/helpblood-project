@@ -38,7 +38,7 @@ const emit = defineEmits(['click-agendar-doacao']);
           <span class="absolute top-10 right-10 text-[60px] font-black text-gray-50/80 -z-10 group-hover:text-rose-50/50 transition-colors">1</span>
           <h3 class="text-xl font-bold text-gray-900 mb-4 tracking-tight">Encontre o Local</h3>
           <p class="text-[15px] text-gray-500 font-medium leading-relaxed">
-            Localize os hemocentros com maior necessidade ou as campanhas móveis mais próximas de você.
+            Saiba a localização das campanhas móveis mais próximas de você.
           </p>
         </div>
 
@@ -50,7 +50,7 @@ const emit = defineEmits(['click-agendar-doacao']);
           <span class="absolute top-10 right-10 text-[60px] font-black text-gray-50/80 -z-10 group-hover:text-rose-50/50 transition-colors">2</span>
           <h3 class="text-xl font-bold text-gray-900 mb-4 tracking-tight">Agendamento Fácil</h3>
           <p class="text-[15px] text-gray-500 font-medium leading-relaxed">
-            Valide os requisitos online e marque o seu horário para evitar filas e garantir um atendimento seguro.
+            Acompanhe campanhas, agende e marque presença para participar das doações.
           </p>
         </div>
 
@@ -62,7 +62,7 @@ const emit = defineEmits(['click-agendar-doacao']);
           <span class="absolute top-10 right-10 text-[60px] font-black text-gray-50/80 -z-10 group-hover:text-rose-50/50 transition-colors">3</span>
           <h3 class="text-xl font-bold text-gray-900 mb-4 tracking-tight">Doe e Acompanhe</h3>
           <p class="text-[15px] text-gray-500 font-medium leading-relaxed">
-            Faça a doação e acompanhe o trajeto do seu sangue até o momento em que ele salva uma vida.
+            Faça a doação e tenha o histórico de suas contribuições.
           </p>
         </div>
 
