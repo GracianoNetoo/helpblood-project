@@ -348,6 +348,24 @@ begin
 end;
 $$;
 
+create or replace function public.delete_my_account()
+returns void
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+declare
+  target_user uuid := auth.uid();
+begin
+  if target_user is null then
+    raise exception 'Utilizador nao autenticado.';
+  end if;
+
+  delete from auth.users
+  where id = target_user;
+end;
+$$;
+
 drop trigger if exists trg_profiles_updated_at on public.profiles;
 create trigger trg_profiles_updated_at
 before update on public.profiles
@@ -560,3 +578,6 @@ on public.donations
 for delete
 to authenticated
 using (public.is_admin());
+
+revoke all on function public.delete_my_account() from public;
+grant execute on function public.delete_my_account() to authenticated;

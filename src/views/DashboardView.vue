@@ -10,8 +10,12 @@ const sairDoSistema = async () => {
   await authStore.signOut();
   router.push('/');
 };
+
+const handleAccountDeleted = async () => {
+  router.push('/');
+};
 </script>
 
 <template>
-  <UserDashboard @logout="sairDoSistema" />
+  <UserDashboard @logout="sairDoSistema" @account-deleted="handleAccountDeleted" />
 </template>

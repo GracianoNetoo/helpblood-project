@@ -106,6 +106,14 @@ export const deleteRows = (table, filters, options = {}) => {
   });
 };
 
+export const invokeRpc = (fn, args = {}, options = {}) => {
+  return request(`rpc/${fn}`, {
+    method: 'POST',
+    body: args,
+    ...options
+  });
+};
+
 async function authRequest(path, { method = 'GET', body, accessToken } = {}) {
   if (!isSupabaseConfigured) {
     throw new Error('Supabase nao configurado.');

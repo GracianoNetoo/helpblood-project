@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref, watch } from 'vue';
-import { authGetUser, authRefreshSession, authResetPasswordForEmail, authSignInWithPassword, authSignOut, authSignUp, authUpdateUser, isSupabaseConfigured } from '../lib/supabaseClient';
+import { authGetUser, authRefreshSession, authResetPasswordForEmail, authSignInWithPassword, authSignOut, authSignUp, authUpdateUser, invokeRpc, isSupabaseConfigured } from '../lib/supabaseClient';
 import { useDonorsStore } from './donorsStore';
 import { resetPersistedStoreData } from './resetPersistedStoreData';
 
@@ -333,6 +333,70 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  const updateAccountProfile = async ({ email, telefone, provincia, municipio }) => {
+    authError.value = '';
+    isLoading.value = true;
+
+    try {
+      if (!currentUser.value?.id || !accessToken.value) {
+        throw new Error('Sessao invalida para atualizar a conta.');
+      }
+
+      const normalizedEmail = String(email || '').trim().toLowerCase();
+      const previousEmail = String(currentUser.value?.email || '').trim().toLowerCase();
+
+      if (normalizedEmail && normalizedEmail !== previousEmail) {
+        const response = await authUpdateUser(accessToken.value, { email: normalizedEmail });
+        currentUser.value = response?.user || response || currentUser.value;
+        syncDerivedState();
+        persistSession();
+      }
+
+      const donorsStore = useDonorsStore();
+      await donorsStore.updateDonorProfile(
+        currentUser.value.id,
+        {
+          email: normalizedEmail || previousEmail || null,
+          telefone: telefone || null,
+          provincia: provincia || null,
+          municipio: municipio || null
+        },
+        accessToken.value
+      );
+
+      await refreshCurrentProfile();
+      return { ok: true };
+    } catch (error) {
+      authError.value = translateAuthError(error, 'Nao foi possivel atualizar os dados da conta.');
+      return { ok: false, error };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  const deleteAccount = async () => {
+    authError.value = '';
+    isLoading.value = true;
+
+    try {
+      if (!accessToken.value || !currentUser.value?.id) {
+        throw new Error('Sessao invalida para eliminar a conta.');
+      }
+
+      const donorsStore = useDonorsStore();
+      await invokeRpc('delete_my_account', {}, { accessToken: accessToken.value });
+      donorsStore.removeDonor(currentUser.value.id);
+      clearSession();
+      persistSession();
+      return { ok: true };
+    } catch (error) {
+      authError.value = translateAuthError(error, 'Nao foi possivel eliminar a conta agora.');
+      return { ok: false, error };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
   const signOut = async () => {
     try {
       if (accessToken.value && isSupabaseConfigured) {
@@ -369,7 +433,9 @@ export const useAuthStore = defineStore('auth', () => {
     requestPasswordRecovery,
     refreshSession,
     setRecoverySessionFromUrl,
+    updateAccountProfile,
     updatePassword,
+    deleteAccount,
     signOut,
     clearSession
   };

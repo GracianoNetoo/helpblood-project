@@ -13,8 +13,9 @@ import MyDonations from './MyDonations.vue';
 import Appointments from './Appointments.vue';
 import EmergencyRequests from './EmergencyRequests.vue';
 import CampaignsDashboard from './CampaignsDashboard.vue';
+import UserSettingsPanel from './UserSettingsPanel.vue';
 
-const emit = defineEmits(['logout']);
+const emit = defineEmits(['logout', 'account-deleted']);
 const route = useRoute();
 const helpRequestsStore = useHelpRequestsStore();
 const { requests } = storeToRefs(helpRequestsStore);
@@ -34,6 +35,7 @@ const navItems = [
 
 const activeTab = ref('dashboard');
 const isMobileNavOpen = ref(false);
+const isSettingsOpen = ref(false);
 const approvedRequestsCount = computed(() => requests.value.filter((item) => item.status === 'approved').length);
 const currentDonorIdValue = computed(() => (currentDonorId.value ? String(currentDonorId.value) : null));
 const fallbackDonor = computed(() => donors.value[0] || null);
@@ -84,6 +86,19 @@ const handleSelectTab = (tabId, options = {}) => {
     campaignsStore.requestOpenCampaign();
   }
   isMobileNavOpen.value = false;
+};
+
+const openSettings = () => {
+  isSettingsOpen.value = true;
+};
+
+const closeSettings = () => {
+  isSettingsOpen.value = false;
+};
+
+const handleAccountDeleted = () => {
+  closeSettings();
+  emit('account-deleted');
 };
 </script>
 
@@ -145,7 +160,7 @@ const handleSelectTab = (tabId, options = {}) => {
           
           <div class="h-8 w-px bg-gray-200 hidden md:block"></div>
           
-          <div class="flex items-center gap-3 group cursor-pointer hover:bg-white p-1.5 md:p-2 rounded-full md:rounded-[20px] pr-2 md:pr-4 transition-all border border-transparent hover:border-gray-200/60 hover:shadow-sm">
+          <button @click="openSettings" class="flex items-center gap-3 group cursor-pointer hover:bg-white p-1.5 md:p-2 rounded-full md:rounded-[20px] pr-2 md:pr-4 transition-all border border-transparent hover:border-gray-200/60 hover:shadow-sm">
             <div class="w-10 h-10 bg-linear-to-br from-rose-100 to-orange-50 rounded-full border border-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] overflow-hidden flex items-center justify-center">
               <span class="text-rose-600 font-bold text-sm">{{ donorInitials }}</span>
             </div>
@@ -153,7 +168,7 @@ const handleSelectTab = (tabId, options = {}) => {
               <p class="text-[13px] font-bold text-gray-900 leading-none">{{ donorName }}</p>
               <p class="text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full inline-flex mt-1 uppercase tracking-wider">Doador {{ donorBlood }}</p>
             </div>
-          </div>
+          </button>
         </div>
       </header>
 
@@ -207,6 +222,13 @@ const handleSelectTab = (tabId, options = {}) => {
         </div>
       </div>
     </div>
+
+    <UserSettingsPanel
+      v-if="isSettingsOpen"
+      :donor="currentDonor"
+      @close="closeSettings"
+      @account-deleted="handleAccountDeleted"
+    />
   </div>
 </template>
 

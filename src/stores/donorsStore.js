@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
-import { isSupabaseConfigured, selectRows } from '../lib/supabaseClient';
+import { isSupabaseConfigured, selectRows, updateRows } from '../lib/supabaseClient';
 import { resetPersistedStoreData } from './resetPersistedStoreData';
 
 const STORAGE_KEY = 'univida_donors';
@@ -174,6 +174,23 @@ export const useDonorsStore = defineStore('donors', () => {
     }
   };
 
+  const updateDonorProfile = async (donorId, patch, accessToken = null) => {
+    if (!isSupabaseConfigured || !donorId) return null;
+    try {
+      const rows = await updateRows('profiles', { id: `eq.${donorId}` }, patch, { accessToken });
+      const profile = Array.isArray(rows) ? rows[0] : null;
+      if (!profile) return null;
+      const normalized = mapProfileFromDb(profile);
+      upsertDonor(normalized);
+      lastSyncError.value = '';
+      return normalized;
+    } catch (error) {
+      lastSyncError.value = error.message || 'Falha ao atualizar perfil do doador.';
+      console.warn('Falha ao atualizar perfil do Supabase:', error);
+      return null;
+    }
+  };
+
   const refreshAllDonors = async (accessToken = null) => {
     if (!isSupabaseConfigured) return [];
     try {
@@ -212,6 +229,7 @@ export const useDonorsStore = defineStore('donors', () => {
     toggleStatus,
     removeDonor,
     updateLastDonationLiters,
+    updateDonorProfile,
     refreshDonorProfile,
     refreshAllDonors
   };
