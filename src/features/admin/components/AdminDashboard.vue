@@ -20,10 +20,10 @@ import {
   Activity,
   Sparkles
 } from 'lucide-vue-next';
-import { useAppointmentsStore } from '../stores/appointmentsStore';
-import { useHelpRequestsStore } from '../stores/helpRequestsStore';
-import { useDonorsStore } from '../stores/donorsStore';
-import { useCampaignsStore } from '../stores/campaignsStore';
+import { useAppointmentsStore } from '../../../stores/appointmentsStore';
+import { useHelpRequestsStore } from '../../../stores/helpRequestsStore';
+import { useDonorsStore } from '../../../stores/donorsStore';
+import { useCampaignsStore } from '../../../stores/campaignsStore';
 
 const emit = defineEmits(['logout']);
 

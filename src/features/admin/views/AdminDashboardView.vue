@@ -1,6 +1,6 @@
 ﻿<script setup>
 import { useRouter } from 'vue-router';
-import AdminDashboard from '../admin/AdminDashboard.vue';
+import AdminDashboard from '../components/AdminDashboard.vue';
 
 const router = useRouter();
 
