@@ -27,3 +27,4 @@ SUPABASE_SETUP.md
 .env
 .env.example
 supabase/seed.sql
+.sixth
