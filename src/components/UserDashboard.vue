@@ -3,10 +3,10 @@ import { ref, defineEmits, markRaw, onMounted, watch, computed } from 'vue';
 import { LayoutDashboard, Droplet, CalendarDays, LogOut, Bell, AlertCircle, Menu, Megaphone } from 'lucide-vue-next';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
-import { useHelpRequestsStore } from '../stores/helpRequestsStore';
-import { useDonorsStore } from '../stores/donorsStore';
-import { useAuthStore } from '../stores/authStore';
-import { useCampaignsStore } from '../stores/campaignsStore';
+import { useHelpRequestsStore } from '../features/events/store/helpRequestsStore';
+import { useDonorsStore } from '../features/user/store/donorsStore';
+import { useAuthStore } from '../features/auth/store/authStore';
+import { useCampaignsStore } from '../features/events/store/campaignsStore';
 
 import DashboardOverview from './DashboardOverview.vue';
 import MyDonations from './MyDonations.vue';

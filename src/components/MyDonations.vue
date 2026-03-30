@@ -2,9 +2,9 @@
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { History, Droplet } from 'lucide-vue-next';
-import { useAuthStore } from '../stores/authStore';
-import { useDonorsStore } from '../stores/donorsStore';
-import { useCampaignsStore } from '../stores/campaignsStore';
+import { useAuthStore } from '../features/auth/store/authStore';
+import { useDonorsStore } from '../features/user/store/donorsStore';
+import { useCampaignsStore } from '../features/events/store/campaignsStore';
 
 const authStore = useAuthStore();
 const donorsStore = useDonorsStore();

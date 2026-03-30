@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
-import { isSupabaseConfigured, selectRows, updateRows } from '../lib/supabaseClient';
-import { resetPersistedStoreData } from './resetPersistedStoreData';
+import { isSupabaseConfigured, selectRows, updateRows } from '../../../lib/supabaseClient';
+import { resetPersistedStoreData } from '../../../shared/utils/resetPersistedStoreData';
 
 const STORAGE_KEY = 'univida_donors';
 const SHOULD_USE_SEED_DONORS = import.meta.env.DEV;

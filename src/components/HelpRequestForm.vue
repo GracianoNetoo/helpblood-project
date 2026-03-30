@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { User, Droplet, MapPin, Phone, AlertTriangle, FileText } from 'lucide-vue-next';
-import { useHelpRequestsStore } from '../stores/helpRequestsStore';
+import { useHelpRequestsStore } from '../features/events/store/helpRequestsStore';
 
 const emit = defineEmits(['submitted', 'cancel']);
 const helpRequestsStore = useHelpRequestsStore();

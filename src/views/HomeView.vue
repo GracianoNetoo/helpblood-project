@@ -15,8 +15,8 @@ import PrivacyModal from '../components/PrivacyModal.vue';
 import HelpCenterModal from '../components/HelpCenterModal.vue';
 import AboutModal from '../components/AboutModal.vue';
 import AccessNoticeModal from '../components/AccessNoticeModal.vue';
-import { useAppointmentsStore } from '../stores/appointmentsStore';
-import { useAuthStore } from '../stores/authStore';
+import { useAppointmentsStore } from '../features/events/store/appointmentsStore';
+import { useAuthStore } from '../features/auth/store/authStore';
 
 const router = useRouter();
 const route = useRoute();

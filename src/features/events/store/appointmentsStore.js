@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
-import { resetPersistedStoreData } from './resetPersistedStoreData';
+import { resetPersistedStoreData } from '../../../shared/utils/resetPersistedStoreData';
 
 const STORAGE_KEY = 'univida_appointments';
 const SHOULD_USE_SEED_APPOINTMENTS = import.meta.env.DEV;

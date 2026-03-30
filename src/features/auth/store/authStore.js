@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { computed, ref, watch } from 'vue';
-import { authGetUser, authReauthenticate, authRefreshSession, authResetPasswordForEmail, authSignInWithPassword, authSignOut, authSignUp, authUpdateUser, invokeRpc, isSupabaseConfigured } from '../lib/supabaseClient';
-import { useDonorsStore } from './donorsStore';
-import { resetPersistedStoreData } from './resetPersistedStoreData';
+import { authGetUser, authReauthenticate, authRefreshSession, authResetPasswordForEmail, authSignInWithPassword, authSignOut, authSignUp, authUpdateUser, invokeRpc, isSupabaseConfigured } from '../../../lib/supabaseClient';
+import { useDonorsStore } from '../../user/store/donorsStore';
+import { resetPersistedStoreData } from '../../../shared/utils/resetPersistedStoreData';
 
 const SESSION_STORAGE_KEY = 'univida_supabase_session';
 

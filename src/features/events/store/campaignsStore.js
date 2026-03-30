@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
-import { isSupabaseConfigured, insertRows, selectRows, updateRows, deleteRows } from '../lib/supabaseClient';
-import { useAuthStore } from './authStore';
-import { resetPersistedStoreData } from './resetPersistedStoreData';
+import { isSupabaseConfigured, insertRows, selectRows, updateRows, deleteRows } from '../../../lib/supabaseClient';
+import { useAuthStore } from '../../auth/store/authStore';
+import { resetPersistedStoreData } from '../../../shared/utils/resetPersistedStoreData';
 
 const STORAGE_KEY = 'univida_campaigns';
 const DELETED_STORAGE_KEY = 'univida_deleted_campaigns';
