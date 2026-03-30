@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
-import { isSupabaseConfigured, insertRows, selectRows, updateRows, deleteRows } from '../../../lib/supabaseClient';
+import { createCampaignRow, deleteCampaignRow, isSupabaseConfigured, listCampaignRows, updateCampaignRow } from '../api';
 import { useAuthStore } from '../../auth/store/authStore';
 import { resetPersistedStoreData } from '../../../shared/utils/resetPersistedStoreData';
 
@@ -149,10 +149,7 @@ export const useCampaignsStore = defineStore('campaigns', () => {
     if (!isSupabaseConfigured) return false;
     try {
       const authOptions = getSupabaseAuthOptions() || {};
-      const rows = await selectRows('campaigns', {
-        select: '*',
-        order: 'date_iso.asc'
-      }, authOptions);
+      const rows = await listCampaignRows(authOptions);
       const remoteCampaigns = Array.isArray(rows)
         ? rows
             .map(mapCampaignFromDb)
@@ -202,7 +199,7 @@ export const useCampaignsStore = defineStore('campaigns', () => {
     }
 
     try {
-      const rows = await insertRows('campaigns', mapCampaignToDb(localRecord), authOptions);
+      const rows = await createCampaignRow(mapCampaignToDb(localRecord), authOptions);
       const created = Array.isArray(rows) ? rows[0] : null;
       if (created) {
         replaceLocalCampaign(localRecord.id, mapCampaignFromDb(created));
@@ -232,7 +229,7 @@ export const useCampaignsStore = defineStore('campaigns', () => {
 
     const authOptions = getSupabaseAuthOptions();
     if (isSupabaseConfigured && authOptions?.accessToken && !String(id).includes('-temp-')) {
-      updateRows('campaigns', { id: `eq.${id}` }, { status: nextStatus }, authOptions)
+      updateCampaignRow(id, { status: nextStatus }, authOptions)
         .then(() => {
           syncSource.value = 'supabase';
           lastSyncError.value = '';
@@ -255,7 +252,7 @@ export const useCampaignsStore = defineStore('campaigns', () => {
 
     const authOptions = getSupabaseAuthOptions();
     if (isSupabaseConfigured && authOptions?.accessToken && !String(id).includes('-temp-')) {
-      deleteRows('campaigns', { id: `eq.${id}` }, authOptions)
+      deleteCampaignRow(id, authOptions)
         .then(() => {
           syncSource.value = 'supabase';
           lastSyncError.value = '';

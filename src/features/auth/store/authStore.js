@@ -1,6 +1,17 @@
 import { defineStore } from 'pinia';
 import { computed, ref, watch } from 'vue';
-import { authGetUser, authReauthenticate, authRefreshSession, authResetPasswordForEmail, authSignInWithPassword, authSignOut, authSignUp, authUpdateUser, invokeRpc, isSupabaseConfigured } from '../../../lib/supabaseClient';
+import {
+  deleteAuthenticatedAccount,
+  getAuthenticatedUser,
+  isSupabaseConfigured,
+  refreshAuthSession,
+  requestPasswordChangeVerification,
+  requestPasswordRecoveryEmail,
+  signInWithEmail,
+  signOutAuthenticatedUser,
+  signUpWithEmail,
+  updateAuthenticatedUser
+} from '../api';
 import { useDonorsStore } from '../../user/store/donorsStore';
 import { resetPersistedStoreData } from '../../../shared/utils/resetPersistedStoreData';
 
@@ -122,7 +133,7 @@ export const useAuthStore = defineStore('auth', () => {
     authError.value = '';
 
     try {
-      const user = await authGetUser(accessTokenFromUrl);
+      const user = await getAuthenticatedUser(accessTokenFromUrl);
       const recoverySession = {
         access_token: accessTokenFromUrl,
         refresh_token: refreshTokenFromUrl,
@@ -173,7 +184,7 @@ export const useAuthStore = defineStore('auth', () => {
       throw new Error('Refresh token ausente.');
     }
 
-    const response = await authRefreshSession(refreshToken);
+    const response = await refreshAuthSession(refreshToken);
     const nextSession = response?.session || response;
     const nextUser = response?.user || null;
 
@@ -211,7 +222,7 @@ export const useAuthStore = defineStore('auth', () => {
           await refreshSession(storedSession.refresh_token);
         } else {
           try {
-            const user = await authGetUser(storedSession.access_token);
+            const user = await getAuthenticatedUser(storedSession.access_token);
             await setSessionState({
               nextSession: storedSession,
               nextUser: user
@@ -244,7 +255,7 @@ export const useAuthStore = defineStore('auth', () => {
     authError.value = '';
     isLoading.value = true;
     try {
-      const response = await authSignInWithPassword({ email, password });
+      const response = await signInWithEmail({ email, password });
       const nextSession = response?.session || response;
       const nextUser = response?.user || null;
 
@@ -269,7 +280,7 @@ export const useAuthStore = defineStore('auth', () => {
     authError.value = '';
     isLoading.value = true;
     try {
-      const response = await authSignUp({
+      const response = await signUpWithEmail({
         email,
         password,
         data: donorProfile
@@ -309,7 +320,7 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading.value = true;
 
     try {
-      await authResetPasswordForEmail({ email, redirectTo });
+      await requestPasswordRecoveryEmail({ email, redirectTo });
       return { ok: true };
     } catch (error) {
       authError.value = translateAuthError(error, 'Nao foi possivel enviar o link de recuperacao.');
@@ -328,7 +339,7 @@ export const useAuthStore = defineStore('auth', () => {
         throw new Error('Sessao invalida para confirmar a palavra-passe.');
       }
 
-      await authReauthenticate(accessToken.value);
+      await requestPasswordChangeVerification(accessToken.value);
       return { ok: true };
     } catch (error) {
       authError.value = translateAuthError(error, 'Nao foi possivel enviar o codigo de confirmacao.');
@@ -347,7 +358,7 @@ export const useAuthStore = defineStore('auth', () => {
         throw new Error('Sessao de recuperacao invalida.');
       }
 
-      const response = await authUpdateUser(accessToken.value, {
+      const response = await updateAuthenticatedUser(accessToken.value, {
         password,
         ...(nonce ? { nonce } : {})
       });
@@ -378,7 +389,7 @@ export const useAuthStore = defineStore('auth', () => {
       const emailChanged = Boolean(normalizedEmail && normalizedEmail !== previousEmail);
 
       if (emailChanged) {
-        const response = await authUpdateUser(
+        const response = await updateAuthenticatedUser(
           accessToken.value,
           { email: normalizedEmail },
           emailRedirectTo ? { emailRedirectTo } : {}
@@ -419,7 +430,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       const donorsStore = useDonorsStore();
-      await invokeRpc('delete_my_account', {}, { accessToken: accessToken.value });
+      await deleteAuthenticatedAccount(accessToken.value);
       donorsStore.removeDonor(currentUser.value.id);
       clearSession();
       persistSession();
@@ -435,7 +446,7 @@ export const useAuthStore = defineStore('auth', () => {
   const signOut = async () => {
     try {
       if (accessToken.value && isSupabaseConfigured) {
-        await authSignOut(accessToken.value);
+        await signOutAuthenticatedUser(accessToken.value);
       }
     } catch (error) {
       console.warn('Falha ao terminar sessao no Supabase:', error);

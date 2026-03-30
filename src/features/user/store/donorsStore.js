@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
-import { isSupabaseConfigured, selectRows, updateRows } from '../../../lib/supabaseClient';
+import { getProfileById, isSupabaseConfigured, listProfiles, updateProfileById } from '../api';
 import { resetPersistedStoreData } from '../../../shared/utils/resetPersistedStoreData';
 
 const STORAGE_KEY = 'univida_donors';
@@ -157,10 +157,7 @@ export const useDonorsStore = defineStore('donors', () => {
   const refreshDonorProfile = async (donorId, accessToken = null) => {
     if (!isSupabaseConfigured || !donorId) return null;
     try {
-      const rows = await selectRows('profiles', {
-        select: '*',
-        id: `eq.${donorId}`
-      }, { accessToken });
+      const rows = await getProfileById(donorId, { accessToken });
       const profile = Array.isArray(rows) ? rows[0] : null;
       if (!profile) return null;
       const normalized = mapProfileFromDb(profile);
@@ -177,7 +174,7 @@ export const useDonorsStore = defineStore('donors', () => {
   const updateDonorProfile = async (donorId, patch, accessToken = null) => {
     if (!isSupabaseConfigured || !donorId) return null;
     try {
-      const rows = await updateRows('profiles', { id: `eq.${donorId}` }, patch, { accessToken });
+      const rows = await updateProfileById(donorId, patch, { accessToken });
       const profile = Array.isArray(rows) ? rows[0] : null;
       if (!profile) return null;
       const normalized = mapProfileFromDb(profile);
@@ -194,10 +191,7 @@ export const useDonorsStore = defineStore('donors', () => {
   const refreshAllDonors = async (accessToken = null) => {
     if (!isSupabaseConfigured) return [];
     try {
-      const rows = await selectRows('profiles', {
-        select: '*',
-        order: 'created_at.desc'
-      }, { accessToken });
+      const rows = await listProfiles({ accessToken });
       const remoteDonors = Array.isArray(rows) ? rows.map(mapProfileFromDb) : [];
       const remoteIds = new Set(remoteDonors.map((item) => String(item.id)));
       const localOnly = donors.value.filter((item) => !remoteIds.has(String(item.id)) && String(item.id).startsWith('local-'));

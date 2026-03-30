@@ -1,6 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
-import { isSupabaseConfigured, insertRows, selectRows, updateRows, deleteRows } from '../../../lib/supabaseClient';
+import {
+  createHelpRequestRow,
+  deleteHelpRequestRow,
+  isSupabaseConfigured,
+  listApprovedHelpRequestRows,
+  updateHelpRequestRow
+} from '../api';
 import { useAuthStore } from '../../auth/store/authStore';
 import { resetPersistedStoreData } from '../../../shared/utils/resetPersistedStoreData';
 
@@ -113,11 +119,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
   const refreshApprovedFromSupabase = async () => {
     if (!isSupabaseConfigured) return false;
     try {
-      const rows = await selectRows('help_requests', {
-        select: '*',
-        status: 'eq.approved',
-        order: 'created_at.desc'
-      });
+      const rows = await listApprovedHelpRequestRows();
       const approvedRemote = Array.isArray(rows)
         ? rows
             .map(mapRequestFromDb)
@@ -158,11 +160,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
     const accessToken = authStore.isAuthenticated ? authStore.accessToken : null;
 
     try {
-      const rows = await insertRows(
-        'help_requests',
-        mapRequestToDb(localRequest, requesterId),
-        accessToken ? { accessToken } : {}
-      );
+      const rows = await createHelpRequestRow(mapRequestToDb(localRequest, requesterId), accessToken ? { accessToken } : {});
       const created = Array.isArray(rows) ? rows[0] : null;
       if (created) {
         replaceLocalRequest(localRequest.id, mapRequestFromDb(created));
@@ -184,7 +182,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
     target.status = 'approved';
 
     if (isSupabaseConfigured && !String(id).includes('-temp-')) {
-      updateRows('help_requests', { id: `eq.${id}` }, { status: 'approved' })
+      updateHelpRequestRow(id, { status: 'approved' })
         .then(() => {
           syncSource.value = 'supabase';
           lastSyncError.value = '';
@@ -204,7 +202,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
     target.status = 'rejected';
 
     if (isSupabaseConfigured && !String(id).includes('-temp-')) {
-      updateRows('help_requests', { id: `eq.${id}` }, { status: 'rejected' })
+      updateHelpRequestRow(id, { status: 'rejected' })
         .then(() => {
           syncSource.value = 'supabase';
           lastSyncError.value = '';
@@ -225,7 +223,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
     }
 
     if (isSupabaseConfigured && !String(id).includes('-temp-')) {
-      deleteRows('help_requests', { id: `eq.${id}` })
+      deleteHelpRequestRow(id)
         .then(() => {
           syncSource.value = 'supabase';
           lastSyncError.value = '';
