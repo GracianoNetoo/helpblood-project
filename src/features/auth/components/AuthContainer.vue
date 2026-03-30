@@ -2,7 +2,7 @@
 import { computed, ref, defineEmits, defineProps, watch } from 'vue';
 import RegisterForm from './RegisterForm.vue';
 import { LogIn, UserPlus, Droplet, ArrowRight, ShieldCheck } from 'lucide-vue-next';
-import { useAuthStore } from '../features/auth/store/authStore';
+import { useAuthStore } from '../store/authStore';
 
 const props = defineProps({
   initialTab: {

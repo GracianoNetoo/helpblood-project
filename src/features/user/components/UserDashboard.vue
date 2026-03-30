@@ -3,16 +3,16 @@ import { ref, defineEmits, markRaw, onMounted, watch, computed } from 'vue';
 import { LayoutDashboard, Droplet, CalendarDays, LogOut, Bell, AlertCircle, Menu, Megaphone } from 'lucide-vue-next';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
-import { useHelpRequestsStore } from '../features/events/store/helpRequestsStore';
-import { useDonorsStore } from '../features/user/store/donorsStore';
-import { useAuthStore } from '../features/auth/store/authStore';
-import { useCampaignsStore } from '../features/events/store/campaignsStore';
+import { useHelpRequestsStore } from '../../events/store/helpRequestsStore';
+import { useDonorsStore } from '../store/donorsStore';
+import { useAuthStore } from '../../auth/store/authStore';
+import { useCampaignsStore } from '../../events/store/campaignsStore';
 
 import DashboardOverview from './DashboardOverview.vue';
-import MyDonations from './MyDonations.vue';
-import Appointments from './Appointments.vue';
-import EmergencyRequests from './EmergencyRequests.vue';
-import CampaignsDashboard from './CampaignsDashboard.vue';
+import MyDonations from '../../donations/components/MyDonations.vue';
+import Appointments from '../../events/components/Appointments.vue';
+import EmergencyRequests from '../../events/components/EmergencyRequests.vue';
+import CampaignsDashboard from '../../events/components/CampaignsDashboard.vue';
 import UserSettingsPanel from './UserSettingsPanel.vue';
 
 const emit = defineEmits(['logout', 'account-deleted']);

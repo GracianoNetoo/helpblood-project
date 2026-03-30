@@ -2,9 +2,9 @@
 import { onMounted, onUnmounted, computed } from 'vue';
 import { Plus, Calendar, Clock } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
-import { useAppointmentsStore } from '../features/events/store/appointmentsStore';
-import { useAuthStore } from '../features/auth/store/authStore';
-import { useDonorsStore } from '../features/user/store/donorsStore';
+import { useAppointmentsStore } from '../store/appointmentsStore';
+import { useAuthStore } from '../../auth/store/authStore';
+import { useDonorsStore } from '../../user/store/donorsStore';
 
 const emit = defineEmits(['open-campaigns']);
 

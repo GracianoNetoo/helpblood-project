@@ -1,20 +1,20 @@
 <script setup>
 import { ref, onUnmounted, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import AboutSection from '../components/AboutSection.vue';
-import Header from '../components/Header.vue';
-import HeaderCard from '../components/HeaderCard.vue';
-import StepsSection from '../components/StepsSection.vue';
-import CampaignSection from '../components/CampaignSection.vue';
-import Footer from '../components/Footer.vue';
-import AuthContainer from '../components/AuthContainer.vue';
-import HelpRequestForm from '../components/HelpRequestForm.vue';
-import PartnerContactModal from '../components/PartnerContactModal.vue';
-import TermsModal from '../components/TermsModal.vue';
-import PrivacyModal from '../components/PrivacyModal.vue';
-import HelpCenterModal from '../components/HelpCenterModal.vue';
-import AboutModal from '../components/AboutModal.vue';
-import AccessNoticeModal from '../components/AccessNoticeModal.vue';
+import AboutSection from '../features/landing/components/AboutSection.vue';
+import Header from '../features/landing/components/Header.vue';
+import HeaderCard from '../features/landing/components/HeaderCard.vue';
+import StepsSection from '../features/landing/components/StepsSection.vue';
+import CampaignSection from '../features/landing/components/CampaignSection.vue';
+import Footer from '../features/landing/components/Footer.vue';
+import AuthContainer from '../features/auth/components/AuthContainer.vue';
+import HelpRequestForm from '../features/events/components/HelpRequestForm.vue';
+import PartnerContactModal from '../features/landing/components/PartnerContactModal.vue';
+import TermsModal from '../features/landing/components/TermsModal.vue';
+import PrivacyModal from '../features/landing/components/PrivacyModal.vue';
+import HelpCenterModal from '../features/landing/components/HelpCenterModal.vue';
+import AboutModal from '../features/landing/components/AboutModal.vue';
+import AccessNoticeModal from '../features/landing/components/AccessNoticeModal.vue';
 import { useAppointmentsStore } from '../features/events/store/appointmentsStore';
 import { useAuthStore } from '../features/auth/store/authStore';
 

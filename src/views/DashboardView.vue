@@ -1,6 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router';
-import UserDashboard from '../components/UserDashboard.vue';
+import UserDashboard from '../features/user/components/UserDashboard.vue';
 import { useAuthStore } from '../features/auth/store/authStore';
 
 const router = useRouter();

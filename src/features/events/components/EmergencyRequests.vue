@@ -2,8 +2,8 @@
 import { computed, ref } from 'vue';
 import { AlertCircle, MapPin, Droplet, PhoneCall } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
-import { useAppointmentsStore } from '../features/events/store/appointmentsStore';
-import { useHelpRequestsStore } from '../features/events/store/helpRequestsStore';
+import { useAppointmentsStore } from '../store/appointmentsStore';
+import { useHelpRequestsStore } from '../store/helpRequestsStore';
 
 const appointmentsStore = useAppointmentsStore();
 const helpRequestsStore = useHelpRequestsStore();

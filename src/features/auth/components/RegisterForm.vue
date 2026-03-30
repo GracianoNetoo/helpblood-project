@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, defineEmits } from 'vue';
 import { Eye, EyeOff } from 'lucide-vue-next';
-import { useAuthStore } from '../features/auth/store/authStore';
+import { useAuthStore } from '../store/authStore';
 
 const emit = defineEmits(['sucesso']);
 const authStore = useAuthStore();

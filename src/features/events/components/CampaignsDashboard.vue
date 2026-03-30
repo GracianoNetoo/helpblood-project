@@ -2,10 +2,10 @@
 import { ref, computed, onMounted } from 'vue';
 import { MapPin, CalendarDays, ArrowRight, ShieldCheck } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
-import { useAppointmentsStore } from '../features/events/store/appointmentsStore';
-import { useCampaignsStore } from '../features/events/store/campaignsStore';
-import { useAuthStore } from '../features/auth/store/authStore';
-import { useDonorsStore } from '../features/user/store/donorsStore';
+import { useAppointmentsStore } from '../store/appointmentsStore';
+import { useCampaignsStore } from '../store/campaignsStore';
+import { useAuthStore } from '../../auth/store/authStore';
+import { useDonorsStore } from '../../user/store/donorsStore';
 
 const appointmentsStore = useAppointmentsStore();
 const campaignsStore = useCampaignsStore();

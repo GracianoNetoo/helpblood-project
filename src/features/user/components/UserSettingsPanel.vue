@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { AlertTriangle, Mail, MapPin, Phone, ShieldCheck, X } from 'lucide-vue-next';
-import { useAuthStore } from '../features/auth/store/authStore';
+import { useAuthStore } from '../../auth/store/authStore';
 
 const props = defineProps({
   donor: {
