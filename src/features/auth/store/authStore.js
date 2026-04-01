@@ -13,12 +13,12 @@ import {
   updateAuthenticatedUser
 } from '../api';
 import { useDonorsStore } from '../../user/store/donorsStore';
-import { resetPersistedStoreData } from '../../../shared/utils/resetPersistedStoreData';
+import { ensurePersistedStoreSchemaVersion } from '../../../shared/utils/ensurePersistedStoreSchemaVersion';
 
 const SESSION_STORAGE_KEY = 'univida_supabase_session';
 
 export const useAuthStore = defineStore('auth', () => {
-  resetPersistedStoreData();
+  ensurePersistedStoreSchemaVersion();
   const session = ref(null);
   const currentUser = ref(null);
   const currentDonorId = ref(null);
@@ -58,7 +58,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session.value));
     } catch (error) {
-      console.warn('Falha ao salvar sessao auth:', error);
+      console.warn('Falha ao salvar sessão auth:', error);
     }
   };
 
@@ -68,7 +68,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (!raw) return null;
       return JSON.parse(raw);
     } catch (error) {
-      console.warn('Falha ao carregar sessao auth:', error);
+      console.warn('Falha ao carregar sessão auth:', error);
       return null;
     }
   };
@@ -88,7 +88,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     if (message.includes('user already registered')) {
-      return 'Este email ja esta registado. Tente iniciar sessao.';
+      return 'Este email já esta registado. Tente iniciar sessão.';
     }
 
     if (message.includes('invalid login credentials')) {
@@ -104,11 +104,11 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     if (message.includes('redirect') && message.includes('not allowed')) {
-      return 'O link de retorno da recuperacao nao esta autorizado no Supabase.';
+      return 'O link de retorno da recuperação não esta autorizado no Supabase.';
     }
 
     if (message.includes('failed to fetch') || message.includes('networkerror')) {
-      return 'Nao foi possivel comunicar com o servidor de autenticacao.';
+      return 'Não foi possivel comunicar com o servidor de autenticação.';
     }
 
     return fallbackMessage;
@@ -149,7 +149,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       return { ok: true, user };
     } catch (error) {
-      authError.value = translateAuthError(error, 'Nao foi possivel validar o link de recuperacao.');
+      authError.value = translateAuthError(error, 'Não foi possivel validar o link de recuperação.');
       return { ok: false, error };
     } finally {
       isLoading.value = false;
@@ -237,7 +237,7 @@ export const useAuthStore = defineStore('auth', () => {
         }
       } catch (error) {
         clearSession();
-        authError.value = 'A sua sessao expirou. Faca login novamente.';
+        authError.value = 'A sua sessão expirou. Faça login novamente.';
       } finally {
         isLoading.value = false;
       }
@@ -260,7 +260,7 @@ export const useAuthStore = defineStore('auth', () => {
       const nextUser = response?.user || null;
 
       if (!nextSession?.access_token || !nextUser?.id) {
-        throw new Error('Sessao invalida recebida do Supabase.');
+        throw new Error('Sessão invalida recebida.');
       }
 
       await setSessionState({
@@ -269,7 +269,7 @@ export const useAuthStore = defineStore('auth', () => {
       });
       return { ok: true };
     } catch (error) {
-      authError.value = translateAuthError(error, 'Nao foi possivel iniciar sessao com essas credenciais.');
+      authError.value = translateAuthError(error, 'Não foi possivel iniciar sessão com essas credenciais.');
       return { ok: false, error };
     } finally {
       isLoading.value = false;
@@ -298,7 +298,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       if (!nextUser?.id) {
-        throw new Error('Cadastro sem utilizador valido retornado pelo Supabase.');
+        throw new Error('Cadastro sem utilizador valido retornado.');
       }
 
       session.value = null;
@@ -308,7 +308,7 @@ export const useAuthStore = defineStore('auth', () => {
       persistSession();
       return { ok: true, needsEmailConfirmation: true };
     } catch (error) {
-      authError.value = translateAuthError(error, 'Nao foi possivel criar a conta agora.');
+      authError.value = translateAuthError(error, 'Não foi possivel criar a conta agora.');
       return { ok: false, error };
     } finally {
       isLoading.value = false;
@@ -323,7 +323,7 @@ export const useAuthStore = defineStore('auth', () => {
       await requestPasswordRecoveryEmail({ email, redirectTo });
       return { ok: true };
     } catch (error) {
-      authError.value = translateAuthError(error, 'Nao foi possivel enviar o link de recuperacao.');
+      authError.value = translateAuthError(error, 'Não foi possivel enviar o link de recuperação.');
       return { ok: false, error };
     } finally {
       isLoading.value = false;
@@ -336,13 +336,13 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       if (!accessToken.value) {
-        throw new Error('Sessao invalida para confirmar a palavra-passe.');
+        throw new Error('Sessão invalida para confirmar a palavra-passe.');
       }
 
       await requestPasswordChangeVerification(accessToken.value);
       return { ok: true };
     } catch (error) {
-      authError.value = translateAuthError(error, 'Nao foi possivel enviar o codigo de confirmacao.');
+      authError.value = translateAuthError(error, 'Não foi possivel enviar o codigo de confirmação.');
       return { ok: false, error };
     } finally {
       isLoading.value = false;
@@ -368,7 +368,7 @@ export const useAuthStore = defineStore('auth', () => {
       await refreshCurrentProfile();
       return { ok: true };
     } catch (error) {
-      authError.value = translateAuthError(error, 'Nao foi possivel atualizar a palavra-passe.');
+      authError.value = translateAuthError(error, 'Não foi possivel atualizar a palavra-passe.');
       return { ok: false, error };
     } finally {
       isLoading.value = false;
@@ -413,7 +413,7 @@ export const useAuthStore = defineStore('auth', () => {
       await refreshCurrentProfile();
       return { ok: true, emailChanged };
     } catch (error) {
-      authError.value = translateAuthError(error, 'Nao foi possivel atualizar os dados da conta.');
+      authError.value = translateAuthError(error, 'Não foi possivel atualizar os dados da conta.');
       return { ok: false, error };
     } finally {
       isLoading.value = false;
@@ -436,7 +436,7 @@ export const useAuthStore = defineStore('auth', () => {
       persistSession();
       return { ok: true };
     } catch (error) {
-      authError.value = translateAuthError(error, 'Nao foi possivel eliminar a conta agora.');
+      authError.value = translateAuthError(error, 'Não foi possivel eliminar a conta agora.');
       return { ok: false, error };
     } finally {
       isLoading.value = false;

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { getProfileById, isSupabaseConfigured, listProfiles, updateProfileById } from '../api';
-import { resetPersistedStoreData } from '../../../shared/utils/resetPersistedStoreData';
+import { ensurePersistedStoreSchemaVersion } from '../../../shared/utils/ensurePersistedStoreSchemaVersion';
 
 const STORAGE_KEY = 'univida_donors';
 const SHOULD_USE_SEED_DONORS = import.meta.env.DEV;
@@ -54,7 +54,7 @@ const mapProfileFromDb = (row) => normalizeDonor({
 });
 
 export const useDonorsStore = defineStore('donors', () => {
-  resetPersistedStoreData();
+  ensurePersistedStoreSchemaVersion();
   const donors = ref(SHOULD_USE_SEED_DONORS ? [...seedDonors].map(normalizeDonor) : []);
   const lastSyncError = ref('');
 
@@ -166,7 +166,7 @@ export const useDonorsStore = defineStore('donors', () => {
       return normalized;
     } catch (error) {
       lastSyncError.value = error.message || 'Falha ao sincronizar perfil do doador.';
-      console.warn('Falha ao carregar perfil do Supabase:', error);
+      console.warn('Falha ao carregar perfil:', error);
       return null;
     }
   };
@@ -183,7 +183,7 @@ export const useDonorsStore = defineStore('donors', () => {
       return normalized;
     } catch (error) {
       lastSyncError.value = error.message || 'Falha ao atualizar perfil do doador.';
-      console.warn('Falha ao atualizar perfil do Supabase:', error);
+      console.warn('Falha ao atualizar perfil:', error);
       return null;
     }
   };
@@ -200,7 +200,7 @@ export const useDonorsStore = defineStore('donors', () => {
       return donors.value;
     } catch (error) {
       lastSyncError.value = error.message || 'Falha ao carregar base de doadores.';
-      console.warn('Falha ao carregar doadores do Supabase:', error);
+      console.warn('Falha ao carregar doadores:', error);
       return donors.value;
     }
   };

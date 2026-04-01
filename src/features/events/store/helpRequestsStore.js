@@ -8,7 +8,7 @@ import {
   updateHelpRequestRow
 } from '../api';
 import { useAuthStore } from '../../auth/store/authStore';
-import { resetPersistedStoreData } from '../../../shared/utils/resetPersistedStoreData';
+import { ensurePersistedStoreSchemaVersion } from '../../../shared/utils/ensurePersistedStoreSchemaVersion';
 
 const STORAGE_KEY = 'univida_help_requests';
 const DELETED_STORAGE_KEY = 'univida_deleted_help_requests';
@@ -56,7 +56,7 @@ const mapRequestToDb = (request, requesterId = null) => ({
 });
 
 export const useHelpRequestsStore = defineStore('helpRequests', () => {
-  resetPersistedStoreData();
+  ensurePersistedStoreSchemaVersion();
   const requests = ref([]);
   const lastSyncError = ref('');
   const syncSource = ref('local');

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { createCampaignRow, deleteCampaignRow, isSupabaseConfigured, listCampaignRows, updateCampaignRow } from '../api';
 import { useAuthStore } from '../../auth/store/authStore';
-import { resetPersistedStoreData } from '../../../shared/utils/resetPersistedStoreData';
+import { ensurePersistedStoreSchemaVersion } from '../../../shared/utils/ensurePersistedStoreSchemaVersion';
 
 const STORAGE_KEY = 'univida_campaigns';
 const DELETED_STORAGE_KEY = 'univida_deleted_campaigns';
@@ -69,7 +69,7 @@ const getCampaignSyncErrorMessage = (error, fallbackMessage) => {
 };
 
 export const useCampaignsStore = defineStore('campaigns', () => {
-  resetPersistedStoreData();
+  ensurePersistedStoreSchemaVersion();
   const campaigns = ref(SHOULD_USE_SEED_CAMPAIGNS ? [...seedCampaigns].map(normalizeCampaign) : []);
   const lastSyncError = ref('');
   const syncSource = ref('local');
