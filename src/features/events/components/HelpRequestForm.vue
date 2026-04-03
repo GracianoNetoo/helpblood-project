@@ -1,7 +1,9 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { User, Droplet, MapPin, Phone, AlertTriangle, FileText } from 'lucide-vue-next';
 import { useHelpRequestsStore } from '../store/helpRequestsStore';
+import { getZodFieldErrors } from '../../../shared/utils/zodErrors';
+import { helpRequestSchema } from '../validation/helpRequestSchema';
 
 const emit = defineEmits(['submitted', 'cancel']);
 const helpRequestsStore = useHelpRequestsStore();
@@ -23,35 +25,12 @@ const showSuccess = ref(false);
 const isSubmitting = ref(false);
 const formError = ref('');
 
-const telefoneInvalido = computed(() => {
-  const value = form.value.contacto.trim();
-  if (!value) return false;
-  const digits = value.replace(/\D/g, '');
-  if (digits.length < 9 || digits.length > 9) return true;
-  return !/^[+\d][\d\s()-]+$/.test(value);
-});
+const validationResult = computed(() => helpRequestSchema.safeParse(form.value));
+const fieldErrors = computed(() => getZodFieldErrors(validationResult.value));
+const isInvalid = computed(() => !validationResult.value.success);
 
-const excedeuLimite = computed(() => {
-  return (
-    form.value.nome.length > 80 ||
-    form.value.localizacao.length > 80 ||
-    form.value.volume.length > 20 ||
-    form.value.motivo.length > 200 ||
-    form.value.contacto.length > 20
-  );
-});
-
-const isInvalid = computed(() => {
-  if (!form.value.anonimo && !form.value.nome.trim()) return true;
-  if (!form.value.tipo_sanguineo) return true;
-  if (!form.value.localizacao.trim()) return true;
-  if (!form.value.urgencia) return true;
-  if (!form.value.motivo.trim()) return true;
-  if (!form.value.contacto.trim()) return true;
-  if (telefoneInvalido.value) return true;
-  if (excedeuLimite.value) return true;
-  return false;
-});
+const hasError = (field) => Boolean(submitted.value && fieldErrors.value[field]);
+const getError = (field) => (hasError(field) ? fieldErrors.value[field] : '');
 
 const handleSubmit = async () => {
   submitted.value = true;
@@ -120,7 +99,7 @@ const handleSubmit = async () => {
               class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
           </div>
           <div class="flex items-center justify-between">
-            <p v-if="submitted && !form.nome.trim()" class="text-[11px] text-rose-600 font-bold">Nome e obrigatorio.</p>
+            <p v-if="hasError('nome')" class="text-[11px] text-rose-600 font-bold">{{ getError('nome') }}</p>
             <p class="text-[11px] text-gray-400 font-semibold ml-auto">{{ form.nome.length }}/80</p>
           </div>
         </div>
@@ -144,7 +123,7 @@ const handleSubmit = async () => {
               <option>AB-</option>
             </select>
           </div>
-          <p v-if="submitted && !form.tipo_sanguineo" class="text-[11px] text-rose-600 font-bold">Tipo sanguineo e obrigatorio.</p>
+          <p v-if="hasError('tipo_sanguineo')" class="text-[11px] text-rose-600 font-bold">{{ getError('tipo_sanguineo') }}</p>
         </div>
       </div>
 
@@ -159,7 +138,7 @@ const handleSubmit = async () => {
               class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
           </div>
           <div class="flex items-center justify-between">
-            <p v-if="submitted && !form.localizacao.trim()" class="text-[11px] text-rose-600 font-bold">Localizacao e obrigatoria.</p>
+            <p v-if="hasError('localizacao')" class="text-[11px] text-rose-600 font-bold">{{ getError('localizacao') }}</p>
             <p class="text-[11px] text-gray-400 font-semibold ml-auto">{{ form.localizacao.length }}/80</p>
           </div>
         </div>
@@ -178,7 +157,7 @@ const handleSubmit = async () => {
               <option>Baixa (72h+)</option>
             </select>
           </div>
-          <p v-if="submitted && !form.urgencia" class="text-[11px] text-rose-600 font-bold">Urgencia e obrigatoria.</p>
+          <p v-if="hasError('urgencia')" class="text-[11px] text-rose-600 font-bold">{{ getError('urgencia') }}</p>
         </div>
       </div>
 
@@ -196,13 +175,12 @@ const handleSubmit = async () => {
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Phone class="h-4 w-4 text-gray-400" />
             </div>
-            <input v-model="form.contacto" type="text" maxlength="9" placeholder="Telefone ou WhatsApp"
+            <input v-model="form.contacto" type="text" maxlength="16" placeholder="+244923000000"
               class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium" />
           </div>
           <div class="flex items-center justify-between">
-            <p v-if="submitted && !form.contacto.trim()" class="text-[11px] text-rose-600 font-bold">Contacto e obrigatorio.</p>
-            <p v-else-if="telefoneInvalido" class="text-[11px] text-rose-600 font-bold">Contacto invalido.</p>
-            <p class="text-[11px] text-gray-400 font-semibold ml-auto">{{ form.contacto.length }}/9</p>
+            <p v-if="hasError('contacto')" class="text-[11px] text-rose-600 font-bold">{{ getError('contacto') }}</p>
+            <p class="text-[11px] text-gray-400 font-semibold ml-auto">{{ form.contacto.length }}/16</p>
           </div>
         </div>
       </div>
@@ -217,7 +195,7 @@ const handleSubmit = async () => {
             class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium resize-none"></textarea>
         </div>
         <div class="flex items-center justify-between">
-          <p v-if="submitted && !form.motivo.trim()" class="text-[11px] text-rose-600 font-bold">Motivo e obrigatorio.</p>
+          <p v-if="hasError('motivo')" class="text-[11px] text-rose-600 font-bold">{{ getError('motivo') }}</p>
           <p class="text-[11px] text-gray-400 font-semibold ml-auto">{{ form.motivo.length }}/200</p>
         </div>
       </div>

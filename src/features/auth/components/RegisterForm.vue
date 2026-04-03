@@ -2,6 +2,10 @@
 import { ref, computed, defineEmits } from 'vue';
 import { Eye, EyeOff } from 'lucide-vue-next';
 import { useAuthStore } from '../store/authStore';
+import { angolaLocations, getMunicipiosByProvincia } from '../../../shared/utils/angolaLocations';
+import { normalizeAngolaPhone } from '../../../shared/utils/phone';
+import { getZodFieldErrors } from '../../../shared/utils/zodErrors';
+import { registerDonorSchema } from '../validation/registerSchema';
 
 const emit = defineEmits(['sucesso']);
 const authStore = useAuthStore();
@@ -25,12 +29,6 @@ const touched = ref({
   confirmar_senha: false
 });
 
-const localizacaoAngola = {
-  Luanda: ['Belas', 'Cacuaco', 'Cazenga', 'Kilamba Kiaxi', 'Talatona', 'Viana'],
-  Benguela: ['Baia Farta', 'Benguela', 'Catumbela', 'Lobito'],
-  Huambo: ['Caala', 'Huambo', 'Mungo']
-};
-
 const form = ref({
   nome: '',
   tipo_sanguineo: '',
@@ -46,53 +44,31 @@ const form = ref({
 const provinciaSelecionada = ref('');
 const municipioSelecionado = ref('');
 
-const municipiosDisponiveis = computed(() => (
-  provinciaSelecionada.value ? localizacaoAngola[provinciaSelecionada.value] : []
-));
+const municipiosDisponiveis = computed(() => getMunicipiosByProvincia(provinciaSelecionada.value));
+
+const validationInput = computed(() => ({
+  nome: form.value.nome,
+  tipo_sanguineo: form.value.tipo_sanguineo,
+  rh: form.value.rh,
+  doacao_sangue: form.value.doacao_sangue,
+  provincia: provinciaSelecionada.value,
+  municipio: municipioSelecionado.value,
+  telefone: form.value.telefone,
+  email: form.value.email,
+  senha: form.value.senha,
+  confirmar_senha: form.value.confirmar_senha
+}));
+
+const validationResult = computed(() => registerDonorSchema.safeParse(validationInput.value));
+const fieldErrors = computed(() => getZodFieldErrors(validationResult.value));
+const isFormInvalid = computed(() => !validationResult.value.success);
 
 const aoMudarProvincia = () => {
   municipioSelecionado.value = '';
 };
 
-const normalizePhone = (value) => {
-  const digits = String(value || '').replace(/\D/g, '');
-  if (!digits) return '';
-  if (digits.startsWith('244') && digits.length === 12) {
-    return digits.slice(3);
-  }
-  return digits;
-};
-
-const telefoneInvalido = computed(() => {
-  const tel = normalizePhone(form.value.telefone);
-  if (tel.length === 0) return false;
-  return !/^9[1-59]\d{7}$/.test(tel);
-});
-
-const emailInvalido = computed(() => {
-  const email = form.value.email.trim();
-  if (!email) return false;
-  return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-});
-
-const senhaCurta = computed(() => form.value.senha.length > 0 && form.value.senha.length < 8);
-const senhaNaoCoincide = computed(() => form.value.confirmar_senha.length > 0 && form.value.senha !== form.value.confirmar_senha);
-
-const isFormInvalid = computed(() => {
-  if (!form.value.nome) return true;
-  if (!form.value.tipo_sanguineo) return true;
-  if (!form.value.rh) return true;
-  if (!form.value.doacao_sangue) return true;
-  if (!provinciaSelecionada.value) return true;
-  if (!municipioSelecionado.value) return true;
-  if (!form.value.telefone) return true;
-  if (!form.value.email) return true;
-  if (!form.value.senha || !form.value.confirmar_senha) return true;
-  if (telefoneInvalido.value || emailInvalido.value || senhaCurta.value || senhaNaoCoincide.value) return true;
-  return false;
-});
-
-const shouldShowError = (field) => submitted.value || touched.value[field];
+const hasError = (field) => Boolean((submitted.value || touched.value[field]) && fieldErrors.value[field]);
+const getError = (field) => (hasError(field) ? fieldErrors.value[field] : '');
 
 const resetForm = () => {
   form.value = {
@@ -129,6 +105,7 @@ const handleSubmit = async () => {
   submitted.value = true;
   formError.value = '';
   signupNotice.value = '';
+
   if (isFormInvalid.value || isSubmitting.value) return;
 
   isSubmitting.value = true;
@@ -137,19 +114,19 @@ const handleSubmit = async () => {
     email: form.value.email.trim().toLowerCase(),
     password: form.value.senha,
     donorProfile: {
-      nome: form.value.nome,
+      nome: form.value.nome.trim(),
       tipo_sanguineo: form.value.tipo_sanguineo,
       rh: form.value.rh,
       provincia: provinciaSelecionada.value,
       municipio: municipioSelecionado.value,
-      telefone: normalizePhone(form.value.telefone),
+      telefone: normalizeAngolaPhone(form.value.telefone),
       email: form.value.email.trim().toLowerCase(),
       doacao_sangue: form.value.doacao_sangue
     }
   });
 
   if (!result.ok) {
-    formError.value = authStore.authError || 'Não foi possível concluir o cadastro.';
+    formError.value = authStore.authError || 'Nao foi possivel concluir o cadastro.';
     isSubmitting.value = false;
     return;
   }
@@ -157,7 +134,7 @@ const handleSubmit = async () => {
   resetForm();
 
   if (result.needsEmailConfirmation) {
-    signupNotice.value = 'Conta criada com sucesso. Verifique o seu email e confirme o registo antes de iniciar sessão.';
+    signupNotice.value = 'Conta criada com sucesso. Verifique o seu email e confirme o registo antes de iniciar sessao.';
     isSubmitting.value = false;
     return;
   }
@@ -174,7 +151,7 @@ const handleSubmit = async () => {
         <span class="w-5 h-5 border-2 border-rose-300 border-t-rose-600 rounded-full animate-spin"></span>
         <div>
           <p class="text-sm font-bold text-gray-900">A processar cadastro</p>
-          <p class="text-[12px] text-gray-500">Estamos a finalizar a sua inscrição.</p>
+          <p class="text-[12px] text-gray-500">Estamos a finalizar a sua inscricao.</p>
         </div>
       </div>
     </div>
@@ -183,11 +160,11 @@ const handleSubmit = async () => {
       <div class="form-control w-full space-y-1.5">
         <label class="label font-bold text-[13px] text-gray-700 ml-1">Nome Completo</label>
         <input v-model="form.nome" @blur="touched.nome = true" type="text" placeholder="Antonio Joao Silva" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium placeholder:text-gray-400" />
-        <p v-if="shouldShowError('nome') && !form.nome" class="text-[11px] text-rose-600 font-bold">Nome é obrigatório.</p>
+        <p v-if="hasError('nome')" class="text-[11px] text-rose-600 font-bold">{{ getError('nome') }}</p>
       </div>
 
       <div class="form-control w-full space-y-1.5">
-        <label class="label font-bold text-[13px] text-gray-700 ml-1">Tipo Sanguíneo</label>
+        <label class="label font-bold text-[13px] text-gray-700 ml-1">Tipo Sanguineo</label>
         <select v-model="form.tipo_sanguineo" @blur="touched.tipo_sanguineo = true" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium appearance-none select-arrow">
           <option value="" disabled>Selecione</option>
           <option>O+</option>
@@ -199,7 +176,7 @@ const handleSubmit = async () => {
           <option>AB+</option>
           <option>AB-</option>
         </select>
-        <p v-if="shouldShowError('tipo_sanguineo') && !form.tipo_sanguineo" class="text-[11px] text-rose-600 font-bold">Selecione o tipo sanguíneo.</p>
+        <p v-if="hasError('tipo_sanguineo')" class="text-[11px] text-rose-600 font-bold">{{ getError('tipo_sanguineo') }}</p>
       </div>
     </div>
 
@@ -211,17 +188,17 @@ const handleSubmit = async () => {
           <option>Positivo (+)</option>
           <option>Negativo (-)</option>
         </select>
-        <p v-if="shouldShowError('rh') && !form.rh" class="text-[11px] text-rose-600 font-bold">Selecione o fator RH.</p>
+        <p v-if="hasError('rh')" class="text-[11px] text-rose-600 font-bold">{{ getError('rh') }}</p>
       </div>
 
       <div class="form-control w-full space-y-1.5">
-        <label class="label font-bold text-[13px] text-gray-700 ml-1">Já doou sangue?</label>
+        <label class="label font-bold text-[13px] text-gray-700 ml-1">Ja doou sangue?</label>
         <select v-model="form.doacao_sangue" @blur="touched.doacao_sangue = true" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium appearance-none select-arrow">
           <option value="" disabled>Selecione</option>
-          <option>Sim, já doei</option>
-          <option>Não, será a 1ª vez</option>
+          <option>Sim, ja doei</option>
+          <option>Nao, sera a 1a vez</option>
         </select>
-        <p v-if="shouldShowError('doacao_sangue') && !form.doacao_sangue" class="text-[11px] text-rose-600 font-bold">Indique se já doou sangue.</p>
+        <p v-if="hasError('doacao_sangue')" class="text-[11px] text-rose-600 font-bold">{{ getError('doacao_sangue') }}</p>
       </div>
     </div>
 
@@ -229,35 +206,33 @@ const handleSubmit = async () => {
       <div class="form-control w-full space-y-1.5">
         <label class="label font-bold text-[13px] text-gray-700 ml-1">Provincia</label>
         <select v-model="provinciaSelecionada" @change="aoMudarProvincia" @blur="touched.provincia = true" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium appearance-none select-arrow">
-          <option value="" disabled>Selecione a província</option>
-          <option v-for="prov in Object.keys(localizacaoAngola)" :key="prov">{{ prov }}</option>
+          <option value="" disabled>Selecione a provincia</option>
+          <option v-for="prov in Object.keys(angolaLocations)" :key="prov">{{ prov }}</option>
         </select>
-        <p v-if="shouldShowError('provincia') && !provinciaSelecionada" class="text-[11px] text-rose-600 font-bold">Selecione a província.</p>
+        <p v-if="hasError('provincia')" class="text-[11px] text-rose-600 font-bold">{{ getError('provincia') }}</p>
       </div>
 
       <div class="form-control w-full space-y-1.5">
         <label class="label font-bold text-[13px] text-gray-700 ml-1">Municipio</label>
         <select v-model="municipioSelecionado" @blur="touched.municipio = true" :disabled="!provinciaSelecionada" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium appearance-none select-arrow disabled:opacity-50 disabled:cursor-not-allowed">
-          <option value="" disabled>Defina a província antes</option>
+          <option value="" disabled>Defina a provincia antes</option>
           <option v-for="mun in municipiosDisponiveis" :key="mun">{{ mun }}</option>
         </select>
-        <p v-if="shouldShowError('municipio') && !municipioSelecionado" class="text-[11px] text-rose-600 font-bold">Selecione o município.</p>
+        <p v-if="hasError('municipio')" class="text-[11px] text-rose-600 font-bold">{{ getError('municipio') }}</p>
       </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
       <div class="form-control w-full space-y-1.5 relative">
-        <label class="label font-bold text-[13px] text-gray-700 ml-1">Telemóvel (WhatsApp)</label>
-        <input v-model="form.telefone" @blur="touched.telefone = true" type="tel" placeholder="+2449XXXXXXXX" maxlength="16" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium placeholder:text-gray-400" :class="{ 'border-red-400 focus:border-red-500 focus:ring-red-500/20 bg-red-50': telefoneInvalido }" />
-        <p v-if="shouldShowError('telefone') && !form.telefone" class="absolute -bottom-5 text-rose-600 text-[11px] ml-1 font-bold">Informe o telemóvel.</p>
-        <p v-else-if="telefoneInvalido" class="absolute -bottom-5 text-red-500 text-[11px] ml-1 font-bold">Use 9 digítos ou o formato +244 seguido de 9 digítos.</p>
+        <label class="label font-bold text-[13px] text-gray-700 ml-1">Telemovel (WhatsApp)</label>
+        <input v-model="form.telefone" @blur="touched.telefone = true" type="tel" placeholder="+2449XXXXXXXX" maxlength="16" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium placeholder:text-gray-400" :class="{ 'border-red-400 focus:border-red-500 focus:ring-red-500/20 bg-red-50': hasError('telefone') }" />
+        <p v-if="hasError('telefone')" class="absolute -bottom-5 text-red-500 text-[11px] ml-1 font-bold">{{ getError('telefone') }}</p>
       </div>
 
       <div class="form-control w-full space-y-1.5">
         <label class="label font-bold text-[13px] text-gray-700 ml-1">E-mail</label>
         <input v-model="form.email" @blur="touched.email = true" type="email" placeholder="nome@exemplo.com" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-[14px] rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium placeholder:text-gray-400" />
-        <p v-if="shouldShowError('email') && !form.email" class="text-[11px] text-rose-600 font-bold">Informe o email.</p>
-        <p v-else-if="emailInvalido" class="text-[11px] text-rose-600 font-bold">E-mail invalido.</p>
+        <p v-if="hasError('email')" class="text-[11px] text-rose-600 font-bold">{{ getError('email') }}</p>
       </div>
     </div>
 
@@ -268,42 +243,37 @@ const handleSubmit = async () => {
         <button type="button" @click="mostrarSenha = !mostrarSenha" class="absolute right-4 top-8.75 text-gray-400 hover:text-gray-600 transition-colors">
           <component :is="mostrarSenha ? EyeOff : Eye" class="w-5 h-5" />
         </button>
-        <p v-if="shouldShowError('senha') && !form.senha" class="text-[11px] text-rose-600 font-bold">Informe a palavra-passe.</p>
-        <p v-else-if="senhaCurta" class="text-[11px] text-rose-600 font-bold">Minímo 8 caracteres.</p>
+        <p v-if="hasError('senha')" class="text-[11px] text-rose-600 font-bold">{{ getError('senha') }}</p>
       </div>
 
       <div class="form-control w-full space-y-1.5 relative">
         <label class="label font-bold text-[13px] text-gray-700 ml-1">Confirmar Palavra-passe</label>
-        <input v-model="form.confirmar_senha" @blur="touched.confirmar_senha = true" :type="mostrarSenhaConfirmacao ? 'text' : 'password'" placeholder="Repita a palavra-passe" class="w-full bg-gray-50 border text-gray-900 text-[14px] rounded-2xl pl-4 pr-12 py-3.5 focus:outline-none transition-all font-medium placeholder:text-gray-400" :class="[form.confirmar_senha && form.senha !== form.confirmar_senha ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20 bg-red-50/50' : 'border-gray-200 bg-gray-50 focus:border-rose-500 focus:ring-rose-500/20 focus:ring-2']" />
+        <input v-model="form.confirmar_senha" @blur="touched.confirmar_senha = true" :type="mostrarSenhaConfirmacao ? 'text' : 'password'" placeholder="Repita a palavra-passe" class="w-full bg-gray-50 border text-gray-900 text-[14px] rounded-2xl pl-4 pr-12 py-3.5 focus:outline-none transition-all font-medium placeholder:text-gray-400" :class="[hasError('confirmar_senha') ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20 bg-red-50/50' : 'border-gray-200 bg-gray-50 focus:border-rose-500 focus:ring-rose-500/20 focus:ring-2']" />
         <button type="button" @click="mostrarSenhaConfirmacao = !mostrarSenhaConfirmacao" class="absolute right-4 top-8.75 text-gray-400 hover:text-gray-600 transition-colors">
           <component :is="mostrarSenhaConfirmacao ? EyeOff : Eye" class="w-5 h-5" />
         </button>
-        <p v-if="shouldShowError('confirmar_senha') && !form.confirmar_senha" class="text-[11px] text-rose-600 font-bold">Confirme a palavra-passe.</p>
-        <p v-else-if="senhaNaoCoincide" class="text-[11px] text-rose-600 font-bold">As palavras-passe não coincidem.</p>
+        <p v-if="hasError('confirmar_senha')" class="text-[11px] text-rose-600 font-bold">{{ getError('confirmar_senha') }}</p>
       </div>
     </div>
 
-    <div
-      v-if="signupNotice"
-      class="rounded-[28px] border border-rose-200 bg-linear-to-r from-rose-50 via-white to-rose-50 px-5 py-5 shadow-[0_12px_30px_rgba(14,165,233,0.08)]"
-    >
+    <div v-if="signupNotice" class="rounded-[28px] border border-rose-200 bg-linear-to-r from-rose-50 via-white to-rose-50 px-5 py-5 shadow-[0_12px_30px_rgba(14,165,233,0.08)]">
       <div class="flex items-start gap-3">
         <div class="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-600 text-white shadow-[0_10px_20px_rgba(225,29,72,0.25)]">
           <span class="text-lg font-black">!</span>
         </div>
         <div>
-          <p class="text-[12px] font-black uppercase tracking-[0.18em] text-rose-700">Verificação necessária</p>
+          <p class="text-[12px] font-black uppercase tracking-[0.18em] text-rose-700">Verificacao necessaria</p>
           <p class="mt-2 text-[14px] font-semibold leading-relaxed text-slate-700">
             {{ signupNotice }}
           </p>
           <p class="mt-2 text-[12px] text-slate-500">
-            Se não encontrar a mensagem, veja tambem a pasta de spam ou promoções.
+            Se nao encontrar a mensagem, veja tambem a pasta de spam ou promocoes.
           </p>
         </div>
       </div>
     </div>
 
-    <p v-if="formError" class="text-[12px] font-bold" :class="formError.includes('Conta criada') ? 'text-rose-600' : 'text-rose-600'">
+    <p v-if="formError" class="text-[12px] font-bold text-rose-600">
       {{ formError }}
     </p>
 
@@ -316,7 +286,7 @@ const handleSubmit = async () => {
         <span v-else>Finalizar Registo</span>
       </button>
       <p class="text-center text-[12px] text-gray-500 font-medium mt-4">
-        Ao registrar-se, concorda com as <a href="#" class="text-rose-600 hover:underline">Políticas de Privacidade.</a>
+        Ao registrar-se, concorda com as <a href="#" class="text-rose-600 hover:underline">Politicas de Privacidade.</a>
       </p>
     </div>
   </form>
