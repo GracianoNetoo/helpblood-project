@@ -16,3 +16,13 @@ export const listDonationRows = (filters = {}, options = {}) => {
 export const createDonationRow = (donation, options = {}) => {
   return insertRows('donations', donation, options);
 };
+
+export const listDonationsByDonorId = (donorId, options = {}) => {
+  return listDonationRows(
+    {
+      donor_id: `eq.${donorId}`,
+      order: 'donated_at.desc,created_at.desc'
+    },
+    options
+  );
+};

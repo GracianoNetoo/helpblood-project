@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { History, Droplet } from 'lucide-vue-next';
 import { useAuthStore } from '../../auth/store/authStore';
@@ -10,7 +10,7 @@ const authStore = useAuthStore();
 const donorsStore = useDonorsStore();
 const campaignsStore = useCampaignsStore();
 
-const { currentDonorId } = storeToRefs(authStore);
+const { currentDonorId, accessToken } = storeToRefs(authStore);
 const { donors } = storeToRefs(donorsStore);
 const { campaigns } = storeToRefs(campaignsStore);
 
@@ -69,6 +69,15 @@ const resolveLocation = (donation) => {
   }
   return 'Local não informado';
 };
+
+watch(
+  [currentDonorId, accessToken],
+  ([donorId, token]) => {
+    if (!donorId || !token) return;
+    donorsStore.refreshDonationHistory(donorId, token);
+  },
+  { immediate: true }
+);
 </script>
 
 <template>

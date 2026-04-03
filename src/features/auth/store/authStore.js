@@ -169,6 +169,7 @@ export const useAuthStore = defineStore('auth', () => {
     const confirmedEmail = String(currentUser.value?.email || '').trim().toLowerCase();
 
     currentUserRole.value = profile?.role || currentUser.value?.app_metadata?.role || currentUser.value?.user_metadata?.role || 'donor';
+    await donorsStore.refreshDonationHistory(currentDonorId.value, accessToken.value);
 
     if (profile && confirmedEmail && String(profile.email || '').trim().toLowerCase() !== confirmedEmail) {
       await donorsStore.updateDonorProfile(

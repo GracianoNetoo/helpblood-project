@@ -149,12 +149,27 @@ const ensureDonationDraft = (donorId) => {
   syncDonationDraft(donorId);
 };
 
-const saveDonationLiters = (donorId, liters, campaign) => {
+const saveDonationLiters = async (donorId, liters, campaign) => {
   const draftValue = typeof liters === 'undefined' ? donationDrafts.value[donorId] ?? '' : liters;
   const error = getDonationError(draftValue);
-  if (error) return;
-  donorsStore.updateLastDonationLiters(donorId, draftValue, campaign);
+  if (error) return null;
+  const linkedAppointment = scheduledAppointments.value.find((appointment) => {
+    return String(appointment.donorId) === String(donorId)
+      && String(appointment.campaignId) === String(campaign?.id || '');
+  });
+  const savedDonation = await donorsStore.updateLastDonationLiters(
+    donorId,
+    draftValue,
+    campaign,
+    {
+      accessToken: authStore.accessToken,
+      recordedBy: authStore.currentUser?.id || null,
+      appointmentId: linkedAppointment?.id || null
+    }
+  );
+  if (!savedDonation) return null;
   syncDonationDraft(donorId);
+  return savedDonation;
 };
 
 const applyDonationPreset = (donorId, value) => {
@@ -229,7 +244,7 @@ const selectedDonationDonor = computed(() => {
   return donors.value.find((item) => item.id === donationModal.value.donorId) || null;
 });
 
-const confirmDonationModal = () => {
+const confirmDonationModal = async () => {
   const { donorId, liters, campaignId } = donationModal.value;
   if (!donorId) return;
   if (!campaignId) {
@@ -241,7 +256,11 @@ const confirmDonationModal = () => {
     donationModalError.value = 'Campanha invalida ou inativa.';
     return;
   }
-  saveDonationLiters(donorId, liters, campaign);
+  const savedDonation = await saveDonationLiters(donorId, liters, campaign);
+  if (!savedDonation) {
+    donationModalError.value = donorsSyncError.value || 'Nao foi possivel guardar a doacao agora.';
+    return;
+  }
   appointmentsStore.completeCampaignForDonor(donorId, campaignId);
   closeDonationModal();
 };
