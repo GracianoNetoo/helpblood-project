@@ -4,7 +4,7 @@ import { AlertCircle, MapPin, Droplet, PhoneCall } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import { useAppointmentsStore } from '../store/appointmentsStore';
 import { useHelpRequestsStore } from '../store/helpRequestsStore';
-import { useAuthStore } from '../../auth/store/authStore';
+import { useAuthStore } from '@/features/auth/store/authStore';
 
 const appointmentsStore = useAppointmentsStore();
 const helpRequestsStore = useHelpRequestsStore();

@@ -1,6 +1,6 @@
 <script setup>
 import { AlertCircle, CheckCircle2, Info, X } from 'lucide-vue-next';
-import { dismissToast, useToastState } from '../../core/services/toastService';
+import { dismissToast, useToastState } from '@/core/services/toastService';
 
 const { toasts } = useToastState();
 

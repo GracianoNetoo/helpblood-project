@@ -2,9 +2,9 @@
 import { ref, computed, defineEmits } from 'vue';
 import { Eye, EyeOff } from 'lucide-vue-next';
 import { useAuthStore } from '../store/authStore';
-import { angolaLocations, getMunicipiosByProvincia } from '../../../shared/utils/angolaLocations';
-import { normalizeAngolaPhone } from '../../../shared/utils/phone';
-import { getZodFieldErrors } from '../../../shared/utils/zodErrors';
+import { angolaLocations, getMunicipiosByProvincia } from '@/shared/utils/angolaLocations';
+import { normalizeAngolaPhone } from '@/shared/utils/phone';
+import { getZodFieldErrors } from '@/shared/utils/zodErrors';
 import { registerDonorSchema } from '../validation/registerSchema';
 
 const emit = defineEmits(['sucesso']);

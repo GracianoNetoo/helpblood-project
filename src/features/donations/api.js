@@ -1,4 +1,4 @@
-import { insertRows, isSupabaseConfigured, selectRows } from '../../core/supabase/client';
+import { insertRows, isSupabaseConfigured, selectRows } from '@/core/supabase/client';
 
 export { isSupabaseConfigured };
 

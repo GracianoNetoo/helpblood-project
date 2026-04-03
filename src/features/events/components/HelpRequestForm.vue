@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { User, Droplet, MapPin, Phone, AlertTriangle, FileText } from 'lucide-vue-next';
 import { useHelpRequestsStore } from '../store/helpRequestsStore';
-import { getZodFieldErrors } from '../../../shared/utils/zodErrors';
+import { getZodFieldErrors } from '@/shared/utils/zodErrors';
 import { helpRequestSchema } from '../validation/helpRequestSchema';
 
 const emit = defineEmits(['submitted', 'cancel']);

@@ -12,8 +12,8 @@ import {
   signUpWithEmail,
   updateAuthenticatedUser
 } from '../api';
-import { useDonorsStore } from '../../user/store/donorsStore';
-import { ensurePersistedStoreSchemaVersion } from '../../../shared/utils/ensurePersistedStoreSchemaVersion';
+import { useDonorsStore } from '@/features/user/store/donorsStore';
+import { ensurePersistedStoreSchemaVersion } from '@/shared/utils/ensurePersistedStoreSchemaVersion';
 
 const SESSION_STORAGE_KEY = 'univida_supabase_session';
 

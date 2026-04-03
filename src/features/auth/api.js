@@ -9,7 +9,7 @@ import {
   authUpdateUser,
   invokeRpc,
   isSupabaseConfigured
-} from '../../core/supabase/client';
+} from '@/core/supabase/client';
 
 export { isSupabaseConfigured };
 

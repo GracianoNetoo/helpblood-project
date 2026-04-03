@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { angolaLocations } from '../../../shared/utils/angolaLocations';
-import { isValidAngolaPhone } from '../../../shared/utils/phone';
+import { angolaLocations } from '@/shared/utils/angolaLocations';
+import { isValidAngolaPhone } from '@/shared/utils/phone';
 
 const validBloodTypes = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'];
 

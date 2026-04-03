@@ -7,9 +7,9 @@ import {
   listApprovedHelpRequestRows,
   updateHelpRequestRow
 } from '../api';
-import { useAuthStore } from '../../auth/store/authStore';
-import { ensurePersistedStoreSchemaVersion } from '../../../shared/utils/ensurePersistedStoreSchemaVersion';
-import { notifyError } from '../../../core/services/toastService';
+import { useAuthStore } from '@/features/auth/store/authStore';
+import { ensurePersistedStoreSchemaVersion } from '@/shared/utils/ensurePersistedStoreSchemaVersion';
+import { notifyError } from '@/core/services/toastService';
 
 const STORAGE_KEY = 'univida_help_requests';
 const DELETED_STORAGE_KEY = 'univida_deleted_help_requests';

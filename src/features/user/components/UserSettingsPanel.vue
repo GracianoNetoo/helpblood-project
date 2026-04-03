@@ -1,10 +1,10 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { AlertTriangle, Mail, MapPin, Phone, ShieldCheck, X } from 'lucide-vue-next';
-import { useAuthStore } from '../../auth/store/authStore';
-import { angolaLocations, getMunicipiosByProvincia } from '../../../shared/utils/angolaLocations';
-import { normalizeAngolaPhone } from '../../../shared/utils/phone';
-import { getZodFieldErrors } from '../../../shared/utils/zodErrors';
+import { useAuthStore } from '@/features/auth/store/authStore';
+import { angolaLocations, getMunicipiosByProvincia } from '@/shared/utils/angolaLocations';
+import { normalizeAngolaPhone } from '@/shared/utils/phone';
+import { getZodFieldErrors } from '@/shared/utils/zodErrors';
 import { deleteAccountSchema, passwordSettingsSchema, profileSettingsSchema } from '../validation/settingsSchemas';
 
 const props = defineProps({ donor: { type: Object, default: null } });

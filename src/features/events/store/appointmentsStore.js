@@ -6,8 +6,8 @@ import {
   isSupabaseConfigured,
   listAppointmentRows
 } from '../api';
-import { ensurePersistedStoreSchemaVersion } from '../../../shared/utils/ensurePersistedStoreSchemaVersion';
-import { notifyError } from '../../../core/services/toastService';
+import { ensurePersistedStoreSchemaVersion } from '@/shared/utils/ensurePersistedStoreSchemaVersion';
+import { notifyError } from '@/core/services/toastService';
 
 const STORAGE_KEY = 'univida_appointments';
 const SHOULD_USE_SEED_APPOINTMENTS = import.meta.env.DEV;

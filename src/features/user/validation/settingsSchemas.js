@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { angolaLocations } from '../../../shared/utils/angolaLocations';
-import { isValidAngolaPhone } from '../../../shared/utils/phone';
+import { angolaLocations } from '@/shared/utils/angolaLocations';
+import { isValidAngolaPhone } from '@/shared/utils/phone';
 
 export const profileSettingsSchema = z.object({
   email: z.string().trim().min(1, 'Informe o email.').email('Informe um email valido.'),

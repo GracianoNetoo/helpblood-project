@@ -12,11 +12,11 @@ import {
   UserRound,
   Megaphone
 } from 'lucide-vue-next';
-import { useAuthStore } from '../../auth/store/authStore';
-import { useAppointmentsStore } from '../../events/store/appointmentsStore';
-import { useHelpRequestsStore } from '../../events/store/helpRequestsStore';
-import { useDonorsStore } from '../../user/store/donorsStore';
-import { useCampaignsStore } from '../../events/store/campaignsStore';
+import { useAuthStore } from '@/features/auth/store/authStore';
+import { useAppointmentsStore } from '@/features/events/store/appointmentsStore';
+import { useHelpRequestsStore } from '@/features/events/store/helpRequestsStore';
+import { useDonorsStore } from '@/features/user/store/donorsStore';
+import { useCampaignsStore } from '@/features/events/store/campaignsStore';
 import AdminOverviewTab from './AdminOverviewTab.vue';
 import AdminRequestsTab from './AdminRequestsTab.vue';
 import AdminCampaignsTab from './AdminCampaignsTab.vue';

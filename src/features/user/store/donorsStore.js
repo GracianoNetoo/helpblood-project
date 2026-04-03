@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { getProfileById, isSupabaseConfigured, listProfiles, updateProfileById } from '../api';
-import { createDonationRow, listDonationsByDonorId } from '../../donations/api';
-import { ensurePersistedStoreSchemaVersion } from '../../../shared/utils/ensurePersistedStoreSchemaVersion';
-import { notifyError } from '../../../core/services/toastService';
+import { createDonationRow, listDonationsByDonorId } from '@/features/donations/api';
+import { ensurePersistedStoreSchemaVersion } from '@/shared/utils/ensurePersistedStoreSchemaVersion';
+import { notifyError } from '@/core/services/toastService';
 
 const STORAGE_KEY = 'univida_donors';
 const SHOULD_USE_SEED_DONORS = import.meta.env.DEV;

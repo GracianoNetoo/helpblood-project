@@ -4,8 +4,8 @@ import { storeToRefs } from 'pinia';
 import { jsPDF } from 'jspdf';
 import { Droplet, CalendarDays, MapPin, Navigation, Activity, FileText } from 'lucide-vue-next';
 import { useDonorsStore } from '../store/donorsStore';
-import { useAuthStore } from '../../auth/store/authStore';
-import { useHelpRequestsStore } from '../../events/store/helpRequestsStore';
+import { useAuthStore } from '@/features/auth/store/authStore';
+import { useHelpRequestsStore } from '@/features/events/store/helpRequestsStore';
 
 const emit = defineEmits(['open-campaigns', 'open-requests']);
 
