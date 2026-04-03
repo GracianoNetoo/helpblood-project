@@ -7,6 +7,7 @@ import {
   listAppointmentRows
 } from '../api';
 import { ensurePersistedStoreSchemaVersion } from '../../../shared/utils/ensurePersistedStoreSchemaVersion';
+import { notifyError } from '../../../core/services/toastService';
 
 const STORAGE_KEY = 'univida_appointments';
 const SHOULD_USE_SEED_APPOINTMENTS = import.meta.env.DEV;
@@ -54,6 +55,10 @@ const mapAppointmentToDb = (appointment) => ({
   source: appointment.source || 'campaign',
   notes: appointment.notes || null
 });
+
+const reportAppointmentError = (message, id, title = 'Falha ao sincronizar agendamentos') => {
+  notifyError(message, { id: `appointments-${id}`, title });
+};
 
 export const useAppointmentsStore = defineStore('appointments', () => {
   ensurePersistedStoreSchemaVersion();
@@ -114,6 +119,7 @@ export const useAppointmentsStore = defineStore('appointments', () => {
       return appointments.value;
     } catch (error) {
       lastSyncError.value = error.message || 'Falha ao sincronizar agendamentos.';
+      reportAppointmentError(lastSyncError.value, 'refresh-donor');
       console.warn('Falha ao carregar agendamentos do doador:', error);
       return appointments.value;
     }
@@ -131,6 +137,7 @@ export const useAppointmentsStore = defineStore('appointments', () => {
       return appointments.value;
     } catch (error) {
       lastSyncError.value = error.message || 'Falha ao carregar base de agendamentos.';
+      reportAppointmentError(lastSyncError.value, 'refresh-all');
       console.warn('Falha ao carregar todos os agendamentos:', error);
       return appointments.value;
     }
@@ -161,6 +168,7 @@ export const useAppointmentsStore = defineStore('appointments', () => {
       return localAppointment;
     } catch (error) {
       lastSyncError.value = error.message || 'Falha ao guardar agendamento no Supabase.';
+      reportAppointmentError(lastSyncError.value, 'create', 'Falha ao guardar agendamento');
       console.warn('Falha ao criar agendamento no Supabase:', error);
       return localAppointment;
     }
@@ -175,6 +183,7 @@ export const useAppointmentsStore = defineStore('appointments', () => {
       lastSyncError.value = '';
     } catch (error) {
       lastSyncError.value = error.message || 'Falha ao cancelar agendamento no Supabase.';
+      reportAppointmentError(lastSyncError.value, 'cancel', 'Falha ao cancelar agendamento');
       console.warn('Falha ao remover agendamento no Supabase:', error);
     }
   };

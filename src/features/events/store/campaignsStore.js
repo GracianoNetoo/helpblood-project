@@ -3,6 +3,7 @@ import { ref, watch } from 'vue';
 import { createCampaignRow, deleteCampaignRow, isSupabaseConfigured, listCampaignRows, updateCampaignRow } from '../api';
 import { useAuthStore } from '../../auth/store/authStore';
 import { ensurePersistedStoreSchemaVersion } from '../../../shared/utils/ensurePersistedStoreSchemaVersion';
+import { notifyError } from '../../../core/services/toastService';
 
 const STORAGE_KEY = 'univida_campaigns';
 const DELETED_STORAGE_KEY = 'univida_deleted_campaigns';
@@ -66,6 +67,10 @@ const getCampaignSyncErrorMessage = (error, fallbackMessage) => {
   }
 
   return fallbackMessage;
+};
+
+const reportCampaignError = (message, id, title = 'Falha ao sincronizar campanhas') => {
+  notifyError(message, { id: `campaigns-${id}`, title });
 };
 
 export const useCampaignsStore = defineStore('campaigns', () => {
@@ -173,6 +178,7 @@ export const useCampaignsStore = defineStore('campaigns', () => {
       return true;
     } catch (error) {
       lastSyncError.value = error.message || 'Falha ao sincronizar campanhas.';
+      reportCampaignError(lastSyncError.value, 'refresh');
       console.warn('Falha ao carregar campanhas do Supabase:', error);
       return false;
     }
@@ -214,6 +220,7 @@ export const useCampaignsStore = defineStore('campaigns', () => {
     } catch (error) {
       syncSource.value = 'local';
       lastSyncError.value = getCampaignSyncErrorMessage(error, 'Falha ao enviar campanha para o Supabase.');
+      reportCampaignError(lastSyncError.value, 'create', 'Falha ao criar campanha');
       console.warn('Falha ao criar campanha no Supabase:', error);
       return { ok: false, source: 'local', campaign: localRecord, error };
     }
@@ -237,6 +244,7 @@ export const useCampaignsStore = defineStore('campaigns', () => {
         .catch((error) => {
           target.status = previousStatus;
           lastSyncError.value = getCampaignSyncErrorMessage(error, 'Falha ao atualizar campanha no Supabase.');
+          reportCampaignError(lastSyncError.value, 'toggle', 'Falha ao atualizar campanha');
           console.warn('Falha ao atualizar status da campanha no Supabase:', error);
         });
     }
@@ -260,6 +268,7 @@ export const useCampaignsStore = defineStore('campaigns', () => {
         .catch((error) => {
           syncSource.value = 'local';
           lastSyncError.value = getCampaignSyncErrorMessage(error, 'Campanha removida localmente, mas a exclusao no Supabase falhou.');
+          reportCampaignError(lastSyncError.value, 'remove', 'Falha ao remover campanha');
           console.warn('Falha ao remover campanha no Supabase:', error);
         });
     }

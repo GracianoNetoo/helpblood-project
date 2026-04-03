@@ -9,6 +9,7 @@ import {
 } from '../api';
 import { useAuthStore } from '../../auth/store/authStore';
 import { ensurePersistedStoreSchemaVersion } from '../../../shared/utils/ensurePersistedStoreSchemaVersion';
+import { notifyError } from '../../../core/services/toastService';
 
 const STORAGE_KEY = 'univida_help_requests';
 const DELETED_STORAGE_KEY = 'univida_deleted_help_requests';
@@ -54,6 +55,10 @@ const mapRequestToDb = (request, requesterId = null) => ({
   motivo: request.motivo,
   contacto: request.contacto
 });
+
+const reportHelpRequestError = (message, id, title = 'Falha ao sincronizar pedidos') => {
+  notifyError(message, { id: `help-requests-${id}`, title });
+};
 
 export const useHelpRequestsStore = defineStore('helpRequests', () => {
   ensurePersistedStoreSchemaVersion();
@@ -139,6 +144,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
       return true;
     } catch (error) {
       lastSyncError.value = error.message || 'Falha ao sincronizar pedidos com o Supabase.';
+      reportHelpRequestError(lastSyncError.value, 'refresh');
       console.warn('Falha ao carregar pedidos do Supabase:', error);
       return false;
     }
@@ -170,6 +176,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
       return { ok: true, request: created ? mapRequestFromDb(created) : localRequest, source: 'supabase' };
     } catch (error) {
       lastSyncError.value = error.message || 'Falha ao enviar pedido ao Supabase.';
+      reportHelpRequestError(lastSyncError.value, 'create', 'Falha ao enviar pedido de ajuda');
       console.warn('Falha ao criar pedido no Supabase:', error);
       return { ok: false, error, request: localRequest, source: 'local' };
     }
@@ -190,6 +197,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
         .catch((error) => {
           target.status = previousStatus;
           lastSyncError.value = error.message || 'Falha ao aprovar pedido no Supabase.';
+          reportHelpRequestError(lastSyncError.value, 'approve', 'Falha ao aprovar pedido');
           console.warn('Falha ao aprovar pedido no Supabase:', error);
         });
     }
@@ -210,6 +218,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
         .catch((error) => {
           target.status = previousStatus;
           lastSyncError.value = error.message || 'Falha ao rejeitar pedido no Supabase.';
+          reportHelpRequestError(lastSyncError.value, 'reject', 'Falha ao rejeitar pedido');
           console.warn('Falha ao rejeitar pedido no Supabase:', error);
         });
     }
@@ -231,6 +240,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
         .catch((error) => {
           syncSource.value = 'local';
           lastSyncError.value = error.message || 'Pedido removido localmente, mas a exclusao no Supabase falhou.';
+          reportHelpRequestError(lastSyncError.value, 'remove', 'Falha ao remover pedido');
           console.warn('Falha ao remover pedido no Supabase:', error);
         });
     }

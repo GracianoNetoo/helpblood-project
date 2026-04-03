@@ -3,6 +3,7 @@ import { ref, watch } from 'vue';
 import { getProfileById, isSupabaseConfigured, listProfiles, updateProfileById } from '../api';
 import { createDonationRow, listDonationsByDonorId } from '../../donations/api';
 import { ensurePersistedStoreSchemaVersion } from '../../../shared/utils/ensurePersistedStoreSchemaVersion';
+import { notifyError } from '../../../core/services/toastService';
 
 const STORAGE_KEY = 'univida_donors';
 const SHOULD_USE_SEED_DONORS = import.meta.env.DEV;
@@ -67,6 +68,10 @@ const mapDonationFromDb = (row) => ({
   recordedBy: row?.recorded_by || null,
   createdAt: row?.created_at || null
 });
+
+const reportDonorError = (message, id, title = 'Falha ao sincronizar doadores') => {
+  notifyError(message, { id: `donors-${id}`, title });
+};
 
 export const useDonorsStore = defineStore('donors', () => {
   ensurePersistedStoreSchemaVersion();
@@ -187,6 +192,7 @@ export const useDonorsStore = defineStore('donors', () => {
       return donationHistory;
     } catch (error) {
       lastSyncError.value = error.message || 'Falha ao carregar historico de doacoes.';
+      reportDonorError(lastSyncError.value, 'history', 'Falha ao carregar historico');
       console.warn('Falha ao carregar historico de doacoes:', error);
       return [];
     }
@@ -224,6 +230,7 @@ export const useDonorsStore = defineStore('donors', () => {
       return profile || donors.value.find((item) => String(item.id) === String(id)) || null;
     } catch (error) {
       lastSyncError.value = error.message || 'Falha ao registar a doacao no Supabase.';
+      reportDonorError(lastSyncError.value, 'donation', 'Falha ao registar doacao');
       console.warn('Falha ao registar doacao:', error);
       return null;
     }
@@ -245,6 +252,7 @@ export const useDonorsStore = defineStore('donors', () => {
       return normalized;
     } catch (error) {
       lastSyncError.value = error.message || 'Falha ao sincronizar perfil do doador.';
+      reportDonorError(lastSyncError.value, 'profile', 'Falha ao carregar perfil');
       console.warn('Falha ao carregar perfil:', error);
       return null;
     }
@@ -266,6 +274,7 @@ export const useDonorsStore = defineStore('donors', () => {
       return normalized;
     } catch (error) {
       lastSyncError.value = error.message || 'Falha ao atualizar perfil do doador.';
+      reportDonorError(lastSyncError.value, 'update-profile', 'Falha ao atualizar perfil');
       console.warn('Falha ao atualizar perfil:', error);
       return null;
     }
@@ -292,6 +301,7 @@ export const useDonorsStore = defineStore('donors', () => {
       return donors.value;
     } catch (error) {
       lastSyncError.value = error.message || 'Falha ao carregar base de doadores.';
+      reportDonorError(lastSyncError.value, 'refresh-all', 'Falha ao carregar doadores');
       console.warn('Falha ao carregar doadores:', error);
       return donors.value;
     }
