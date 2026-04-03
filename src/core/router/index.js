@@ -20,6 +20,12 @@ router.beforeEach(async (to) => {
     return { path: '/', query: { auth: 'login' } };
   }
 
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    return authStore.isAuthenticated
+      ? { path: '/dashboard' }
+      : { path: '/', query: { auth: 'login' } };
+  }
+
   return true;
 });
 

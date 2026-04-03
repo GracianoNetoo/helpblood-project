@@ -12,6 +12,7 @@ const seedDonorIds = new Set(seedDonors.map((donor) => String(donor.id)));
 
 const normalizeDonor = (item) => ({
   id: item?.id ? String(item.id) : String(Date.now()),
+  role: item?.role ?? 'donor',
   nome: item?.nome ?? '',
   tipo_sanguineo: item?.tipo_sanguineo ?? '',
   rh: item?.rh ?? '',
@@ -35,6 +36,7 @@ const isSeedDonor = (donor) => seedDonorIds.has(String(donor?.id));
 
 const mapProfileFromDb = (row) => normalizeDonor({
   id: row?.id,
+  role: row?.role,
   nome: row?.nome,
   tipo_sanguineo: row?.tipo_sanguineo,
   rh: row?.rh,

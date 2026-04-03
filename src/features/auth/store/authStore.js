@@ -21,6 +21,7 @@ export const useAuthStore = defineStore('auth', () => {
   ensurePersistedStoreSchemaVersion();
   const session = ref(null);
   const currentUser = ref(null);
+  const currentUserRole = ref('donor');
   const currentDonorId = ref(null);
   const authError = ref('');
   const isLoading = ref(false);
@@ -29,6 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const accessToken = computed(() => session.value?.access_token || null);
   const isAuthenticated = computed(() => Boolean(currentUser.value?.id && accessToken.value));
+  const isAdmin = computed(() => currentUserRole.value === 'admin');
 
   const syncDerivedState = () => {
     currentDonorId.value = currentUser.value?.id || null;
@@ -76,6 +78,7 @@ export const useAuthStore = defineStore('auth', () => {
   const clearSession = () => {
     session.value = null;
     currentUser.value = null;
+    currentUserRole.value = 'donor';
     currentDonorId.value = null;
     authError.value = '';
   };
@@ -157,10 +160,15 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   const refreshCurrentProfile = async () => {
-    if (!currentDonorId.value) return;
+    if (!currentDonorId.value) {
+      currentUserRole.value = currentUser.value?.app_metadata?.role || currentUser.value?.user_metadata?.role || 'donor';
+      return;
+    }
     const donorsStore = useDonorsStore();
     const profile = await donorsStore.refreshDonorProfile(currentDonorId.value, accessToken.value);
     const confirmedEmail = String(currentUser.value?.email || '').trim().toLowerCase();
+
+    currentUserRole.value = profile?.role || currentUser.value?.app_metadata?.role || currentUser.value?.user_metadata?.role || 'donor';
 
     if (profile && confirmedEmail && String(profile.email || '').trim().toLowerCase() !== confirmedEmail) {
       await donorsStore.updateDonorProfile(
@@ -303,6 +311,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       session.value = null;
       currentUser.value = nextUser;
+      currentUserRole.value = nextUser?.app_metadata?.role || nextUser?.user_metadata?.role || 'donor';
       syncDerivedState();
       authError.value = '';
       persistSession();
@@ -467,12 +476,14 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     session,
     currentUser,
+    currentUserRole,
     currentDonorId,
     accessToken,
     authError,
     isLoading,
     isInitialized,
     isAuthenticated,
+    isAdmin,
     initialize,
     signIn,
     signUpDonor,
