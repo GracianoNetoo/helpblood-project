@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { MapPin, CalendarDays, ArrowRight, ShieldCheck } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import { useAppointmentsStore } from '../store/appointmentsStore';
@@ -14,7 +14,7 @@ const donorsStore = useDonorsStore();
 
 const { appointments } = storeToRefs(appointmentsStore);
 const { campaigns, autoOpenCampaign, lastSyncError } = storeToRefs(campaignsStore);
-const { currentDonorId } = storeToRefs(authStore);
+const { currentDonorId, accessToken } = storeToRefs(authStore);
 const { donors } = storeToRefs(donorsStore);
 
 const selectedCampaign = ref(null);
@@ -35,7 +35,11 @@ const currentDonor = computed(() => {
 
 const scheduledCampaignIds = computed(() => {
   const ids = appointments.value
-    .filter((appointment) => String(appointment.donorId) === currentDonorIdValue.value)
+    .filter((appointment) => {
+      return String(appointment.donorId) === currentDonorIdValue.value
+        && appointment.status !== 'cancelado'
+        && appointment.status !== 'concluido';
+    })
     .map((appointment) => appointment.campaignId)
     .filter(Boolean);
   return new Set(ids);
@@ -71,16 +75,20 @@ const closeConfirm = () => {
   selectedCampaign.value = null;
 };
 
-const confirmSchedule = () => {
+const confirmSchedule = async () => {
   if (!selectedCampaign.value) return;
-  appointmentsStore.addAppointment({
-    donorId: currentDonorIdValue.value,
-    hospital: selectedCampaign.value.title,
-    date: selectedCampaign.value.dateISO,
-    time: selectedCampaign.value.time,
-    notes: `Campanha em ${selectedCampaign.value.location}`,
-    campaignId: selectedCampaign.value.id
-  });
+  await appointmentsStore.addAppointment(
+    {
+      donorId: currentDonorIdValue.value,
+      hospital: selectedCampaign.value.title,
+      date: selectedCampaign.value.dateISO,
+      time: selectedCampaign.value.time,
+      notes: `Campanha em ${selectedCampaign.value.location}`,
+      campaignId: selectedCampaign.value.id,
+      source: 'campaign'
+    },
+    { accessToken: accessToken.value }
+  );
   showToast.value = true;
   setTimeout(() => {
     showToast.value = false;
@@ -97,6 +105,15 @@ onMounted(() => {
     campaignsStore.consumeOpenCampaign();
   }
 });
+
+watch(
+  [currentDonorId, accessToken],
+  ([donorId, token]) => {
+    if (!donorId || !token) return;
+    appointmentsStore.refreshAppointmentsForDonor(donorId, token);
+  },
+  { immediate: true }
+);
 </script>
 
 <template>

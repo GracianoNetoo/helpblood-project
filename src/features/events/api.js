@@ -48,3 +48,27 @@ export const updateHelpRequestRow = (requestId, patch, options = {}) => {
 export const deleteHelpRequestRow = (requestId, options = {}) => {
   return deleteRows('help_requests', { id: `eq.${requestId}` }, options);
 };
+
+export const listAppointmentRows = (filters = {}, options = {}) => {
+  return selectRows(
+    'appointments',
+    {
+      select: '*',
+      order: 'scheduled_date.asc,scheduled_time.asc,created_at.desc',
+      ...filters
+    },
+    options
+  );
+};
+
+export const createAppointmentRow = (appointment, options = {}) => {
+  return insertRows('appointments', appointment, options);
+};
+
+export const updateAppointmentRow = (appointmentId, patch, options = {}) => {
+  return updateRows('appointments', { id: `eq.${appointmentId}` }, patch, options);
+};
+
+export const deleteAppointmentRow = (appointmentId, options = {}) => {
+  return deleteRows('appointments', { id: `eq.${appointmentId}` }, options);
+};

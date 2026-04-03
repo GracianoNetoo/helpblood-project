@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, computed } from 'vue';
+import { onMounted, onUnmounted, computed, watch } from 'vue';
 import { Plus, Calendar, Clock } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import { useAppointmentsStore } from '../store/appointmentsStore';
@@ -12,8 +12,8 @@ const appointmentsStore = useAppointmentsStore();
 const authStore = useAuthStore();
 const donorsStore = useDonorsStore();
 
-const { appointments, autoOpenBooking } = storeToRefs(appointmentsStore);
-const { currentDonorId } = storeToRefs(authStore);
+const { appointments, autoOpenBooking, lastSyncError } = storeToRefs(appointmentsStore);
+const { currentDonorId, accessToken } = storeToRefs(authStore);
 const { donors } = storeToRefs(donorsStore);
 
 const fallbackDonor = computed(() => donors.value[0] || null);
@@ -25,6 +25,7 @@ const currentDonorIdValue = computed(() => {
 const scheduledCampaigns = computed(() =>
   appointments.value.filter((appointment) => {
     if (!appointment.campaignId) return false;
+    if (appointment.status === 'cancelado' || appointment.status === 'concluido') return false;
     if (currentDonorIdValue.value === null) return true;
     return String(appointment.donorId) === currentDonorIdValue.value;
   })
@@ -55,11 +56,24 @@ onMounted(() => {
     appointmentsStore.consumeOpenBooking();
   }
 });
+
+watch(
+  [currentDonorId, accessToken],
+  ([donorId, token]) => {
+    if (!donorId || !token) return;
+    appointmentsStore.refreshAppointmentsForDonor(donorId, token);
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
   <div class="max-w-300 mx-auto pb-10">
     <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-6 md:p-10 relative">
+      <div v-if="lastSyncError" class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+        Nao foi possivel sincronizar os agendamentos agora. {{ lastSyncError }}
+      </div>
+
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-8 border-b border-gray-100">
         <div>
           <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Meus Agendamentos</h2>
@@ -85,7 +99,7 @@ onMounted(() => {
             <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-[11px] font-bold uppercase tracking-widest border border-emerald-100">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ apt.status }}
             </span>
-            <button @click="appointmentsStore.cancelAppointment(apt.id)" class="text-gray-400 hover:text-rose-600 text-sm font-bold transition-colors">Cancelar</button>
+            <button @click="appointmentsStore.cancelAppointment(apt.id, { accessToken })" class="text-gray-400 hover:text-rose-600 text-sm font-bold transition-colors">Cancelar</button>
           </div>
 
           <h3 class="font-bold text-gray-900 text-lg leading-tight mb-4 group-hover:text-rose-700 transition-colors">{{ apt.hospital }}</h3>

@@ -4,10 +4,13 @@ import { AlertCircle, MapPin, Droplet, PhoneCall } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import { useAppointmentsStore } from '../store/appointmentsStore';
 import { useHelpRequestsStore } from '../store/helpRequestsStore';
+import { useAuthStore } from '../../auth/store/authStore';
 
 const appointmentsStore = useAppointmentsStore();
 const helpRequestsStore = useHelpRequestsStore();
+const authStore = useAuthStore();
 const { requests, lastSyncError } = storeToRefs(helpRequestsStore);
+const { currentDonorId, accessToken } = storeToRefs(authStore);
 const showToast = ref(false);
 let toastTimeoutId = null;
 
@@ -19,13 +22,18 @@ const getRequestTitle = (request) => {
   return 'Pedido sem identificacao';
 };
 
-const acceptEmergency = (request) => {
-  appointmentsStore.addAppointment({
-    hospital: request.localizacao,
-    date: new Date().toISOString().split('T')[0],
-    time: 'Imediato',
-    notes: `Aceite Pedido de Ajuda: ${request.motivo}`
-  });
+const acceptEmergency = async (request) => {
+  await appointmentsStore.addAppointment(
+    {
+      donorId: currentDonorId.value ? String(currentDonorId.value) : null,
+      hospital: request.localizacao,
+      date: new Date().toISOString().split('T')[0],
+      time: 'Imediato',
+      notes: `Aceite Pedido de Ajuda: ${request.motivo}`,
+      source: 'emergency'
+    },
+    { accessToken: accessToken.value }
+  );
   helpRequestsStore.removeRequest(request.id);
   showToast.value = true;
   if (toastTimeoutId) {

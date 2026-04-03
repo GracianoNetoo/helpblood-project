@@ -42,12 +42,14 @@ const helpRequestsStore = useHelpRequestsStore();
 const donorsStore = useDonorsStore();
 const campaignsStore = useCampaignsStore();
 
-const { appointments } = storeToRefs(appointmentsStore);
+const { appointments, lastSyncError: appointmentsSyncError } = storeToRefs(appointmentsStore);
 const { requests, lastSyncError: helpRequestsSyncError } = storeToRefs(helpRequestsStore);
 const { donors, lastSyncError: donorsSyncError } = storeToRefs(donorsStore);
 const { campaigns, lastSyncError: campaignsSyncError } = storeToRefs(campaignsStore);
 
-const totalAppointments = computed(() => appointments.value.length);
+const totalAppointments = computed(() => appointments.value.filter((appointment) => {
+  return appointment.status !== 'cancelado' && appointment.status !== 'concluido';
+}).length);
 const totalRequests = computed(() => requests.value.length);
 const pendingRequests = computed(() => requests.value.filter((item) => !item.status || item.status === 'pending'));
 const approvedRequests = computed(() => requests.value.filter((item) => item.status === 'approved'));
@@ -69,7 +71,11 @@ const activeCampaignOptions = computed(() => campaigns.value.filter((camp) => ca
 const donorSearch = ref('');
 const donorStatusFilter = ref('todos');
 
-const scheduledAppointments = computed(() => appointments.value.filter((apt) => apt.campaignId));
+const scheduledAppointments = computed(() => appointments.value.filter((apt) => {
+  return Boolean(apt.campaignId)
+    && apt.status !== 'cancelado'
+    && apt.status !== 'concluido';
+}));
 const latestAppointments = computed(() => scheduledAppointments.value.slice(0, 4));
 const latestRequests = computed(() => pendingRequests.value.slice(0, 4));
 const latestDonors = computed(() => donors.value.slice(0, 4));
@@ -101,7 +107,7 @@ const rejectRequest = (id) => {
 };
 
 const cancelAppointment = (id) => {
-  appointmentsStore.cancelAppointment(id);
+  appointmentsStore.cancelAppointment(id, { accessToken: authStore.accessToken });
 };
 
 const toggleDonorStatus = (id) => {
@@ -261,7 +267,10 @@ const confirmDonationModal = async () => {
     donationModalError.value = donorsSyncError.value || 'Nao foi possivel guardar a doacao agora.';
     return;
   }
-  appointmentsStore.completeCampaignForDonor(donorId, campaignId);
+  appointmentsStore.completeCampaignForDonor(donorId, campaignId, {
+    accessToken: authStore.accessToken,
+    scope: authStore.isAdmin ? 'admin' : 'donor'
+  });
   closeDonationModal();
 };
 
@@ -397,6 +406,7 @@ watch(
   () => authStore.accessToken,
   (token) => {
     donorsStore.refreshAllDonors(token || null);
+    appointmentsStore.refreshAllAppointments(token || null);
   },
   { immediate: true }
 );
@@ -456,7 +466,7 @@ watch(
       </header>
 
       <div class="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 scroll-smooth custom-scrollbar">
-        <div v-if="helpRequestsSyncError || campaignsSyncError || donorsSyncError" class="max-w-300 mx-auto mb-6 space-y-3">
+        <div v-if="helpRequestsSyncError || campaignsSyncError || donorsSyncError || appointmentsSyncError" class="max-w-300 mx-auto mb-6 space-y-3">
           <div v-if="helpRequestsSyncError" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
             Nao foi possivel sincronizar os pedidos de ajuda agora. {{ helpRequestsSyncError }}
           </div>
@@ -465,6 +475,9 @@ watch(
           </div>
           <div v-if="donorsSyncError" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
             Nao foi possivel sincronizar os doadores agora. {{ donorsSyncError }}
+          </div>
+          <div v-if="appointmentsSyncError" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+            Nao foi possivel sincronizar os agendamentos agora. {{ appointmentsSyncError }}
           </div>
         </div>
 

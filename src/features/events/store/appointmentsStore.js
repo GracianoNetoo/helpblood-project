@@ -1,5 +1,11 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
+import {
+  createAppointmentRow,
+  deleteAppointmentRow,
+  isSupabaseConfigured,
+  listAppointmentRows
+} from '../api';
 import { ensurePersistedStoreSchemaVersion } from '../../../shared/utils/ensurePersistedStoreSchemaVersion';
 
 const STORAGE_KEY = 'univida_appointments';
@@ -20,15 +26,40 @@ const normalizeAppointment = (appointment) => ({
   date: appointment?.date ?? '',
   time: appointment?.time ?? '',
   status: appointment?.status ?? 'confirmado',
+  source: appointment?.source ?? 'campaign',
   notes: appointment?.notes ?? ''
 });
 
 const isSeedAppointment = (appointment) => seedAppointmentIds.has(String(appointment?.id));
 
+const mapAppointmentFromDb = (row) => normalizeAppointment({
+  id: row?.id,
+  donorId: row?.donor_id,
+  campaignId: row?.campaign_id,
+  hospital: row?.hospital_name,
+  date: row?.scheduled_date,
+  time: row?.scheduled_time,
+  status: row?.status,
+  source: row?.source,
+  notes: row?.notes
+});
+
+const mapAppointmentToDb = (appointment) => ({
+  donor_id: appointment.donorId,
+  campaign_id: appointment.campaignId || null,
+  hospital_name: appointment.hospital,
+  scheduled_date: appointment.date,
+  scheduled_time: appointment.time && appointment.time !== 'Imediato' ? appointment.time : null,
+  status: appointment.status || 'confirmado',
+  source: appointment.source || 'campaign',
+  notes: appointment.notes || null
+});
+
 export const useAppointmentsStore = defineStore('appointments', () => {
   ensurePersistedStoreSchemaVersion();
   const appointments = ref(SHOULD_USE_SEED_APPOINTMENTS ? [...seedAppointments].map(normalizeAppointment) : []);
   const autoOpenBooking = ref(false);
+  const lastSyncError = ref('');
 
   const loadFromStorage = () => {
     try {
@@ -52,26 +83,115 @@ export const useAppointmentsStore = defineStore('appointments', () => {
     autoOpenBooking.value = false;
   };
 
-  const addAppointment = (newAppointment) => {
-    appointments.value.unshift(
-      normalizeAppointment({
-        id: Date.now(),
-        status: 'confirmado',
-        ...newAppointment
-      })
-    );
+  const upsertAppointment = (appointment) => {
+    const normalized = normalizeAppointment(appointment);
+    const index = appointments.value.findIndex((item) => String(item.id) === String(normalized.id));
+    if (index === -1) {
+      appointments.value.unshift(normalized);
+    } else {
+      appointments.value[index] = normalized;
+    }
+    return normalized;
   };
 
-  const cancelAppointment = (id) => {
+  const refreshAppointmentsForDonor = async (donorId, accessToken = null) => {
+    if (!isSupabaseConfigured || !donorId || !accessToken) return appointments.value;
+    try {
+      const rows = await listAppointmentRows(
+        { donor_id: `eq.${donorId}` },
+        { accessToken }
+      );
+      const remoteAppointments = Array.isArray(rows) ? rows.map(mapAppointmentFromDb) : [];
+      const remoteIds = new Set(remoteAppointments.map((item) => String(item.id)));
+      const localOnly = appointments.value.filter((item) => {
+        return String(item.donorId) === String(donorId)
+          && String(item.id).startsWith('local-')
+          && !remoteIds.has(String(item.id));
+      });
+      const otherDonors = appointments.value.filter((item) => String(item.donorId) !== String(donorId));
+      appointments.value = [...remoteAppointments, ...localOnly, ...otherDonors];
+      lastSyncError.value = '';
+      return appointments.value;
+    } catch (error) {
+      lastSyncError.value = error.message || 'Falha ao sincronizar agendamentos.';
+      console.warn('Falha ao carregar agendamentos do doador:', error);
+      return appointments.value;
+    }
+  };
+
+  const refreshAllAppointments = async (accessToken = null) => {
+    if (!isSupabaseConfigured || !accessToken) return appointments.value;
+    try {
+      const rows = await listAppointmentRows({}, { accessToken });
+      const remoteAppointments = Array.isArray(rows) ? rows.map(mapAppointmentFromDb) : [];
+      const remoteIds = new Set(remoteAppointments.map((item) => String(item.id)));
+      const localOnly = appointments.value.filter((item) => String(item.id).startsWith('local-') && !remoteIds.has(String(item.id)));
+      appointments.value = [...remoteAppointments, ...localOnly];
+      lastSyncError.value = '';
+      return appointments.value;
+    } catch (error) {
+      lastSyncError.value = error.message || 'Falha ao carregar base de agendamentos.';
+      console.warn('Falha ao carregar todos os agendamentos:', error);
+      return appointments.value;
+    }
+  };
+
+  const addAppointment = async (newAppointment, options = {}) => {
+    const localAppointment = upsertAppointment({
+      id: `local-${Date.now()}`,
+      status: 'confirmado',
+      ...newAppointment
+    });
+
+    const { accessToken = null } = options;
+    if (!isSupabaseConfigured || !accessToken || !localAppointment.donorId) {
+      return localAppointment;
+    }
+
+    try {
+      const rows = await createAppointmentRow(mapAppointmentToDb(localAppointment), { accessToken });
+      const created = Array.isArray(rows) ? rows[0] : null;
+      if (created) {
+        const normalized = mapAppointmentFromDb(created);
+        appointments.value = appointments.value.filter((item) => String(item.id) !== String(localAppointment.id));
+        upsertAppointment(normalized);
+        lastSyncError.value = '';
+        return normalized;
+      }
+      return localAppointment;
+    } catch (error) {
+      lastSyncError.value = error.message || 'Falha ao guardar agendamento no Supabase.';
+      console.warn('Falha ao criar agendamento no Supabase:', error);
+      return localAppointment;
+    }
+  };
+
+  const cancelAppointment = async (id, options = {}) => {
     appointments.value = appointments.value.filter((appointment) => appointment.id !== id);
+    const { accessToken = null } = options;
+    if (!isSupabaseConfigured || !accessToken || String(id).startsWith('local-')) return;
+    try {
+      await deleteAppointmentRow(id, { accessToken });
+      lastSyncError.value = '';
+    } catch (error) {
+      lastSyncError.value = error.message || 'Falha ao cancelar agendamento no Supabase.';
+      console.warn('Falha ao remover agendamento no Supabase:', error);
+    }
   };
 
-  const completeCampaignForDonor = (donorId, campaignId) => {
+  const completeCampaignForDonor = async (donorId, campaignId, options = {}) => {
     const normalizedDonorId = donorId ? String(donorId) : null;
     if (!normalizedDonorId || !campaignId) return;
     appointments.value = appointments.value.filter((appointment) => {
       return !(String(appointment.donorId) === normalizedDonorId && appointment.campaignId === campaignId);
     });
+    const { accessToken = null, scope = 'donor' } = options;
+    if (!isSupabaseConfigured || !accessToken) return;
+    if (scope === 'admin') {
+      await refreshAllAppointments(accessToken);
+      return;
+    }
+    await refreshAppointmentsForDonor(normalizedDonorId, accessToken);
   };
 
   loadFromStorage();
@@ -91,9 +211,12 @@ export const useAppointmentsStore = defineStore('appointments', () => {
 
   return {
     appointments,
+    lastSyncError,
     addAppointment,
     cancelAppointment,
     completeCampaignForDonor,
+    refreshAppointmentsForDonor,
+    refreshAllAppointments,
     autoOpenBooking,
     requestOpenBooking,
     consumeOpenBooking
