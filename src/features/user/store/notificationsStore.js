@@ -61,7 +61,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     try {
       localStorage.setItem(getNotificationsStorageKey(), JSON.stringify(value));
     } catch (error) {
-      console.warn('Falha ao salvar notificacoes:', error);
+      console.warn('Falha ao salvar notificações:', error);
     }
   };
 
@@ -70,7 +70,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     try {
       localStorage.setItem(getSeenEventsStorageKey(), JSON.stringify(value));
     } catch (error) {
-      console.warn('Falha ao salvar eventos de notificacao:', error);
+      console.warn('Falha ao salvar eventos de notificação:', error);
     }
   };
 
@@ -84,7 +84,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
         notifications.value = parsed.map(normalizeNotification);
       }
     } catch (error) {
-      console.warn('Falha ao carregar notificacoes:', error);
+      console.warn('Falha ao carregar notificações:', error);
     }
   };
 
@@ -98,7 +98,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
         seenEventKeys.value = parsed.map((item) => String(item));
       }
     } catch (error) {
-      console.warn('Falha ao carregar eventos de notificacao:', error);
+      console.warn('Falha ao carregar eventos de notificação:', error);
     }
   };
 
@@ -127,7 +127,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     if (!options.silent) {
       notifyInfo(payload.message || payload.title, {
         id: payload.eventKey ? `notification-toast-${payload.eventKey}` : undefined,
-        title: payload.title || 'Nova notificacao'
+        title: payload.title || 'Nova notificação'
       });
     }
 
@@ -192,7 +192,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
             eventKey: `help-request-approved-${request.id}`,
             type: 'success',
             title: 'Pedido de ajuda aprovado',
-            message: `O seu pedido em ${request.localizacao || 'local nao informado'} foi aprovado e esta visivel para os doadores.`,
+            message: `O seu pedido em ${request.localizacao || 'local não informado'} foi aprovado e está visível para os doadores.`,
             actionTab: 'emergencies',
             createdAt: request.createdAt || new Date().toISOString()
           },
@@ -248,7 +248,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
               eventKey: `appointment-cancelled-${appointment.id}`,
               type: 'warning',
               title: 'Agendamento cancelado',
-              message: `${appointment.hospital || 'A campanha'} foi cancelado e saiu da sua agenda ativa.`,
+              message: `${appointment.hospital || 'A campanha'} foi cancelada e saiu da sua agenda ativa.`,
               actionTab: 'appointments',
               createdAt: appointment.updatedAt || new Date().toISOString()
             },
@@ -267,7 +267,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
             id: `campaign-province-${campaign.id}`,
             eventKey: `campaign-province-${campaign.id}`,
             type: 'info',
-            title: 'Nova campanha na sua provincia',
+            title: 'Nova campanha na sua província',
             message: `${campaign.title} foi publicada para ${campaign.location}.`,
             actionTab: 'campaigns',
             createdAt: campaign.createdAt || new Date().toISOString()
@@ -286,8 +286,8 @@ export const useNotificationsStore = defineStore('notifications', () => {
             id: `donation-registered-${donation.id}`,
             eventKey: `donation-registered-${donation.id}`,
             type: 'success',
-            title: 'Doacao registada pelo admin',
-            message: `${donorName}, a sua doacao de ${Number(donation.liters || 0).toFixed(2)} L foi registada em ${donation.campaignTitle || 'campanha sem titulo'}.`,
+            title: 'Doação registada pelo admin',
+            message: `${donorName}, a sua doação de ${Number(donation.liters || 0).toFixed(2)} L foi registada em ${donation.campaignTitle || 'campanha sem título'}.`,
             actionTab: 'donations',
             createdAt: donation.createdAt || donation.date || new Date().toISOString()
           },
@@ -299,9 +299,9 @@ export const useNotificationsStore = defineStore('notifications', () => {
     hasCompletedInitialSync.value = true;
 
     if (createdCount > 1 && !shouldNotifySilently) {
-      notifyInfo(`Voce recebeu ${createdCount} novas notificacoes.`, {
+      notifyInfo(`Você recebeu ${createdCount} novas notificações.`, {
         id: 'notification-batch-sync',
-        title: 'Atualizacoes da sua conta'
+        title: 'Atualizações da sua conta'
       });
     }
   };

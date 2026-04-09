@@ -55,6 +55,14 @@ const getVariantIcon = (notification) => {
   return AlertCircle;
 };
 
+const getActionTabLabel = (actionTab) => {
+  if (actionTab === 'appointments') return 'agendamentos';
+  if (actionTab === 'campaigns') return 'campanhas';
+  if (actionTab === 'donations') return 'doações';
+  if (actionTab === 'emergencies') return 'pedidos de ajuda';
+  return actionTab;
+};
+
 const openNotification = (notification) => {
   notificationsStore.markAsRead(notification.id);
   if (notification.actionTab) {
@@ -75,7 +83,7 @@ const openNotification = (notification) => {
             <Bell class="h-5 w-5" />
           </div>
           <div>
-            <p class="text-[11px] font-black uppercase tracking-[0.18em] text-rose-600">Notificacoes</p>
+            <p class="text-[11px] font-black uppercase tracking-[0.18em] text-rose-600">Notificações</p>
             <h3 class="mt-1 text-xl font-black tracking-tight text-slate-900">Centro de alertas</h3>
             <p class="mt-1 text-sm text-slate-500">{{ unreadCount }} por ler</p>
           </div>
@@ -85,7 +93,7 @@ const openNotification = (notification) => {
           type="button"
           @click="emit('close')"
           class="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
-          aria-label="Fechar notificacoes"
+          aria-label="Fechar notificações"
         >
           <X class="h-4 w-4" />
         </button>
@@ -117,7 +125,7 @@ const openNotification = (notification) => {
           class="rounded-[24px] border border-dashed border-slate-200 bg-slate-50/70 px-5 py-10 text-center"
         >
           <Info class="mx-auto h-6 w-6 text-slate-300" />
-          <p class="mt-3 text-sm font-semibold text-slate-600">Ainda nao existem notificacoes para este perfil.</p>
+          <p class="mt-3 text-sm font-semibold text-slate-600">Ainda não existem notificações para este perfil.</p>
         </div>
 
         <button
@@ -158,7 +166,7 @@ const openNotification = (notification) => {
                   v-if="notification.actionTab"
                   class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500"
                 >
-                  Abrir {{ notification.actionTab }}
+                  Abrir {{ getActionTabLabel(notification.actionTab) }}
                 </span>
               </div>
             </div>

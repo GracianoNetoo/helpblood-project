@@ -197,7 +197,7 @@ const handleAccountDeleted = () => {
             <Menu class="w-5 h-5" />
           </button>
 
-          <button @click="openNotifications" class="relative p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors" aria-label="Abrir notificacoes">
+          <button @click="openNotifications" class="relative p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors" aria-label="Abrir notificações">
             <Bell class="w-5 h-5" />
             <span v-if="unreadCount > 0" class="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-black text-white ring-2 ring-white">
               {{ unreadCount > 9 ? '9+' : unreadCount }}
