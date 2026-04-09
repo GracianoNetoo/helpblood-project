@@ -6,6 +6,7 @@ import { Droplet, CalendarDays, MapPin, Navigation, Activity, FileText } from 'l
 import { useDonorsStore } from '../store/donorsStore';
 import { useAuthStore } from '@/features/auth/store/authStore';
 import { useHelpRequestsStore } from '@/features/events/store/helpRequestsStore';
+import { formatEligibilityDate, getDonationEligibility } from '@/shared/utils/donationEligibility';
 
 const emit = defineEmits(['open-campaigns', 'open-requests']);
 
@@ -39,6 +40,20 @@ const donationVolume = computed(() => {
 });
 
 const donationVolumeLabel = computed(() => Number(donationVolume.value || 0).toFixed(2));
+const eligibilityInfo = computed(() => getDonationEligibility(currentDonor.value));
+const nextEligibleDateLabel = computed(() => {
+  if (!eligibilityInfo.value.nextEligibleDate) return 'Disponível hoje';
+  return formatEligibilityDate(eligibilityInfo.value.nextEligibleDate);
+});
+const eligibilityBadgeLabel = computed(() => {
+  return eligibilityInfo.value.isEligible ? 'Apto para doar' : 'Em repouso';
+});
+const eligibilitySummary = computed(() => {
+  if (eligibilityInfo.value.isEligible) {
+    return 'Pode voltar a doar e agendar uma nova campanha hoje.';
+  }
+  return eligibilityInfo.value.reasons[0] || 'Ainda está em período de recuperação.';
+});
 
 const activeHelpRequests = computed(() => requests.value.filter((item) => item.status === 'approved').slice(0, 3));
 const approvedHelpRequestsCount = computed(() => requests.value.filter((item) => item.status === 'approved').length);
@@ -121,11 +136,21 @@ const downloadCard = () => {
           <div>
             <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 mb-8 w-fit shadow-sm">
               <div class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></div>
-              <span class="text-[11px] font-bold text-emerald-50 uppercase tracking-widest">Apto para doar</span>
+              <span class="text-[11px] font-bold uppercase tracking-widest" :class="eligibilityInfo.isEligible ? 'text-emerald-50' : 'text-amber-100'">{{ eligibilityBadgeLabel }}</span>
             </div>
             
             <h2 class="text-3xl md:text-[42px] font-extrabold tracking-tight mb-4 leading-tight">Você pode salvar <br class="hidden md:block"/> <span class="text-transparent bg-clip-text bg-linear-to-r from-rose-400 to-red-300">até 4 vidas</span> com apenas 1 doação.</h2>
             <p class="text-gray-400 max-w-lg text-[15px] leading-relaxed">Os bancos de sangue estão precisando de doadores. O Seu tipo sanguíneo é essencial.</p>
+            <div class="mt-5 max-w-xl rounded-3xl border border-white/10 bg-white/6 px-4 py-4 backdrop-blur-xl">
+              <p class="text-[11px] font-bold uppercase tracking-[0.18em]" :class="eligibilityInfo.isEligible ? 'text-emerald-100' : 'text-amber-100'">
+                Elegibilidade
+              </p>
+              <p class="mt-2 text-sm font-semibold text-white">{{ eligibilityInfo.countdownLabel }}</p>
+              <p class="mt-1 text-sm text-slate-300">{{ eligibilitySummary }}</p>
+              <p v-if="eligibilityInfo.nextEligibleDate" class="mt-2 text-[12px] font-medium text-slate-300">
+                Próxima data disponível: <span class="font-bold text-white">{{ nextEligibleDateLabel }}</span>
+              </p>
+            </div>
           </div>
           
           <div class="mt-10 flex gap-4 items-center">
@@ -146,8 +171,11 @@ const downloadCard = () => {
             <Activity class="w-6 h-6" stroke-width="2.5" />
           </div>
           <div>
-            <div class="text-[13px] font-semibold text-gray-500 mb-1.5">Vidas Salvas</div>
-            <div class="text-4xl font-extrabold text-gray-900 flex items-baseline gap-2 tracking-tight">04 <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-wider">+1 este ano</span></div>
+            <div class="text-[13px] font-semibold text-gray-500 mb-1.5">Próxima doação</div>
+            <div class="text-2xl font-extrabold text-gray-900 tracking-tight">{{ eligibilityInfo.countdownLabel }}</div>
+            <div class="mt-2 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-wider inline-flex">
+              {{ nextEligibleDateLabel }}
+            </div>
           </div>
         </div>
 

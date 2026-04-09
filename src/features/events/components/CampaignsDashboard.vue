@@ -6,6 +6,7 @@ import { useAppointmentsStore } from '../store/appointmentsStore';
 import { useCampaignsStore } from '../store/campaignsStore';
 import { useAuthStore } from '@/features/auth/store/authStore';
 import { useDonorsStore } from '@/features/user/store/donorsStore';
+import { formatEligibilityDate, getDonationEligibility } from '@/shared/utils/donationEligibility';
 
 const appointmentsStore = useAppointmentsStore();
 const campaignsStore = useCampaignsStore();
@@ -32,6 +33,16 @@ const currentDonor = computed(() => {
   if (currentDonorIdValue.value === null) return fallbackDonor.value;
   return donors.value.find((donor) => String(donor.id) === currentDonorIdValue.value) || fallbackDonor.value;
 });
+const eligibilityInfo = computed(() => getDonationEligibility(currentDonor.value));
+const nextEligibleDateLabel = computed(() => {
+  if (!eligibilityInfo.value.nextEligibleDate) return '';
+  return formatEligibilityDate(eligibilityInfo.value.nextEligibleDate);
+});
+const eligibilityBlockMessage = computed(() => {
+  if (eligibilityInfo.value.isEligible) return '';
+  if (eligibilityInfo.value.reasons.length > 0) return eligibilityInfo.value.reasons[0];
+  return 'Ainda não está elegível para uma nova doação.';
+});
 
 const scheduledCampaignIds = computed(() => {
   const ids = appointments.value
@@ -53,6 +64,9 @@ const participatedCampaignIds = computed(() => {
 
 const isScheduled = (campaignId) => scheduledCampaignIds.value.has(campaignId);
 const hasParticipated = (campaignId) => participatedCampaignIds.value.has(campaignId);
+const isBookingBlocked = (campaignId) => {
+  return !eligibilityInfo.value.isEligible || isScheduled(campaignId) || hasParticipated(campaignId);
+};
 
 const formatDateLabel = (campaign) => {
   if (!campaign.dateISO) return 'Data a definir';
@@ -65,7 +79,7 @@ const formatDateLabel = (campaign) => {
 };
 
 const openConfirm = (campaign) => {
-  if (isScheduled(campaign.id) || hasParticipated(campaign.id)) return;
+  if (!eligibilityInfo.value.isEligible || isScheduled(campaign.id) || hasParticipated(campaign.id)) return;
   selectedCampaign.value = campaign;
   isConfirmOpen.value = true;
 };
@@ -123,6 +137,12 @@ watch(
         Não foi possivel sincronizar as campanhas agora. {{ lastSyncError }}
       </div>
 
+      <div v-if="!eligibilityInfo.isEligible" class="mb-6 rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+        <p class="font-bold">Em repouso para nova doação</p>
+        <p class="mt-1">{{ eligibilityBlockMessage }}</p>
+        <p v-if="nextEligibleDateLabel" class="mt-2 font-semibold">Disponível novamente em {{ nextEligibleDateLabel }}.</p>
+      </div>
+
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Campanhas Ativas</h2>
@@ -171,16 +191,18 @@ watch(
 
           <button
             @click="openConfirm(camp)"
-            :disabled="isScheduled(camp.id) || hasParticipated(camp.id)"
+            :disabled="isBookingBlocked(camp.id)"
             class="mt-5 w-full border border-gray-200 font-bold rounded-2xl py-3 transition-all flex items-center justify-center gap-2"
-            :class="hasParticipated(camp.id)
+            :class="!eligibilityInfo.isEligible
+              ? 'bg-amber-50 text-amber-700 border-amber-200 cursor-not-allowed'
+              : hasParticipated(camp.id)
               ? 'bg-emerald-50 text-emerald-700 border-emerald-200 cursor-not-allowed'
               : isScheduled(camp.id)
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 : 'bg-white text-gray-900 hover:bg-gray-900 hover:text-white'"
           >
-            {{ hasParticipated(camp.id) ? 'Participou nesta campanha' : isScheduled(camp.id) ? 'Agendado' : 'Agendar Horario' }}
-            <ArrowRight v-if="!isScheduled(camp.id) && !hasParticipated(camp.id)" class="w-4 h-4" />
+            {{ !eligibilityInfo.isEligible ? eligibilityInfo.countdownLabel : hasParticipated(camp.id) ? 'Participou nesta campanha' : isScheduled(camp.id) ? 'Agendado' : 'Agendar Horário' }}
+            <ArrowRight v-if="!isBookingBlocked(camp.id)" class="w-4 h-4" />
           </button>
         </div>
       </div>

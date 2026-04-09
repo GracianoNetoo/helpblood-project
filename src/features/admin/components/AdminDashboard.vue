@@ -17,6 +17,7 @@ import { useAppointmentsStore } from '@/features/events/store/appointmentsStore'
 import { useHelpRequestsStore } from '@/features/events/store/helpRequestsStore';
 import { useDonorsStore } from '@/features/user/store/donorsStore';
 import { useCampaignsStore } from '@/features/events/store/campaignsStore';
+import { formatEligibilityDate, getDonationEligibility } from '@/shared/utils/donationEligibility';
 import AdminOverviewTab from './AdminOverviewTab.vue';
 import AdminRequestsTab from './AdminRequestsTab.vue';
 import AdminCampaignsTab from './AdminCampaignsTab.vue';
@@ -80,6 +81,11 @@ const latestAppointments = computed(() => scheduledAppointments.value.slice(0, 4
 const latestRequests = computed(() => pendingRequests.value.slice(0, 4));
 const latestDonors = computed(() => donors.value.slice(0, 4));
 const latestCampaigns = computed(() => campaigns.value.slice(0, 4));
+
+const getDonationEligibilityFor = (donorId) => {
+  const donor = donors.value.find((item) => String(item.id) === String(donorId)) || null;
+  return getDonationEligibility(donor);
+};
 const donorNameById = (donorId) => {
   const donor = donors.value.find((item) => String(item.id) === String(donorId));
   return donor?.nome || 'Doador nao identificado';
@@ -216,6 +222,7 @@ const donationModal = ref({
   campaignId: ''
 });
 const donationModalError = ref('');
+const donationModalOverrideConfirmed = ref(false);
 
 const openDonationModal = (donorId) => {
   donationTouched.value[donorId] = true;
@@ -232,12 +239,14 @@ const openDonationModal = (donorId) => {
     campaignId: availableCampaigns.length ? getDefaultCampaignIdForDonor(donorId) : ''
   };
   donationModalError.value = '';
+  donationModalOverrideConfirmed.value = false;
   isDonationModalOpen.value = true;
 };
 
 const closeDonationModal = () => {
   isDonationModalOpen.value = false;
   donationModalError.value = '';
+  donationModalOverrideConfirmed.value = false;
 };
 
 const selectedDonationCampaign = computed(() => {
@@ -248,6 +257,16 @@ const selectedDonationCampaign = computed(() => {
 const selectedDonationDonor = computed(() => {
   if (!donationModal.value.donorId) return null;
   return donors.value.find((item) => item.id === donationModal.value.donorId) || null;
+});
+
+const selectedDonationEligibility = computed(() => getDonationEligibility(selectedDonationDonor.value));
+const selectedDonationEligibilityWarning = computed(() => {
+  if (selectedDonationEligibility.value.isEligible) return '';
+  const reason = selectedDonationEligibility.value.reasons[0] || 'Ainda está em período de recuperação.';
+  const nextDate = selectedDonationEligibility.value.nextEligibleDate
+    ? `Próxima data prevista: ${formatEligibilityDate(selectedDonationEligibility.value.nextEligibleDate)}.`
+    : '';
+  return [reason, nextDate].filter(Boolean).join(' ');
 });
 
 const confirmDonationModal = async () => {
@@ -262,6 +281,11 @@ const confirmDonationModal = async () => {
     donationModalError.value = 'Campanha invalida ou inativa.';
     return;
   }
+  if (!selectedDonationEligibility.value.isEligible && !donationModalOverrideConfirmed.value) {
+    donationModalOverrideConfirmed.value = true;
+    donationModalError.value = 'O doador ainda não está elegível para doar. Clique em "Confirmar doação" novamente apenas se a recolha tiver sido autorizada pela equipa clínica.';
+    return;
+  }
   const savedDonation = await saveDonationLiters(donorId, liters, campaign);
   if (!savedDonation) {
     donationModalError.value = donorsSyncError.value || 'Nao foi possivel guardar a doacao agora.';
@@ -273,6 +297,14 @@ const confirmDonationModal = async () => {
   });
   closeDonationModal();
 };
+
+watch(
+  () => [donationModal.value.donorId, donationModal.value.liters, donationModal.value.campaignId],
+  () => {
+    donationModalOverrideConfirmed.value = false;
+    donationModalError.value = '';
+  }
+);
 
 const formatDonationDate = (value) => {
   if (!value) return 'Sem data';
@@ -618,6 +650,11 @@ watch(
             <div class="mt-2 text-emerald-700">Ao confirmar, o agendamento deste doador para esta campanha sera removido automaticamente.</div>
           </div>
 
+          <div v-if="selectedDonationEligibilityWarning" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12px] text-amber-900">
+            <div class="font-bold">Aviso de elegibilidade</div>
+            <div class="mt-1">{{ selectedDonationEligibilityWarning }}</div>
+          </div>
+
           <p v-if="donationModalError" class="text-[12px] text-rose-600 font-bold">{{ donationModalError }}</p>
         </div>
 
@@ -630,7 +667,7 @@ watch(
             :disabled="activeCampaignOptions.length === 0"
             class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Confirmar doação
+            {{ !selectedDonationEligibility.isEligible && donationModalOverrideConfirmed ? 'Confirmar mesmo assim' : 'Confirmar doação' }}
           </button>
         </div>
       </div>

@@ -5,16 +5,34 @@ import { storeToRefs } from 'pinia';
 import { useAppointmentsStore } from '../store/appointmentsStore';
 import { useHelpRequestsStore } from '../store/helpRequestsStore';
 import { useAuthStore } from '@/features/auth/store/authStore';
+import { useDonorsStore } from '@/features/user/store/donorsStore';
+import { formatEligibilityDate, getDonationEligibility } from '@/shared/utils/donationEligibility';
 
 const appointmentsStore = useAppointmentsStore();
 const helpRequestsStore = useHelpRequestsStore();
 const authStore = useAuthStore();
+const donorsStore = useDonorsStore();
 const { requests, lastSyncError } = storeToRefs(helpRequestsStore);
 const { currentDonorId, accessToken } = storeToRefs(authStore);
+const { donors } = storeToRefs(donorsStore);
 const showToast = ref(false);
 let toastTimeoutId = null;
 
 const approvedRequests = computed(() => requests.value.filter((item) => item.status === 'approved'));
+const currentDonorIdValue = computed(() => (currentDonorId.value ? String(currentDonorId.value) : null));
+const currentDonor = computed(() => {
+  if (!currentDonorIdValue.value) return donors.value[0] || null;
+  return donors.value.find((donor) => String(donor.id) === currentDonorIdValue.value) || donors.value[0] || null;
+});
+const eligibilityInfo = computed(() => getDonationEligibility(currentDonor.value));
+const eligibilityBlockMessage = computed(() => {
+  if (eligibilityInfo.value.isEligible) return '';
+  const reason = eligibilityInfo.value.reasons[0] || 'Ainda não está elegível para doar.';
+  const nextDate = eligibilityInfo.value.nextEligibleDate
+    ? `Próxima data disponível: ${formatEligibilityDate(eligibilityInfo.value.nextEligibleDate)}.`
+    : '';
+  return [reason, nextDate].filter(Boolean).join(' ');
+});
 
 const getRequestTitle = (request) => {
   if (request?.anonimo) return 'Pedido anonimo';
@@ -23,6 +41,7 @@ const getRequestTitle = (request) => {
 };
 
 const acceptEmergency = async (request) => {
+  if (!eligibilityInfo.value.isEligible) return;
   await appointmentsStore.addAppointment(
     {
       donorId: currentDonorId.value ? String(currentDonorId.value) : null,
@@ -51,6 +70,10 @@ const acceptEmergency = async (request) => {
     <div class="bg-white rounded-4xl border border-gray-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-8 md:p-10">
       <div v-if="lastSyncError" class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
         Nao foi possivel sincronizar os pedidos de ajuda agora. {{ lastSyncError }}
+      </div>
+
+      <div v-if="!eligibilityInfo.isEligible" class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
+        {{ eligibilityBlockMessage }}
       </div>
 
       <div class="mb-8">
@@ -95,8 +118,13 @@ const acceptEmergency = async (request) => {
               </div>
             </div>
 
-            <button @click="acceptEmergency(request)" class="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-2xl font-bold shadow-md transition-all text-sm shrink-0">
-              Aceitar chamada
+            <button
+              @click="acceptEmergency(request)"
+              :disabled="!eligibilityInfo.isEligible"
+              class="px-5 py-2.5 rounded-2xl font-bold shadow-md transition-all text-sm shrink-0 disabled:cursor-not-allowed disabled:shadow-none"
+              :class="eligibilityInfo.isEligible ? 'bg-gray-900 hover:bg-black text-white' : 'bg-amber-100 text-amber-700'"
+            >
+              {{ eligibilityInfo.isEligible ? 'Aceitar chamada' : eligibilityInfo.countdownLabel }}
             </button>
           </div>
         </div>

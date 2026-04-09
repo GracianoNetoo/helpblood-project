@@ -30,6 +30,11 @@ const normalizeDonor = (item) => ({
   lastDonationCampaignLocation: item?.lastDonationCampaignLocation ?? null,
   donationHistory: Array.isArray(item?.donationHistory) ? item.donationHistory : [],
   totalDonationLiters: Number(item?.totalDonationLiters || 0),
+  temporaryDeferralUntil: item?.temporaryDeferralUntil ?? null,
+  recentMedication: Boolean(item?.recentMedication),
+  recentTravel: Boolean(item?.recentTravel),
+  eligibilityRestrictions: Array.isArray(item?.eligibilityRestrictions) ? item.eligibilityRestrictions : [],
+  eligibilityNote: item?.eligibilityNote ?? '',
   status: item?.status ?? 'ativo',
   createdAt: item?.createdAt ?? new Date().toISOString()
 });
@@ -53,6 +58,10 @@ const mapProfileFromDb = (row) => normalizeDonor({
   lastDonationCampaignTitle: row?.last_donation_campaign_title,
   lastDonationCampaignLocation: row?.last_donation_campaign_location,
   totalDonationLiters: row?.total_donation_liters,
+  temporaryDeferralUntil: row?.temporary_deferral_until,
+  recentMedication: row?.recent_medication,
+  recentTravel: row?.recent_travel,
+  eligibilityNote: row?.eligibility_note,
   status: row?.status,
   createdAt: row?.created_at
 });
