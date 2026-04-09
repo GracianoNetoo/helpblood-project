@@ -5,6 +5,7 @@ import {
   deleteHelpRequestRow,
   isSupabaseConfigured,
   listApprovedHelpRequestRows,
+  listHelpRequestRows,
   updateHelpRequestRow
 } from '../api';
 import { useAuthStore } from '@/features/auth/store/authStore';
@@ -18,6 +19,8 @@ const normalizeRequest = (request) => ({
   id: request?.id ?? `req-${Date.now()}`,
   createdAt: request?.createdAt ?? new Date().toISOString(),
   status: request?.status ?? 'pending',
+  requesterId: request?.requesterId ? String(request.requesterId) : null,
+  approvedBy: request?.approvedBy ? String(request.approvedBy) : null,
   anonimo: Boolean(request?.anonimo),
   nome: request?.anonimo ? '' : request?.nome ?? '',
   tipo_sanguineo: request?.tipo_sanguineo ?? '',
@@ -33,6 +36,8 @@ const mapRequestFromDb = (row) => normalizeRequest({
   id: row?.id,
   createdAt: row?.created_at,
   status: row?.status,
+  requesterId: row?.requester_id,
+  approvedBy: row?.approved_by,
   anonimo: row?.anonimo,
   nome: row?.requester_name,
   tipo_sanguineo: row?.tipo_sanguineo,
@@ -147,6 +152,44 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
       reportHelpRequestError(lastSyncError.value, 'refresh');
       console.warn('Falha ao carregar pedidos do Supabase:', error);
       return false;
+    }
+  };
+
+  const refreshRequestsForRequester = async (requesterId, accessToken = null) => {
+    if (!isSupabaseConfigured || !requesterId || !accessToken) return requests.value;
+
+    try {
+      const rows = await listHelpRequestRows(
+        { requester_id: `eq.${requesterId}` },
+        { accessToken }
+      );
+
+      const requesterRemote = Array.isArray(rows) ? rows.map(mapRequestFromDb) : [];
+      const requesterIds = new Set(requesterRemote.map((item) => String(item.id)));
+      const normalizedRequesterId = String(requesterId);
+
+      const requesterLocalOnly = requests.value.filter((item) => {
+        return String(item.requesterId || '') === normalizedRequesterId
+          && String(item.id).startsWith('req-temp-')
+          && !requesterIds.has(String(item.id));
+      });
+
+      const otherRequests = requests.value.filter((item) => {
+        return String(item.requesterId || '') !== normalizedRequesterId;
+      });
+
+      requests.value = [...requesterRemote, ...requesterLocalOnly, ...otherRequests].sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+
+      lastSyncError.value = '';
+      saveToStorage(requests.value);
+      return requests.value;
+    } catch (error) {
+      lastSyncError.value = error.message || 'Falha ao carregar os seus pedidos de ajuda.';
+      reportHelpRequestError(lastSyncError.value, 'owner-refresh', 'Falha ao carregar os seus pedidos');
+      console.warn('Falha ao carregar pedidos do utilizador no Supabase:', error);
+      return requests.value;
     }
   };
 
@@ -267,6 +310,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
     removeRequest,
     approveRequest,
     rejectRequest,
-    refreshApprovedFromSupabase
+    refreshApprovedFromSupabase,
+    refreshRequestsForRequester
   };
 });

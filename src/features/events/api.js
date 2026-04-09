@@ -37,6 +37,18 @@ export const listApprovedHelpRequestRows = (options = {}) => {
   );
 };
 
+export const listHelpRequestRows = (filters = {}, options = {}) => {
+  return selectRows(
+    'help_requests',
+    {
+      select: '*',
+      order: 'created_at.desc',
+      ...filters
+    },
+    options
+  );
+};
+
 export const createHelpRequestRow = (request, options = {}) => {
   return insertRows('help_requests', request, options);
 };
