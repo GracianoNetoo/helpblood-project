@@ -26,3 +26,12 @@ export const listDonationsByDonorId = (donorId, options = {}) => {
     options
   );
 };
+
+export const listAllDonations = (options = {}) => {
+  return listDonationRows(
+    {
+      order: 'donated_at.desc,created_at.desc'
+    },
+    options
+  );
+};

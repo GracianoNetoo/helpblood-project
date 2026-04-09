@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { getProfileById, isSupabaseConfigured, listProfiles, updateProfileById } from '../api';
-import { createDonationRow, listDonationsByDonorId } from '@/features/donations/api';
+import { createDonationRow, listAllDonations, listDonationsByDonorId } from '@/features/donations/api';
 import { ensurePersistedStoreSchemaVersion } from '@/shared/utils/ensurePersistedStoreSchemaVersion';
 import { notifyError } from '@/core/services/toastService';
 
@@ -129,6 +129,16 @@ export const useDonorsStore = defineStore('donors', () => {
     return target;
   };
 
+  const setDonationHistories = (historiesByDonorId) => {
+    donors.value = donors.value.map((donor) => {
+      const donorId = String(donor.id);
+      return {
+        ...donor,
+        donationHistory: Array.isArray(historiesByDonorId[donorId]) ? historiesByDonorId[donorId] : []
+      };
+    });
+  };
+
   const addDonor = (donor) => {
     return upsertDonor({
       id: `local-${Date.now()}`,
@@ -204,6 +214,36 @@ export const useDonorsStore = defineStore('donors', () => {
       reportDonorError(lastSyncError.value, 'history', 'Falha ao carregar historico');
       console.warn('Falha ao carregar historico de doacoes:', error);
       return [];
+    }
+  };
+
+  const refreshAllDonationHistories = async (accessToken = null) => {
+    if (!isSupabaseConfigured || !accessToken) return {};
+    try {
+      const rows = await listAllDonations({ accessToken });
+      const grouped = {};
+      (Array.isArray(rows) ? rows : []).forEach((row) => {
+        const normalized = mapDonationFromDb(row);
+        const donorId = row?.donor_id ? String(row.donor_id) : null;
+        if (!donorId) return;
+        if (!grouped[donorId]) grouped[donorId] = [];
+        grouped[donorId].push(normalized);
+      });
+      Object.keys(grouped).forEach((donorId) => {
+        grouped[donorId].sort((a, b) => {
+          const aDate = new Date(a.date || a.createdAt || 0).getTime();
+          const bDate = new Date(b.date || b.createdAt || 0).getTime();
+          return bDate - aDate;
+        });
+      });
+      setDonationHistories(grouped);
+      lastSyncError.value = '';
+      return grouped;
+    } catch (error) {
+      lastSyncError.value = error.message || 'Falha ao carregar histórico global de doações.';
+      reportDonorError(lastSyncError.value, 'all-history', 'Falha ao carregar doações');
+      console.warn('Falha ao carregar histórico global de doações:', error);
+      return {};
     }
   };
 
@@ -306,6 +346,9 @@ export const useDonorsStore = defineStore('donors', () => {
       const remoteIds = new Set(remoteDonors.map((item) => String(item.id)));
       const localOnly = donors.value.filter((item) => !remoteIds.has(String(item.id)) && String(item.id).startsWith('local-'));
       donors.value = [...remoteDonors, ...localOnly];
+      if (accessToken) {
+        await refreshAllDonationHistories(accessToken);
+      }
       lastSyncError.value = '';
       return donors.value;
     } catch (error) {

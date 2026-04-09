@@ -82,6 +82,191 @@ const latestRequests = computed(() => pendingRequests.value.slice(0, 4));
 const latestDonors = computed(() => donors.value.slice(0, 4));
 const latestCampaigns = computed(() => campaigns.value.slice(0, 4));
 
+const toDate = (value) => {
+  if (!value) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const getMonthKey = (value) => {
+  const parsed = toDate(value);
+  if (!parsed) return '';
+  return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, '0')}`;
+};
+
+const currentMonthKey = getMonthKey(new Date());
+
+const allDonations = computed(() => {
+  const donationMap = new Map();
+  donors.value.forEach((donor) => {
+    const history = Array.isArray(donor.donationHistory) ? donor.donationHistory : [];
+    history.forEach((donation) => {
+      const donationId = String(donation.id || `${donor.id}-${donation.date || donation.createdAt || Math.random()}`);
+      if (!donationMap.has(donationId)) {
+        donationMap.set(donationId, {
+          ...donation,
+          donorId: String(donor.id),
+          donorName: donor.nome || 'Doador',
+          donorProvince: donor.provincia || ''
+        });
+      }
+    });
+  });
+  return Array.from(donationMap.values());
+});
+
+const donationsThisMonth = computed(() => {
+  return allDonations.value.filter((donation) => getMonthKey(donation.date || donation.createdAt) === currentMonthKey);
+});
+
+const totalDonationsThisMonthCount = computed(() => donationsThisMonth.value.length);
+const totalDonationsThisMonthLiters = computed(() => {
+  return donationsThisMonth.value.reduce((sum, donation) => sum + (Number(donation.liters) || 0), 0);
+});
+
+const mostActiveDonors = computed(() => {
+  return donors.value
+    .map((donor) => {
+      const history = Array.isArray(donor.donationHistory) ? donor.donationHistory : [];
+      const totalLiters = history.reduce((sum, item) => sum + (Number(item.liters) || 0), 0);
+      const thisMonthCount = history.filter((item) => getMonthKey(item.date || item.createdAt) === currentMonthKey).length;
+      return {
+        id: donor.id,
+        nome: donor.nome || 'Doador',
+        provincia: donor.provincia || 'Sem província',
+        donationsCount: history.length,
+        totalLiters,
+        thisMonthCount
+      };
+    })
+    .filter((donor) => donor.donationsCount > 0)
+    .sort((a, b) => {
+      if (b.donationsCount !== a.donationsCount) return b.donationsCount - a.donationsCount;
+      return b.totalLiters - a.totalLiters;
+    })
+    .slice(0, 5);
+});
+
+const campaignsWithHighestAdhesion = computed(() => {
+  const stats = new Map();
+
+  campaigns.value.forEach((campaign) => {
+    stats.set(String(campaign.id), {
+      id: campaign.id,
+      title: campaign.title || 'Campanha',
+      location: campaign.location || 'Local por definir',
+      scheduledCount: 0,
+      completedCount: 0,
+      donationCount: 0
+    });
+  });
+
+  appointments.value.forEach((appointment) => {
+    if (!appointment.campaignId || appointment.status === 'cancelado') return;
+    const key = String(appointment.campaignId);
+    if (!stats.has(key)) {
+      stats.set(key, {
+        id: appointment.campaignId,
+        title: appointment.hospital || 'Campanha',
+        location: '',
+        scheduledCount: 0,
+        completedCount: 0,
+        donationCount: 0
+      });
+    }
+    const entry = stats.get(key);
+    entry.scheduledCount += 1;
+    if (appointment.status === 'concluido') entry.completedCount += 1;
+  });
+
+  allDonations.value.forEach((donation) => {
+    if (!donation.campaignId) return;
+    const key = String(donation.campaignId);
+    if (!stats.has(key)) {
+      stats.set(key, {
+        id: donation.campaignId,
+        title: donation.campaignTitle || 'Campanha',
+        location: donation.campaignLocation || '',
+        scheduledCount: 0,
+        completedCount: 0,
+        donationCount: 0
+      });
+    }
+    stats.get(key).donationCount += 1;
+  });
+
+  return Array.from(stats.values())
+    .filter((campaign) => campaign.scheduledCount > 0 || campaign.donationCount > 0)
+    .sort((a, b) => {
+      const adhesionA = a.completedCount + a.donationCount + a.scheduledCount;
+      const adhesionB = b.completedCount + b.donationCount + b.scheduledCount;
+      return adhesionB - adhesionA;
+    })
+    .slice(0, 5);
+});
+
+const provinceHeatmap = computed(() => {
+  const provinceMap = new Map();
+
+  donors.value.forEach((donor) => {
+    const province = donor.provincia || 'Sem província';
+    if (!provinceMap.has(province)) {
+      provinceMap.set(province, {
+        province,
+        donorsCount: 0,
+        donationsCount: 0,
+        liters: 0,
+        activeDonors: 0
+      });
+    }
+    const entry = provinceMap.get(province);
+    const history = Array.isArray(donor.donationHistory) ? donor.donationHistory : [];
+    entry.donorsCount += 1;
+    entry.donationsCount += history.length;
+    entry.liters += history.reduce((sum, item) => sum + (Number(item.liters) || 0), 0);
+    if (donor.status === 'ativo') entry.activeDonors += 1;
+  });
+
+  const rows = Array.from(provinceMap.values()).sort((a, b) => b.liters - a.liters);
+  const highestLiters = rows.reduce((max, item) => Math.max(max, item.liters), 0) || 1;
+
+  return rows.map((item) => ({
+    ...item,
+    intensity: Math.max(0.18, item.liters / highestLiters)
+  }));
+});
+
+const approvedVsRejectedStats = computed(() => ({
+  approved: approvedRequests.value.length,
+  rejected: rejectedRequests.value.length,
+  pending: pendingRequests.value.length
+}));
+
+const averageRequestResponseHours = computed(() => {
+  const responded = requests.value.filter((request) => {
+    return (request.status === 'approved' || request.status === 'rejected')
+      && toDate(request.createdAt)
+      && toDate(request.updatedAt);
+  });
+  if (!responded.length) return null;
+  const totalHours = responded.reduce((sum, request) => {
+    const created = toDate(request.createdAt);
+    const updated = toDate(request.updatedAt);
+    if (!created || !updated) return sum;
+    const diffHours = Math.max(0, (updated.getTime() - created.getTime()) / (1000 * 60 * 60));
+    return sum + diffHours;
+  }, 0);
+  return totalHours / responded.length;
+});
+
+const averageRequestResponseLabel = computed(() => {
+  if (averageRequestResponseHours.value === null) return 'Sem dados suficientes';
+  if (averageRequestResponseHours.value < 1) {
+    return `${Math.round(averageRequestResponseHours.value * 60)} min`;
+  }
+  return `${averageRequestResponseHours.value.toFixed(1)} h`;
+});
+
 const getDonationEligibilityFor = (donorId) => {
   const donor = donors.value.find((item) => String(item.id) === String(donorId)) || null;
   return getDonationEligibility(donor);
@@ -439,6 +624,7 @@ watch(
   (token) => {
     donorsStore.refreshAllDonors(token || null);
     appointmentsStore.refreshAllAppointments(token || null);
+    helpRequestsStore.refreshAllRequests(token || null);
   },
   { immediate: true }
 );
@@ -528,6 +714,13 @@ watch(
           :latest-donors="latestDonors"
           :campaigns="campaigns"
           :latest-campaigns="latestCampaigns"
+          :total-donations-this-month-count="totalDonationsThisMonthCount"
+          :total-donations-this-month-liters="totalDonationsThisMonthLiters"
+          :most-active-donors="mostActiveDonors"
+          :campaigns-with-highest-adhesion="campaignsWithHighestAdhesion"
+          :province-heatmap="provinceHeatmap"
+          :approved-vs-rejected-stats="approvedVsRejectedStats"
+          :average-request-response-label="averageRequestResponseLabel"
           :donor-name-by-id="donorNameById"
           @change-tab="setTab"
           @approve-request="approveRequest"

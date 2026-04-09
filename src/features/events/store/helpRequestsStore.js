@@ -18,6 +18,7 @@ const DELETED_STORAGE_KEY = 'univida_deleted_help_requests';
 const normalizeRequest = (request) => ({
   id: request?.id ?? `req-${Date.now()}`,
   createdAt: request?.createdAt ?? new Date().toISOString(),
+  updatedAt: request?.updatedAt ?? request?.createdAt ?? new Date().toISOString(),
   status: request?.status ?? 'pending',
   requesterId: request?.requesterId ? String(request.requesterId) : null,
   approvedBy: request?.approvedBy ? String(request.approvedBy) : null,
@@ -35,6 +36,7 @@ const normalizeRequest = (request) => ({
 const mapRequestFromDb = (row) => normalizeRequest({
   id: row?.id,
   createdAt: row?.created_at,
+  updatedAt: row?.updated_at,
   status: row?.status,
   requesterId: row?.requester_id,
   approvedBy: row?.approved_by,
@@ -155,6 +157,32 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
     }
   };
 
+  const refreshAllRequests = async (accessToken = null) => {
+    if (!isSupabaseConfigured || !accessToken) return requests.value;
+    try {
+      const rows = await listHelpRequestRows({}, { accessToken });
+      const remoteRequests = Array.isArray(rows)
+        ? rows
+            .map(mapRequestFromDb)
+            .filter((item) => !deletedRequestIds.value.includes(String(item.id)))
+        : [];
+      const remoteIds = new Set(remoteRequests.map((item) => String(item.id)));
+      const localOnly = requests.value.filter((item) => String(item.id).startsWith('req-temp-') && !remoteIds.has(String(item.id)));
+      requests.value = [...remoteRequests, ...localOnly].sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      syncSource.value = 'supabase';
+      lastSyncError.value = '';
+      saveToStorage(requests.value);
+      return requests.value;
+    } catch (error) {
+      lastSyncError.value = error.message || 'Falha ao carregar a base de pedidos.';
+      reportHelpRequestError(lastSyncError.value, 'refresh-all', 'Falha ao carregar pedidos');
+      console.warn('Falha ao carregar base completa de pedidos:', error);
+      return requests.value;
+    }
+  };
+
   const refreshRequestsForRequester = async (requesterId, accessToken = null) => {
     if (!isSupabaseConfigured || !requesterId || !accessToken) return requests.value;
 
@@ -229,7 +257,9 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
     const target = requests.value.find((item) => item.id === id);
     if (!target) return;
     const previousStatus = target.status;
+    const previousUpdatedAt = target.updatedAt;
     target.status = 'approved';
+    target.updatedAt = new Date().toISOString();
 
     if (isSupabaseConfigured && !String(id).includes('-temp-')) {
       updateHelpRequestRow(id, { status: 'approved' })
@@ -239,6 +269,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
         })
         .catch((error) => {
           target.status = previousStatus;
+          target.updatedAt = previousUpdatedAt;
           lastSyncError.value = error.message || 'Falha ao aprovar pedido no Supabase.';
           reportHelpRequestError(lastSyncError.value, 'approve', 'Falha ao aprovar pedido');
           console.warn('Falha ao aprovar pedido no Supabase:', error);
@@ -250,7 +281,9 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
     const target = requests.value.find((item) => item.id === id);
     if (!target) return;
     const previousStatus = target.status;
+    const previousUpdatedAt = target.updatedAt;
     target.status = 'rejected';
+    target.updatedAt = new Date().toISOString();
 
     if (isSupabaseConfigured && !String(id).includes('-temp-')) {
       updateHelpRequestRow(id, { status: 'rejected' })
@@ -260,6 +293,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
         })
         .catch((error) => {
           target.status = previousStatus;
+          target.updatedAt = previousUpdatedAt;
           lastSyncError.value = error.message || 'Falha ao rejeitar pedido no Supabase.';
           reportHelpRequestError(lastSyncError.value, 'reject', 'Falha ao rejeitar pedido');
           console.warn('Falha ao rejeitar pedido no Supabase:', error);
@@ -311,6 +345,7 @@ export const useHelpRequestsStore = defineStore('helpRequests', () => {
     approveRequest,
     rejectRequest,
     refreshApprovedFromSupabase,
+    refreshAllRequests,
     refreshRequestsForRequester
   };
 });
