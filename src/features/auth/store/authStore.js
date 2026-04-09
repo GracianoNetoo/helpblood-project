@@ -12,6 +12,7 @@ import {
   signUpWithEmail,
   updateAuthenticatedUser
 } from '../api';
+import { useAppointmentsStore } from '@/features/events/store/appointmentsStore';
 import { useDonorsStore } from '@/features/user/store/donorsStore';
 import { ensurePersistedStoreSchemaVersion } from '@/shared/utils/ensurePersistedStoreSchemaVersion';
 
@@ -164,12 +165,19 @@ export const useAuthStore = defineStore('auth', () => {
       currentUserRole.value = currentUser.value?.app_metadata?.role || currentUser.value?.user_metadata?.role || 'donor';
       return;
     }
+
     const donorsStore = useDonorsStore();
+    const appointmentsStore = useAppointmentsStore();
     const profile = await donorsStore.refreshDonorProfile(currentDonorId.value, accessToken.value);
     const confirmedEmail = String(currentUser.value?.email || '').trim().toLowerCase();
 
     currentUserRole.value = profile?.role || currentUser.value?.app_metadata?.role || currentUser.value?.user_metadata?.role || 'donor';
     await donorsStore.refreshDonationHistory(currentDonorId.value, accessToken.value);
+    if (currentUserRole.value === 'admin') {
+      await appointmentsStore.refreshAllAppointments(accessToken.value);
+    } else {
+      await appointmentsStore.refreshAppointmentsForDonor(currentDonorId.value, accessToken.value);
+    }
 
     if (profile && confirmedEmail && String(profile.email || '').trim().toLowerCase() !== confirmedEmail) {
       await donorsStore.updateDonorProfile(

@@ -2,9 +2,9 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import {
   createAppointmentRow,
-  deleteAppointmentRow,
   isSupabaseConfigured,
-  listAppointmentRows
+  listAppointmentRows,
+  updateAppointmentRow
 } from '../api';
 import { ensurePersistedStoreSchemaVersion } from '@/shared/utils/ensurePersistedStoreSchemaVersion';
 import { notifyError } from '@/core/services/toastService';
@@ -175,13 +175,20 @@ export const useAppointmentsStore = defineStore('appointments', () => {
   };
 
   const cancelAppointment = async (id, options = {}) => {
-    appointments.value = appointments.value.filter((appointment) => appointment.id !== id);
+    const target = appointments.value.find((appointment) => String(appointment.id) === String(id));
+    if (!target) return;
+
+    const previousStatus = target.status;
+    target.status = 'cancelado';
+
     const { accessToken = null } = options;
     if (!isSupabaseConfigured || !accessToken || String(id).startsWith('local-')) return;
+
     try {
-      await deleteAppointmentRow(id, { accessToken });
+      await updateAppointmentRow(id, { status: 'cancelado' }, { accessToken });
       lastSyncError.value = '';
     } catch (error) {
+      target.status = previousStatus;
       lastSyncError.value = error.message || 'Falha ao cancelar agendamento no Supabase.';
       reportAppointmentError(lastSyncError.value, 'cancel', 'Falha ao cancelar agendamento');
       console.warn('Falha ao remover agendamento no Supabase:', error);
@@ -191,9 +198,17 @@ export const useAppointmentsStore = defineStore('appointments', () => {
   const completeCampaignForDonor = async (donorId, campaignId, options = {}) => {
     const normalizedDonorId = donorId ? String(donorId) : null;
     if (!normalizedDonorId || !campaignId) return;
-    appointments.value = appointments.value.filter((appointment) => {
-      return !(String(appointment.donorId) === normalizedDonorId && appointment.campaignId === campaignId);
+
+    appointments.value = appointments.value.map((appointment) => {
+      if (String(appointment.donorId) !== normalizedDonorId) return appointment;
+      if (appointment.campaignId !== campaignId) return appointment;
+      if (appointment.status === 'cancelado' || appointment.status === 'concluido') return appointment;
+      return {
+        ...appointment,
+        status: 'concluido'
+      };
     });
+
     const { accessToken = null, scope = 'donor' } = options;
     if (!isSupabaseConfigured || !accessToken) return;
     if (scope === 'admin') {
