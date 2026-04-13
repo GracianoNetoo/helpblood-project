@@ -89,7 +89,7 @@ const sendPasswordNonce = async () => {
 
   const result = await authStore.requestPasswordChangeNonce();
   if (!result.ok) {
-    securityError.value = authStore.authError || 'Nao foi possivel enviar o codigo de confirmacao.';
+    securityError.value = authStore.authError || 'Não foi possivel enviar o codigo de confirmação.';
     isSendingNonce.value = false;
     return;
   }
@@ -103,7 +103,7 @@ const savePassword = async () => {
   securitySuccess.value = '';
 
   if (!passwordValidationResult.value.success) {
-    securityError.value = Object.values(passwordFieldErrors.value)[0] || 'Revise os dados de seguranca.';
+    securityError.value = Object.values(passwordFieldErrors.value)[0] || 'Revise os dados de segurança.';
     return;
   }
 
@@ -114,7 +114,7 @@ const savePassword = async () => {
   });
 
   if (!result.ok) {
-    securityError.value = authStore.authError || 'Nao foi possivel alterar a palavra-passe.';
+    securityError.value = authStore.authError || 'Não foi possivel alterar a palavra-passe.';
     isSavingPassword.value = false;
     return;
   }
@@ -129,14 +129,14 @@ const deleteAccount = async () => {
   deleteError.value = '';
   const result = deleteAccountSchema.safeParse({ confirmation: deleteConfirmation.value });
   if (!result.success) {
-    deleteError.value = getZodFieldErrors(result).confirmation || 'Confirme a eliminacao da conta.';
+    deleteError.value = getZodFieldErrors(result).confirmation || 'Confirme a eliminação da conta.';
     return;
   }
 
   isDeletingAccount.value = true;
   const deleteResult = await authStore.deleteAccount();
   if (!deleteResult.ok) {
-    deleteError.value = authStore.authError || 'Nao foi possivel eliminar a conta agora.';
+    deleteError.value = authStore.authError || 'Não foi possivel eliminar a conta agora.';
     isDeletingAccount.value = false;
     return;
   }
@@ -149,15 +149,15 @@ const deleteAccount = async () => {
 <template>
   <div class="fixed inset-0 z-40 flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-slate-400/45 backdrop-blur-sm" @click="emit('close')"></div>
-    <div class="relative z-10 w-full max-w-3xl overflow-hidden rounded-[32px] border border-white/50 bg-white shadow-[0_30px_80px_rgba(50,50,50,50.18)]">
+    <div class="relative z-10 w-full max-w-3xl overflow-hidden rounded-4xl border border-white/50 bg-white shadow-[0_30px_80px_rgba(50,50,50,50.18)]">
       <div class="border-b border-slate-900 bg-linear-to-r from-slate-900 via-slate-800 to-slate-900 px-6 py-5 text-white md:px-8">
         <div class="flex items-start justify-between gap-4">
           <div>
-            <p class="text-[11px] font-black uppercase tracking-[0.2em] text-rose-200">Configuracoes</p>
+            <p class="text-[11px] font-black uppercase tracking-[0.2em] text-rose-200">Configurações</p>
             <h2 class="mt-2 text-2xl font-extrabold tracking-tight">Gerir conta</h2>
-            <p class="mt-1 text-sm text-slate-300">Atualize email, contacto, localizacao, palavra-passe e os dados de acesso.</p>
+            <p class="mt-1 text-sm text-slate-300">Atualize email, contacto, localização, palavra-passe e os dados de acesso.</p>
           </div>
-          <button type="button" @click="emit('close')" class="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20" aria-label="Fechar configuracoes">
+          <button type="button" @click="emit('close')" class="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20" aria-label="Fechar configurações">
             <X class="h-5 w-5" />
           </button>
         </div>
@@ -170,7 +170,7 @@ const deleteAccount = async () => {
               <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-sky-600"><Mail class="h-5 w-5" /></div>
               <div>
                 <h3 class="text-lg font-extrabold text-gray-900">Dados da conta</h3>
-                <p class="text-sm text-gray-500">Atualize o email, numero e localizacao do perfil.</p>
+                <p class="text-sm text-gray-500">Atualize o email, número e localização do perfil.</p>
               </div>
             </div>
 
@@ -181,7 +181,7 @@ const deleteAccount = async () => {
               </div>
 
               <div>
-                <label class="mb-1.5 ml-1 block text-[13px] font-bold text-gray-700">Numero</label>
+                <label class="mb-1.5 ml-1 block text-[13px] font-bold text-gray-700">Número</label>
                 <div class="relative">
                   <Phone class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <input v-model="profileForm.telefone" type="tel" placeholder="+244923000000" class="w-full rounded-2xl border border-gray-200 bg-gray-50 py-3.5 pl-11 pr-4 text-[14px] font-medium text-gray-900 transition-all focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20" />
@@ -189,7 +189,7 @@ const deleteAccount = async () => {
               </div>
 
               <div>
-                <label class="mb-1.5 ml-1 block text-[13px] font-bold text-gray-700">Provincia</label>
+                <label class="mb-1.5 ml-1 block text-[13px] font-bold text-gray-700">Província</label>
                 <select v-model="profileForm.provincia" @change="handleProvinceChange" class="w-full appearance-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3.5 text-[14px] font-medium text-gray-900 transition-all focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20">
                   <option value="" disabled>Selecione</option>
                   <option v-for="prov in Object.keys(angolaLocations)" :key="prov" :value="prov">{{ prov }}</option>

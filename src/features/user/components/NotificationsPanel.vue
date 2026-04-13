@@ -122,7 +122,7 @@ const openNotification = (notification) => {
       <div class="max-h-[65vh] space-y-3 overflow-y-auto px-5 pb-5">
         <div
           v-if="sortedNotifications.length === 0"
-          class="rounded-[24px] border border-dashed border-slate-200 bg-slate-50/70 px-5 py-10 text-center"
+          class="rounded-3xl border border-dashed border-slate-200 bg-slate-50/70 px-5 py-10 text-center"
         >
           <Info class="mx-auto h-6 w-6 text-slate-300" />
           <p class="mt-3 text-sm font-semibold text-slate-600">Ainda não existem notificações para este perfil.</p>
@@ -134,7 +134,7 @@ const openNotification = (notification) => {
           type="button"
           @click="openNotification(notification)"
           :class="[
-            'w-full rounded-[24px] border p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-sm',
+            'w-full rounded-3xl border p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-sm',
             getVariantClasses(notification.type).card,
             !notification.read ? 'ring-1 ring-rose-100' : ''
           ]"
