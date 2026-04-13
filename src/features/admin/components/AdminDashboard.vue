@@ -10,19 +10,22 @@ import {
   Users,
   Menu,
   UserRound,
-  Megaphone
+  Megaphone,
+  Gift
 } from 'lucide-vue-next';
 import { useAuthStore } from '@/features/auth/store/authStore';
 import { useAppointmentsStore } from '@/features/events/store/appointmentsStore';
 import { useHelpRequestsStore } from '@/features/events/store/helpRequestsStore';
 import { useDonorsStore } from '@/features/user/store/donorsStore';
 import { useCampaignsStore } from '@/features/events/store/campaignsStore';
+import { useRewardsStore } from '@/features/donations/store/rewardsStore';
 import { formatEligibilityDate, getDonationEligibility } from '@/shared/utils/donationEligibility';
 import AdminOverviewTab from './AdminOverviewTab.vue';
 import AdminRequestsTab from './AdminRequestsTab.vue';
 import AdminCampaignsTab from './AdminCampaignsTab.vue';
 import AdminDonorsTab from './AdminDonorsTab.vue';
 import AdminAppointmentsTab from './AdminAppointmentsTab.vue';
+import AdminRewardsTab from './AdminRewardsTab.vue';
 
 const emit = defineEmits(['logout']);
 
@@ -31,7 +34,8 @@ const navItems = [
   { id: 'requests', name: 'Pedidos de Ajuda', icon: AlertTriangle },
   { id: 'campaigns', name: 'Campanhas', icon: Megaphone },
   { id: 'donors', name: 'Doadores', icon: UserRound },
-  { id: 'appointments', name: 'Agendamentos', icon: CalendarDays }
+  { id: 'appointments', name: 'Agendamentos', icon: CalendarDays },
+  { id: 'rewards', name: 'Recompensas', icon: Gift }
 ];
 
 const activeTab = ref('overview');
@@ -42,11 +46,18 @@ const appointmentsStore = useAppointmentsStore();
 const helpRequestsStore = useHelpRequestsStore();
 const donorsStore = useDonorsStore();
 const campaignsStore = useCampaignsStore();
+const rewardsStore = useRewardsStore();
 
 const { appointments, lastSyncError: appointmentsSyncError } = storeToRefs(appointmentsStore);
 const { requests, lastSyncError: helpRequestsSyncError } = storeToRefs(helpRequestsStore);
 const { donors, lastSyncError: donorsSyncError } = storeToRefs(donorsStore);
 const { campaigns, lastSyncError: campaignsSyncError } = storeToRefs(campaignsStore);
+const {
+  rewardCatalog,
+  adminRewardAttempts,
+  isSavingReward,
+  lastSyncError: rewardsSyncError
+} = storeToRefs(rewardsStore);
 
 const totalAppointments = computed(() => appointments.value.filter((appointment) => {
   return appointment.status !== 'cancelado' && appointment.status !== 'concluido';
@@ -543,6 +554,10 @@ const removeCampaign = (id) => {
   campaignsStore.removeCampaign(id);
 };
 
+const saveReward = async (rewardDraft) => {
+  await rewardsStore.saveReward(rewardDraft, authStore.accessToken);
+};
+
 const setTab = (tab) => {
   activeTab.value = tab;
   isMobileNavOpen.value = false;
@@ -625,6 +640,8 @@ watch(
     donorsStore.refreshAllDonors(token || null);
     appointmentsStore.refreshAllAppointments(token || null);
     helpRequestsStore.refreshAllRequests(token || null);
+    rewardsStore.refreshRewardCatalog(token || null);
+    rewardsStore.refreshAllRewardAttempts(token || null);
   },
   { immediate: true }
 );
@@ -684,7 +701,7 @@ watch(
       </header>
 
       <div class="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 scroll-smooth custom-scrollbar">
-        <div v-if="helpRequestsSyncError || campaignsSyncError || donorsSyncError || appointmentsSyncError" class="max-w-300 mx-auto mb-6 space-y-3">
+        <div v-if="helpRequestsSyncError || campaignsSyncError || donorsSyncError || appointmentsSyncError || rewardsSyncError" class="max-w-300 mx-auto mb-6 space-y-3">
           <div v-if="helpRequestsSyncError" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
             Não foi possivel sincronizar os pedidos de ajuda agora. {{ helpRequestsSyncError }}
           </div>
@@ -791,11 +808,19 @@ watch(
         />
 
         <AdminAppointmentsTab
-          v-else
+          v-else-if="activeTab === 'appointments'"
           :total-appointments="totalAppointments"
           :scheduled-appointments="scheduledAppointments"
           :donor-name-by-id="donorNameById"
           @cancel-appointment="cancelAppointment"
+        />
+
+        <AdminRewardsTab
+          v-else
+          :reward-catalog="rewardCatalog"
+          :admin-reward-attempts="adminRewardAttempts"
+          :is-saving-reward="isSavingReward"
+          @save-reward="saveReward"
         />
       </div>
     </main>
