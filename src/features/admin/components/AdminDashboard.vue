@@ -686,16 +686,16 @@ watch(
       <div class="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 scroll-smooth custom-scrollbar">
         <div v-if="helpRequestsSyncError || campaignsSyncError || donorsSyncError || appointmentsSyncError" class="max-w-300 mx-auto mb-6 space-y-3">
           <div v-if="helpRequestsSyncError" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
-            Nao foi possivel sincronizar os pedidos de ajuda agora. {{ helpRequestsSyncError }}
+            Não foi possivel sincronizar os pedidos de ajuda agora. {{ helpRequestsSyncError }}
           </div>
           <div v-if="campaignsSyncError" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
-            Nao foi possivel sincronizar as campanhas agora. {{ campaignsSyncError }}
+            Não foi possivel sincronizar as campanhas agora. {{ campaignsSyncError }}
           </div>
           <div v-if="donorsSyncError" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
-            Nao foi possivel sincronizar os doadores agora. {{ donorsSyncError }}
+            Não foi possivel sincronizar os doadores agora. {{ donorsSyncError }}
           </div>
           <div v-if="appointmentsSyncError" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
-            Nao foi possivel sincronizar os agendamentos agora. {{ appointmentsSyncError }}
+            Não foi possivel sincronizar os agendamentos agora. {{ appointmentsSyncError }}
           </div>
         </div>
 
@@ -805,8 +805,8 @@ watch(
       <div class="relative w-full max-w-lg rounded-4xl bg-white p-6 md:p-8 shadow-2xl border border-gray-200/70">
         <div class="flex items-start justify-between gap-4">
           <div>
-            <h3 class="text-xl font-extrabold text-gray-900">Confirmar doacao</h3>
-            <p class="text-sm text-gray-500 mt-1">Associe a doacao a uma campanha ativa para confirmar a presenca.</p>
+            <h3 class="text-xl font-extrabold text-gray-900">Confirmar doação</h3>
+            <p class="text-sm text-gray-500 mt-1">Associe a doação a uma campanha ativa para confirmar a presença.</p>
           </div>
           <button @click="closeDonationModal" class="w-10 h-10 rounded-full bg-gray-100 text-gray-500 hover:text-gray-700 hover:bg-gray-200 transition-colors" aria-label="Fechar">
             X

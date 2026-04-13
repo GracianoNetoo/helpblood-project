@@ -255,7 +255,7 @@ const getHeatStyle = (intensity) => {
           <div
             v-for="province in provinceHeatmap"
             :key="province.province"
-            class="rounded-3xl border border-white/60 p-4 text-white shadow-[0_10px_24px_rgba(15,23,42,0.06)]"
+            class="rounded-3xl border border-white/60 p-4 text-white shadow-[0_10px_24px_rgba(90,3,2,0.06)]"
             :style="getHeatStyle(province.intensity)"
           >
             <div class="flex items-start justify-between gap-3">
