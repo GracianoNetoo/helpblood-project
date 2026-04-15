@@ -20,6 +20,9 @@ const {
   myRewardAttempts,
   rewardStatus,
   isClaiming,
+  isLoadingCatalog,
+  isLoadingStatus,
+  isLoadingMyAttempts,
   lastSyncError: rewardsSyncError
 } = storeToRefs(rewardsStore);
 
@@ -166,15 +169,15 @@ watch(
           <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div class="rounded-3xl border border-white/70 bg-white/80 p-4 shadow-sm">
               <div class="text-[11px] uppercase tracking-widest text-violet-600 font-bold">Tentativas disponíveis</div>
-              <div class="mt-2 text-3xl font-black text-gray-900">{{ rewardStatus.availableAttempts }}</div>
+              <div class="mt-2 text-3xl font-black text-gray-900" :class="{ 'animate-pulse text-gray-300': isLoadingStatus }">{{ isLoadingStatus ? '...' : rewardStatus.availableAttempts }}</div>
             </div>
             <div class="rounded-3xl border border-white/70 bg-white/80 p-4 shadow-sm">
               <div class="text-[11px] uppercase tracking-widest text-amber-600 font-bold">Falhas seguidas</div>
-              <div class="mt-2 text-3xl font-black text-gray-900">{{ rewardStatus.failedStreak }}</div>
+              <div class="mt-2 text-3xl font-black text-gray-900" :class="{ 'animate-pulse text-gray-300': isLoadingStatus }">{{ isLoadingStatus ? '...' : rewardStatus.failedStreak }}</div>
             </div>
             <div class="rounded-3xl border border-white/70 bg-white/80 p-4 shadow-sm">
               <div class="text-[11px] uppercase tracking-widest text-emerald-600 font-bold">Prémios ganhos</div>
-              <div class="mt-2 text-3xl font-black text-gray-900">{{ rewardStatus.totalWins }}</div>
+              <div class="mt-2 text-3xl font-black text-gray-900" :class="{ 'animate-pulse text-gray-300': isLoadingStatus }">{{ isLoadingStatus ? '...' : rewardStatus.totalWins }}</div>
             </div>
           </div>
         </div>
@@ -227,7 +230,11 @@ watch(
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div v-if="isLoadingCatalog && visibleRewards.length === 0" class="md:col-span-2 flex items-center justify-center py-12">
+          <div class="text-sm text-gray-400 font-medium animate-pulse">A carregar catálogo...</div>
+        </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div
             v-for="reward in visibleRewards"
             :key="reward.id"
@@ -271,7 +278,11 @@ watch(
           </div>
         </div>
 
-        <div class="space-y-3">
+        <div v-if="isLoadingMyAttempts && recentRewardAttempts.length === 0" class="flex items-center justify-center py-10">
+          <div class="text-sm text-gray-400 font-medium animate-pulse">A carregar histórico...</div>
+        </div>
+
+        <div v-else class="space-y-3">
           <div
             v-for="attempt in recentRewardAttempts"
             :key="attempt.id"

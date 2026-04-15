@@ -14,6 +14,14 @@ const props = defineProps({
   isSavingReward: {
     type: Boolean,
     default: false
+  },
+  isLoadingCatalog: {
+    type: Boolean,
+    default: false
+  },
+  isLoadingAttempts: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -269,7 +277,10 @@ watch(
             </div>
           </div>
 
-          <div class="space-y-4 max-h-[520px] overflow-y-auto custom-scrollbar pr-1">
+          <div v-if="isLoadingCatalog && rewardCatalog.length === 0" class="rounded-3xl border border-dashed border-gray-200 bg-gray-50/70 px-5 py-10 text-center text-sm font-medium text-gray-400 animate-pulse">
+              A carregar catálogo...
+          </div>
+          <div v-else class="space-y-4 max-h-[520px] overflow-y-auto custom-scrollbar pr-1">
             <button
               v-for="reward in rewardCatalog"
               :key="reward.id"
@@ -316,7 +327,10 @@ watch(
             </div>
           </div>
 
-          <div class="space-y-3 max-h-[320px] overflow-y-auto custom-scrollbar pr-1">
+          <div v-if="isLoadingAttempts && adminRewardAttempts.length === 0" class="rounded-3xl border border-dashed border-gray-200 bg-gray-50/70 px-5 py-8 text-center text-sm font-medium text-gray-400 animate-pulse">
+              A carregar tentativas...
+          </div>
+          <div v-else class="space-y-3 max-h-[320px] overflow-y-auto custom-scrollbar pr-1">
             <div
               v-for="attempt in adminRewardAttempts.slice(0, 10)"
               :key="attempt.id"

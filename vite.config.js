@@ -11,4 +11,12 @@ export default defineConfig({
     }
   },
   plugins: [vue(), tailwindcss()],
+  test: {
+    globals: true,
+    environment: 'happy-dom',
+    include: ['src/**/*.{test,spec}.{js,ts}'],
+    coverage: {
+      include: ['src/features/donations/**']
+    }
+  }
 })

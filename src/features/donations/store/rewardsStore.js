@@ -12,8 +12,12 @@ import {
 } from '../api';
 import { notifyError, notifyInfo, notifySuccess } from '@/core/services/toastService';
 
-const normalizeReward = (item) => ({
-  id: item?.id ? String(item.id) : `reward-${Date.now()}`,
+let idCounter = 0;
+
+const uniqueId = (prefix) => `${prefix}-${Date.now()}-${++idCounter}-${Math.random().toString(36).slice(2, 8)}`;
+
+export const normalizeReward = (item) => ({
+  id: item?.id ? String(item.id) : uniqueId('reward'),
   title: item?.title ?? 'Recompensa',
   description: item?.description ?? '',
   rewardType: item?.rewardType ?? item?.reward_type ?? 'agradecimento',
@@ -28,8 +32,8 @@ const normalizeReward = (item) => ({
   updatedAt: item?.updatedAt ?? item?.updated_at ?? null
 });
 
-const normalizeAttempt = (item) => ({
-  id: item?.id ? String(item.id) : `attempt-${Date.now()}`,
+export const normalizeAttempt = (item) => ({
+  id: item?.id ? String(item.id) : uniqueId('attempt'),
   donorId: item?.donorId ?? item?.donor_id ?? null,
   rewardId: item?.rewardId ?? item?.reward_id ?? null,
   rewardCreditId: item?.rewardCreditId ?? item?.reward_credit_id ?? null,
@@ -41,7 +45,7 @@ const normalizeAttempt = (item) => ({
   createdAt: item?.createdAt ?? item?.created_at ?? null
 });
 
-const defaultRewardStatus = () => ({
+export const defaultRewardStatus = () => ({
   availableAttempts: 0,
   totalDonations: 0,
   totalAttempts: 0,
@@ -56,6 +60,8 @@ const reportRewardsError = (message, id, title = 'Falha ao sincronizar recompens
   notifyError(message, { id: `rewards-${id}`, title });
 };
 
+export const REWARD_ATTEMPTS_PAGE_SIZE = 50;
+
 export const useRewardsStore = defineStore('rewards', () => {
   const rewardCatalog = ref([]);
   const myRewardAttempts = ref([]);
@@ -63,10 +69,15 @@ export const useRewardsStore = defineStore('rewards', () => {
   const rewardStatus = ref(defaultRewardStatus());
   const isClaiming = ref(false);
   const isSavingReward = ref(false);
+  const isLoadingCatalog = ref(false);
+  const isLoadingStatus = ref(false);
+  const isLoadingMyAttempts = ref(false);
+  const isLoadingAdminAttempts = ref(false);
   const lastSyncError = ref('');
 
   const refreshRewardCatalog = async (accessToken = null) => {
     if (!isSupabaseConfigured) return [];
+    isLoadingCatalog.value = true;
     try {
       const rows = await listRewardRows({}, { accessToken });
       rewardCatalog.value = Array.isArray(rows) ? rows.map(normalizeReward) : [];
@@ -77,11 +88,14 @@ export const useRewardsStore = defineStore('rewards', () => {
       reportRewardsError(lastSyncError.value, 'catalog');
       console.warn('Falha ao carregar recompensas:', error);
       return rewardCatalog.value;
+    } finally {
+      isLoadingCatalog.value = false;
     }
   };
 
   const refreshMyRewardStatus = async (accessToken = null) => {
     if (!isSupabaseConfigured || !accessToken) return defaultRewardStatus();
+    isLoadingStatus.value = true;
     try {
       const response = await getMyRewardStatus({ accessToken });
       rewardStatus.value = {
@@ -101,13 +115,16 @@ export const useRewardsStore = defineStore('rewards', () => {
       reportRewardsError(lastSyncError.value, 'status');
       console.warn('Falha ao carregar estado das recompensas:', error);
       return rewardStatus.value;
+    } finally {
+      isLoadingStatus.value = false;
     }
   };
 
-  const refreshMyRewardAttempts = async (donorId, accessToken = null) => {
+  const refreshMyRewardAttempts = async (donorId, accessToken = null, { limit = REWARD_ATTEMPTS_PAGE_SIZE } = {}) => {
     if (!isSupabaseConfigured || !donorId || !accessToken) return [];
+    isLoadingMyAttempts.value = true;
     try {
-      const rows = await listRewardAttemptsByDonorId(donorId, { accessToken });
+      const rows = await listRewardAttemptsByDonorId(donorId, { accessToken, limit });
       myRewardAttempts.value = Array.isArray(rows) ? rows.map(normalizeAttempt) : [];
       lastSyncError.value = '';
       return myRewardAttempts.value;
@@ -116,13 +133,16 @@ export const useRewardsStore = defineStore('rewards', () => {
       reportRewardsError(lastSyncError.value, 'history');
       console.warn('Falha ao carregar histórico de recompensas:', error);
       return myRewardAttempts.value;
+    } finally {
+      isLoadingMyAttempts.value = false;
     }
   };
 
-  const refreshAllRewardAttempts = async (accessToken = null) => {
+  const refreshAllRewardAttempts = async (accessToken = null, { limit = REWARD_ATTEMPTS_PAGE_SIZE } = {}) => {
     if (!isSupabaseConfigured || !accessToken) return [];
+    isLoadingAdminAttempts.value = true;
     try {
-      const rows = await listAllRewardAttempts({ accessToken });
+      const rows = await listAllRewardAttempts({ accessToken, limit });
       adminRewardAttempts.value = Array.isArray(rows) ? rows.map(normalizeAttempt) : [];
       lastSyncError.value = '';
       return adminRewardAttempts.value;
@@ -131,6 +151,8 @@ export const useRewardsStore = defineStore('rewards', () => {
       reportRewardsError(lastSyncError.value, 'admin-history');
       console.warn('Falha ao carregar tentativas de recompensa:', error);
       return adminRewardAttempts.value;
+    } finally {
+      isLoadingAdminAttempts.value = false;
     }
   };
 
@@ -215,6 +237,10 @@ export const useRewardsStore = defineStore('rewards', () => {
     rewardStatus,
     isClaiming,
     isSavingReward,
+    isLoadingCatalog,
+    isLoadingStatus,
+    isLoadingMyAttempts,
+    isLoadingAdminAttempts,
     lastSyncError,
     refreshRewardCatalog,
     refreshMyRewardStatus,

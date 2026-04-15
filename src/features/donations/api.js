@@ -63,29 +63,32 @@ export const updateRewardRow = (rewardId, patch, options = {}) => {
   );
 };
 
+const buildAttemptQuery = (extraFilters = {}, options = {}) => {
+  const { limit, ...restOptions } = options;
+  const filters = {
+    select: '*',
+    order: 'attempted_at.desc,created_at.desc',
+    ...extraFilters
+  };
+  if (limit && Number(limit) > 0) {
+    filters.limit = String(limit);
+  }
+  return selectRows('reward_attempts', filters, restOptions);
+};
+
 export const listRewardAttemptRows = (filters = {}, options = {}) => {
-  return selectRows(
-    'reward_attempts',
-    {
-      select: '*',
-      order: 'attempted_at.desc,created_at.desc',
-      ...filters
-    },
-    options
-  );
+  return buildAttemptQuery(filters, options);
 };
 
 export const listRewardAttemptsByDonorId = (donorId, options = {}) => {
-  return listRewardAttemptRows(
-    {
-      donor_id: `eq.${donorId}`
-    },
+  return buildAttemptQuery(
+    { donor_id: `eq.${donorId}` },
     options
   );
 };
 
 export const listAllRewardAttempts = (options = {}) => {
-  return listRewardAttemptRows({}, options);
+  return buildAttemptQuery({}, options);
 };
 
 export const getMyRewardStatus = (options = {}) => {

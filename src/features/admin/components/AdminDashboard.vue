@@ -56,6 +56,8 @@ const {
   rewardCatalog,
   adminRewardAttempts,
   isSavingReward,
+  isLoadingCatalog: rewardsLoadingCatalog,
+  isLoadingAdminAttempts,
   lastSyncError: rewardsSyncError
 } = storeToRefs(rewardsStore);
 
@@ -820,6 +822,8 @@ watch(
           :reward-catalog="rewardCatalog"
           :admin-reward-attempts="adminRewardAttempts"
           :is-saving-reward="isSavingReward"
+          :is-loading-catalog="rewardsLoadingCatalog"
+          :is-loading-attempts="isLoadingAdminAttempts"
           @save-reward="saveReward"
         />
       </div>
