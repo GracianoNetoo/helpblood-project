@@ -2,7 +2,7 @@
 import { computed, defineEmits, markRaw, onMounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
-import { AlertCircle, Bell, CalendarDays, Droplet, LayoutDashboard, LogOut, Megaphone, Menu } from 'lucide-vue-next';
+import { AlertCircle, Bell, CalendarDays, Droplet, Gift, LayoutDashboard, LogOut, Megaphone, Menu } from 'lucide-vue-next';
 import { useHelpRequestsStore } from '@/features/events/store/helpRequestsStore';
 import { useAppointmentsStore } from '@/features/events/store/appointmentsStore';
 import { useAuthStore } from '@/features/auth/store/authStore';
@@ -11,6 +11,7 @@ import { useDonorsStore } from '../store/donorsStore';
 import { useNotificationsStore } from '../store/notificationsStore';
 import DashboardOverview from './DashboardOverview.vue';
 import MyDonations from '@/features/donations/components/MyDonations.vue';
+import MyRewards from '@/features/donations/components/MyRewards.vue';
 import Appointments from '@/features/events/components/Appointments.vue';
 import EmergencyRequests from '@/features/events/components/EmergencyRequests.vue';
 import CampaignsDashboard from '@/features/events/components/CampaignsDashboard.vue';
@@ -37,6 +38,7 @@ const { unreadCount } = storeToRefs(notificationsStore);
 const navItems = [
   { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard, component: markRaw(DashboardOverview) },
   { id: 'donations', name: 'Minhas Doações', icon: Droplet, component: markRaw(MyDonations) },
+  { id: 'rewards', name: 'Recompensas', icon: Gift, component: markRaw(MyRewards) },
   { id: 'campaigns', name: 'Campanhas', icon: Megaphone, component: markRaw(CampaignsDashboard) },
   { id: 'appointments', name: 'Agendamentos', icon: CalendarDays, component: markRaw(Appointments) },
   { id: 'emergencies', name: 'Pedidos de Ajuda', icon: AlertCircle, component: markRaw(EmergencyRequests) }
